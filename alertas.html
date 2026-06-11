@@ -89,6 +89,7 @@
 
         // Dicionário de IDs da ElevenLabs (Substitua pelos IDs reais que você pegar lá no site)
         const MAPA_VOZES = {
+            "Lendario": "4za2kOXGgUd57HRSQ1fn",
             "Acogueirao": "PSkrmGGNwoOIKXqzUWs9",
             "Sergin": "RGbeQtiShYRDVCrd9b9w",
             "Otto_Brabo": "ycxdm1PRMs962FxyyuJ0",
@@ -137,7 +138,7 @@
             }
 
             // Busca o ID dinâmico no mapa. Se não achar, usa uma voz padrão de segurança.
-            const voiceId = MAPA_VOZES[voz] || "PSkrmGGNwoOIKXqzUWs9";
+            const voiceId = MAPA_VOZES[voz] || "4za2kOXGgUd57HRSQ1fn";
 
             // Debug
             console.log("Voz:", voz, "ID:", voiceId, "Texto:", textoReal);
