@@ -109,80 +109,58 @@
             ).subscribe();
 
         // 4. O Motor da Fila e do TTS (Robô de Voz)
-        function processarFila() {
+        async function processarFila() {
             if (exibindoAlerta || filaAlertas.length === 0) return;
 
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
+            // 1. EXTRAÇÃO DE DADOS (Aqui a mágica acontece)
             let voz = 'Ricardo';
-            let textoReal = alertaAtual.mensagem;
+            let textoReal = alertaAtual.mensagem || "";
 
-            if (alertaAtual.mensagem.includes('|')) {
-                const partes = alertaAtual.mensagem.split('|');
-                voz = partes[0];
-                textoReal = partes[1];
+            // Se o separador existir, limpamos espaços e separamos
+            if (textoReal.includes('|')) {
+                const partes = textoReal.split('|');
+                voz = partes[0].trim(); // Remove espaços tipo "Ricardo " -> "Ricardo"
+                textoReal = partes[1].trim();
             }
 
+            // DEBUG: Veja o que está acontecendo no log do seu console do navegador
+            console.log("Voz capturada:", voz);
+            console.log("Texto capturado:", textoReal);
+
+            // 2. EXIBIÇÃO NA TELA
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
-
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            const mensagemProAudio = textoReal.length > 200 ? textoReal.substring(0, 200) + "..." : textoReal;
-            const textoCodificado = encodeURIComponent(mensagemProAudio);
-            const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${voz}&text=${textoCodificado}`;
-            
+            // 3. MOTOR DE ÁUDIO
+            // Usamos encodeURIComponent para garantir que caracteres especiais não quebrem a URL
+            const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(voz)}&text=${encodeURIComponent(textoReal)}`;
             const tocadorAudio = document.getElementById('player-voz');
 
-            // --- MOTOR DE CARREGAMENTO PRO (Com Proxy de Cabeçalho) ---
-            fetch(urlAudio, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'audio/mpeg',
-                    'Origin': window.location.origin
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Erro no StreamElements');
-                return response.blob();
-            })
-            .then(blob => {
-                const urlBlob = URL.createObjectURL(blob);
-                tocadorAudio.src = urlBlob;
-                
-                // Força o AudioContext a liberar o áudio antes do play
-                audioContext.resume().then(() => {
-                    tocadorAudio.play().catch(e => {
-                        console.error("Erro de reprodução:", e);
-                        document.getElementById('msg-usuario').textContent = "🔇 ERRO DE PLAYER: " + e.message;
-                    });
-                });
-            })
-            .catch(err => {
-                console.error("Erro no áudio:", err);
-                document.getElementById('msg-usuario').textContent = "⚠️ ERRO NO ACESSO AO ÁUDIO";
-            });
-            // --- FIM DO MOTOR ---
+            try {
+                const response = await fetch(urlAudio, { headers: { 'Origin': window.location.origin } });
+                if (!response.ok) throw new Error('SE rejeitou');
+                const blob = await response.blob();
+                tocadorAudio.src = URL.createObjectURL(blob);
 
-            const finalizarAlerta = () => {
+                await audioContext.resume();
+                await tocadorAudio.play();
+            } catch (e) {
+                console.warn("Erro de voz (pulando para temporizador):", e);
+            }
+
+            // 4. TEMPORIZADOR FIXO (Blindagem contra travamento)
+            setTimeout(() => {
                 container.classList.remove('mostrar');
                 setTimeout(() => {
                     exibindoAlerta = false;
                     processarFila();
                 }, 600);
-            };
-
-            tocadorAudio.onended = () => {
-                setTimeout(finalizarAlerta, 2000);
-            };
-
-            tocadorAudio.onerror = () => {
-                document.getElementById('msg-usuario').textContent = "⚠️ ERRO DE REPRODUÇÃO";
-                setTimeout(finalizarAlerta, 5000);
-            };
+            }, 8000);
         }
     </script>
 </body>
