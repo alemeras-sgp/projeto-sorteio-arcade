@@ -142,11 +142,17 @@
             const tocadorAudio = document.getElementById('player-voz');
 
             try {
-                const response = await fetch(urlAudio, { headers: { 'Origin': window.location.origin } });
-                if (!response.ok) throw new Error('SE rejeitou');
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textoReal,
+                        voiceId: 'PSkrmGGNwoOIKXqzUWs9' // ID da voz (ex: 'pFZP5JQG2E49i2oYQx5p' é a voz 'Adam')
+                    })
+                });
+
                 const blob = await response.blob();
                 tocadorAudio.src = URL.createObjectURL(blob);
-
                 await audioContext.resume();
                 await tocadorAudio.play();
             } catch (e) {
