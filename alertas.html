@@ -86,6 +86,15 @@
         const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Dicionário de IDs da ElevenLabs (Substitua pelos IDs reais que você pegar lá no site)
+        const MAPA_VOZES = {
+            "Acogueirao": "PSkrmGGNwoOIKXqzUWs9",
+            "Sergin": "RGbeQtiShYRDVCrd9b9w",
+            "Otto_Brabo": "ycxdm1PRMs962FxyyuJ0",
+            "Brock_gringo": "DGzg6RaUqxGRTHSBjfgF"
+        };
+
         // 2. Sistema de Fila (Queue)
         const filaAlertas = [];
         let exibindoAlerta = false;
@@ -108,37 +117,38 @@
                 }
             ).subscribe();
 
-        // 4. O Motor da Fila e do TTS (Robô de Voz)
+
+
+        // 4. O Motor da Fila e do TTS (Robô de Voz atualizado)
         async function processarFila() {
             if (exibindoAlerta || filaAlertas.length === 0) return;
 
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // 1. EXTRAÇÃO DE DADOS (Aqui a mágica acontece)
+            // Extração
             let voz = 'Ricardo';
             let textoReal = alertaAtual.mensagem || "";
 
-            // Se o separador existir, limpamos espaços e separamos
             if (textoReal.includes('|')) {
                 const partes = textoReal.split('|');
-                voz = partes[0].trim(); // Remove espaços tipo "Ricardo " -> "Ricardo"
+                voz = partes[0].trim();
                 textoReal = partes[1].trim();
             }
 
-            // DEBUG: Veja o que está acontecendo no log do seu console do navegador
-            console.log("Voz capturada:", voz);
-            console.log("Texto capturado:", textoReal);
+            // Busca o ID dinâmico no mapa. Se não achar, usa uma voz padrão de segurança.
+            const voiceId = MAPA_VOZES[voz] || "PSkrmGGNwoOIKXqzUWs9";
 
-            // 2. EXIBIÇÃO NA TELA
+            // Debug
+            console.log("Voz:", voz, "ID:", voiceId, "Texto:", textoReal);
+
+            // Exibição na tela
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // 3. MOTOR DE ÁUDIO
-            // Usamos encodeURIComponent para garantir que caracteres especiais não quebrem a URL
-            const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(voz)}&text=${encodeURIComponent(textoReal)}`;
+            // Motor ElevenLabs (Via API interna)
             const tocadorAudio = document.getElementById('player-voz');
 
             try {
@@ -147,19 +157,21 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: textoReal,
-                        voiceId: 'PSkrmGGNwoOIKXqzUWs9' // ID da voz (ex: 'pFZP5JQG2E49i2oYQx5p' é a voz 'Adam')
+                        voiceId: voiceId
                     })
                 });
+
+                if (!response.ok) throw new Error('Falha na resposta da API');
 
                 const blob = await response.blob();
                 tocadorAudio.src = URL.createObjectURL(blob);
                 await audioContext.resume();
                 await tocadorAudio.play();
             } catch (e) {
-                console.warn("Erro de voz (pulando para temporizador):", e);
+                console.warn("Erro de áudio:", e);
             }
 
-            // 4. TEMPORIZADOR FIXO (Blindagem contra travamento)
+            // Temporizador fixo (8 segundos)
             setTimeout(() => {
                 container.classList.remove('mostrar');
                 setTimeout(() => {
