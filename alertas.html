@@ -86,7 +86,6 @@
         const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
-
         // 2. Sistema de Fila (Queue)
         const filaAlertas = [];
         let exibindoAlerta = false;
@@ -116,37 +115,36 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // --- INÍCIO DA LÓGICA DE VOZ STREAMELEMENTS ---
-            let voz = 'Ricardo'; // Voz padrão caso não venha nenhuma selecionada
+            let voz = 'Ricardo';
             let textoReal = alertaAtual.mensagem;
 
-            // Se a mensagem vier com o separador "|", a gente divide (Voz | Mensagem)
             if (alertaAtual.mensagem.includes('|')) {
                 const partes = alertaAtual.mensagem.split('|');
                 voz = partes[0];
                 textoReal = partes[1];
             }
 
-            // Atualiza a tela (mostra só o texto, sem o nome da voz)
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
 
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // Trava de segurança (corta apenas pro áudio, não pra tela)
-            const mensagemProAudio = textoReal.length > 200
-                ? textoReal.substring(0, 200) + "..."
-                : textoReal;
-
+            const mensagemProAudio = textoReal.length > 200 ? textoReal.substring(0, 200) + "..." : textoReal;
             const textoCodificado = encodeURIComponent(mensagemProAudio);
-
-            // Nova API do StreamElements puxando a voz escolhida
-            // Nova API do StreamElements puxando a voz escolhida
             const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${voz}&text=${textoCodificado}`;
+
             const tocadorAudio = document.getElementById('player-voz');
 
-            // Função para fechar e chamar o próximo (Mantida)
+            // --- AQUI ESTÁ A MÁGICA ---
+            // Forçamos o resume do AudioContext antes de tocar
+            audioContext.resume().then(() => {
+                tocadorAudio.src = urlAudio;
+                tocadorAudio.play().catch(e => {
+                    console.log("Erro de reprodução:", e);
+                });
+            });
+
             const finalizarAlerta = () => {
                 container.classList.remove('mostrar');
                 setTimeout(() => {
@@ -155,30 +153,14 @@
                 }, 600);
             };
 
-            // Quando o áudio terminar de tocar:
             tocadorAudio.onended = () => {
                 setTimeout(finalizarAlerta, 2000);
             };
 
-            // --- INÍCIO DO MOTOR "DEDO-DURO" NATIVO ---
-            // Tira o proxy e o fetch, joga o link direto na tag de áudio
-            tocadorAudio.src = urlAudio;
-
-            // Se o StreamElements barrar o arquivo de áudio direto, a gente captura aqui
             tocadorAudio.onerror = () => {
-                document.getElementById('msg-usuario').textContent = "⚠️ STREAMELEMENTS REJEITOU A CONEXÃO";
+                document.getElementById('msg-usuario').textContent = "⚠️ STREAMELEMENTS REJEITOU";
                 setTimeout(finalizarAlerta, 5000);
             };
-
-            // Dá um pequeno delay e força o play
-            setTimeout(() => {
-                tocadorAudio.play().catch(e => {
-                    // Se o problema for o OBS mutando a gente, a gente captura aqui!
-                    document.getElementById('msg-usuario').textContent = "🔇 ERRO DO OBS: " + e.message;
-                    setTimeout(finalizarAlerta, 7000);
-                });
-            }, 500);
-            // --- FIM DO MOTOR "DEDO-DURO" NATIVO ---
         }
     </script>
 </body>
