@@ -133,17 +133,39 @@
             const mensagemProAudio = textoReal.length > 200 ? textoReal.substring(0, 200) + "..." : textoReal;
             const textoCodificado = encodeURIComponent(mensagemProAudio);
             const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${voz}&text=${textoCodificado}`;
-
+            
             const tocadorAudio = document.getElementById('player-voz');
 
-            // --- AQUI ESTÁ A MÁGICA ---
-            // Forçamos o resume do AudioContext antes de tocar
-            audioContext.resume().then(() => {
-                tocadorAudio.src = urlAudio;
-                tocadorAudio.play().catch(e => {
-                    console.log("Erro de reprodução:", e);
+            // --- MOTOR DE CARREGAMENTO PRO (Com Proxy de Cabeçalho) ---
+            fetch(urlAudio, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'audio/mpeg',
+                    'Origin': window.location.origin
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erro no StreamElements');
+                return response.blob();
+            })
+            .then(blob => {
+                const urlBlob = URL.createObjectURL(blob);
+                tocadorAudio.src = urlBlob;
+                
+                // Força o AudioContext a liberar o áudio antes do play
+                audioContext.resume().then(() => {
+                    tocadorAudio.play().catch(e => {
+                        console.error("Erro de reprodução:", e);
+                        document.getElementById('msg-usuario').textContent = "🔇 ERRO DE PLAYER: " + e.message;
+                    });
                 });
+            })
+            .catch(err => {
+                console.error("Erro no áudio:", err);
+                document.getElementById('msg-usuario').textContent = "⚠️ ERRO NO ACESSO AO ÁUDIO";
             });
+            // --- FIM DO MOTOR ---
 
             const finalizarAlerta = () => {
                 container.classList.remove('mostrar');
@@ -158,7 +180,7 @@
             };
 
             tocadorAudio.onerror = () => {
-                document.getElementById('msg-usuario').textContent = "⚠️ STREAMELEMENTS REJEITOU";
+                document.getElementById('msg-usuario').textContent = "⚠️ ERRO DE REPRODUÇÃO";
                 setTimeout(finalizarAlerta, 5000);
             };
         }
