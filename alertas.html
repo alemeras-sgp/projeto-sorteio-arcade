@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerta OBS - Sorteio</title>
+
+    <style>
+        /* Fundo transparente essencial para o OBS */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            /* Evita barra de rolagem no OBS */
+
+            /* CENTRALIZAÇÃO TOTAL */
+            display: flex;
+            justify-content: center;
+            /* Centraliza horizontalmente */
+            align-items: center;
+            /* Centraliza verticalmente */
+            height: 100vh;
+            /* Usa toda a altura da tela */
+        }
+
+        #container-alerta {
+            background: linear-gradient(135deg, #8257e5 0%, #4a23a4 100%);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            width: 450px;
+            /* Aumentei um pouquinho pra dar mais destaque no centro */
+            text-align: center;
+            border: 3px solid #9f75ff;
+
+            /* Estado inicial escondido (agora ele sobe pro centro) */
+            opacity: 0;
+            transform: translateY(150px) scale(0.8);
+            /* Começa mais baixo e menor */
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Efeito de mola mais suave */
+        }
+
+        /* Classe que fará o alerta pular na tela */
+        #container-alerta.mostrar {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            /* Volta pro tamanho e posição original (centro) */
+        }
+
+        #nome-usuario {
+            margin: 0 0 12px 0;
+            font-size: 2rem;
+            color: #00e676;
+            /* Verde chamativo pro nome */
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 800;
+        }
+
+        #msg-usuario {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container-alerta">
+        <h2 id="nome-usuario">Nome de Teste</h2>
+        <p id="msg-usuario">Bora Alemeras! Rumo a esse Arcade Stick brabo demais!</p>
+    </div>
+
+    <audio id="player-voz" style="display: none;"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 1. Configuração do Supabase
+        const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 2. Sistema de Fila (Queue)
+        const filaAlertas = [];
+        let exibindoAlerta = false;
+
+        // 3. O Ouvinte do Banco de Dados (Realtime)
+        db.channel('mudancas_obs')
+            .on('postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'sorteio' },
+                (payload) => {
+                    const numeroMudou = payload.new;
+                    const numeroAntigo = payload.old;
+
+                    if (numeroMudou.status === 'pago' && numeroAntigo.status !== 'pago') {
+                        filaAlertas.push({
+                            nome: numeroMudou.nome_comprador,
+                            mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!"
+                        });
+                        processarFila();
+                    }
+                }
+            ).subscribe();
+
+        // 4. O Motor da Fila e do TTS (Robô de Voz)
+        function processarFila() {
+            if (exibindoAlerta || filaAlertas.length === 0) return;
+
+            exibindoAlerta = true;
+            const alertaAtual = filaAlertas.shift();
+
+            // --- INÍCIO DA LÓGICA DE VOZ STREAMELEMENTS ---
+            let voz = 'Ricardo'; // Voz padrão caso não venha nenhuma selecionada
+            let textoReal = alertaAtual.mensagem;
+
+            // Se a mensagem vier com o separador "|", a gente divide (Voz | Mensagem)
+            if (alertaAtual.mensagem.includes('|')) {
+                const partes = alertaAtual.mensagem.split('|');
+                voz = partes[0];
+                textoReal = partes[1];
+            }
+
+            // Atualiza a tela (mostra só o texto, sem o nome da voz)
+            document.getElementById('nome-usuario').textContent = alertaAtual.nome;
+            document.getElementById('msg-usuario').textContent = textoReal;
+
+            const container = document.getElementById('container-alerta');
+            container.classList.add('mostrar');
+
+            // Trava de segurança (corta apenas pro áudio, não pra tela)
+            const mensagemProAudio = textoReal.length > 200
+                ? textoReal.substring(0, 200) + "..."
+                : textoReal;
+
+            const textoCodificado = encodeURIComponent(mensagemProAudio);
+
+            // Nova API do StreamElements puxando a voz escolhida
+            // Nova API do StreamElements puxando a voz escolhida
+            const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${voz}&text=${textoCodificado}`;
+            const tocadorAudio = document.getElementById('player-voz');
+
+            // Função para fechar e chamar o próximo (Mantida)
+            const finalizarAlerta = () => {
+                container.classList.remove('mostrar');
+                setTimeout(() => {
+                    exibindoAlerta = false;
+                    processarFila();
+                }, 600);
+            };
+
+            // Quando o áudio terminar de tocar:
+            tocadorAudio.onended = () => {
+                setTimeout(finalizarAlerta, 2000);
+            };
+
+            // --- INÍCIO DO MOTOR "DEDO-DURO" NATIVO ---
+            // Tira o proxy e o fetch, joga o link direto na tag de áudio
+            tocadorAudio.src = urlAudio;
+
+            // Se o StreamElements barrar o arquivo de áudio direto, a gente captura aqui
+            tocadorAudio.onerror = () => {
+                document.getElementById('msg-usuario').textContent = "⚠️ STREAMELEMENTS REJEITOU A CONEXÃO";
+                setTimeout(finalizarAlerta, 5000);
+            };
+
+            // Dá um pequeno delay e força o play
+            setTimeout(() => {
+                tocadorAudio.play().catch(e => {
+                    // Se o problema for o OBS mutando a gente, a gente captura aqui!
+                    document.getElementById('msg-usuario').textContent = "🔇 ERRO DO OBS: " + e.message;
+                    setTimeout(finalizarAlerta, 7000);
+                });
+            }, 500);
+            // --- FIM DO MOTOR "DEDO-DURO" NATIVO ---
+        }
+    </script>
+</body>
+
+</html>

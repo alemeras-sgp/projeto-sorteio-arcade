@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio Arcade Stick</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="header">
+        <h1>Sorteio Arcade</h1>
+        <p>Escolha seus números da sorte abaixo!</p>
+    </header>
+
+    <main class="container">
+        <div id="grid-numeros" class="grid-numeros">
+        </div>
+    </main>
+
+    <!-- INSERIR LOGO APÓS A DIV DO GRID (<div id="grid-numeros">...</div>) -->
+    <div class="checkout-bar">
+        <button id="btn-comprar" class="btn-comprar" disabled>Comprar <span id="qtd-selecionados">0</span>
+            números</button>
+    </div>
+
+    <!-- INSERIR LOGO ACIMA DA TAG <script src="script.js"></script> -->
+    <div id="modal-checkout" class="modal escondido">
+        <div class="modal-content">
+            <span id="fechar-modal" class="fechar">&times;</span>
+            <h2>Finalizar Reserva</h2>
+            <p id="resumo-numeros">Números selecionados: </p>
+
+            <form id="form-checkout">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="whatsapp">WhatsApp (Com DDD)</label>
+                    <input type="text" id="whatsapp" placeholder="(00) 00000-0000" required>
+                    <small style="color: #888; font-size: 0.8rem;">*Usaremos este número para enviar seu comprovante
+                        oficial e contato caso seja premiado.</small>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="mensagem">Mensagem na Live: (é opcional, mas mande, interaja com a live, seu
+                        puto!)</label>
+                    <textarea id="mensagem" maxlength="200" placeholder="Mande um salve na live!"></textarea>
+                    <label for="voz-bot" style="margin-top: 10px; display: block;">Escolha a Voz do Bot:</label>
+                    <select id="voz-bot"
+                        style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px; background: #2a2a2a; color: white;">
+                        <option value="Ricardo">Ricardo (Masculino BR clássico)</option>
+                        <option value="Vitoria">Vitória (Feminino BR)</option>
+                        <option value="Camila">Camila (Feminino BR suave)</option>
+                        <option value="Brian">Brian (Gringo lendo PT-BR)</option>
+                        <option value="Enrique">Enrique (Espanhol)</option>
+                    </select>
+                    <small id="contador-msg" style="color: #888; font-weight: bold;">200 caracteres restantes</small>
+                </div>
+                <button type="submit" class="btn-confirmar">Gerar Pix</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-pix" class="modal escondido">
+        <div class="modal-content" style="text-align: center;">
+            <span id="fechar-modal-pix" class="fechar">&times;</span>
+            <h2>Pagamento via Pix</h2>
+            <p style="color: #a8a8b3; margin-bottom: 1rem;">Escaneie o QR Code ou copie o código abaixo.</p>
+
+            <div class="qr-code-container">
+                <img id="img-qrcode" src="" alt="QR Code Pix"
+                    style="max-width: 250px; border-radius: 8px; margin: 15px 0; border: 4px solid #fff; display: none;">
+            </div>
+
+            <div class="form-group" style="text-align: left;">
+                <label>Pix Copia e Cola:</label>
+                <input type="text" id="input-copiacola" readonly>
+                <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código
+                    Pix</button>
+            </div>
+
+            <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span
+                    id="tempo-restante">02:00</span></p>
+
+            <p id="status-pagamento"
+                style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando
+                pagamento...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

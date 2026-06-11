@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Sorteio</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #121214;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            background: #8257e5;
+        }
+
+        .btn-export {
+            background: #00875f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Painel de Vendas</h1>
+    <button class="btn-export" onclick="exportarCSV()">Exportar para Excel</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Números</th>
+                <th>Nome</th>
+                <th>WhatsApp</th>
+                <th>E-mail</th>
+                <th>Mensagem</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-admin"></tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+
+</html>
