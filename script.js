@@ -227,7 +227,9 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        const { error: erroBanco } = await db
+        console.log("Iniciando envio para o banco..."); // <-- RASTREAMENTO 1
+
+        const { error: erroBanco, data } = await db
             .from('sorteio')
             .update({
                 status: 'reservado',
@@ -239,7 +241,25 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             })
             .in('id', idsParaAtualizar);
 
-        if (erroBanco) throw erroBanco;
+        if (erroBanco) {
+            console.error("ERRO DETALHADO DO SUPABASE:", erroBanco); // <-- RASTREAMENTO 2
+            throw erroBanco;
+        }
+
+        console.log("Reserva enviada com sucesso ao banco!"); // <-- RASTREAMENTO 3
+
+        // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
+        idsParaAtualizar.forEach(id => {
+            const idFormatado = String(id).padStart(3, '0');
+            const botoes = document.querySelectorAll('.numero');
+            botoes.forEach(b => {
+                if (b.textContent === idFormatado) {
+                    b.classList.remove('selecionado', 'disponivel');
+                    b.classList.add('reservado'); // AQUI O MÁGICO ACONTECE
+                    b.disabled = true;
+                }
+            });
+        });
 
         // Enviamos também os 'ids' na requisição para a Edge Function
         const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
@@ -277,7 +297,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         numerosSelecionados = [];
         atualizarBotaoCompra();
-        carregarGrade();
+        // carregarGrade();
 
     } catch (erro) {
         console.error("Erro na operação:", erro);
