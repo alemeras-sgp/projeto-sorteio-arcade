@@ -86,12 +86,13 @@
         const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
-
-        // Dicionário de IDs da ElevenLabs (Substitua pelos IDs reais que você pegar lá no site)
-        const MAPA_VOZES = {
-            "Lendario": "UgBBYS2sOqTuMpoF3BR0", // Voz: Adam (Pre-made)
+        // Dicionário de equivalência de vozes (Nome que você envia -> Nome da voz no Windows/Chrome)
+        const MAPA_VOZES_NATIVAS = {
+            "Ricardo": "Microsoft Daniel",
+            "Vitoria": "Microsoft Maria",
+            "Camila": "Google português do Brasil"
+            // Adicione mais se desejar, seguindo o padrão acima
         };
-
         // 2. Sistema de Fila (Queue)
         const filaAlertas = [];
         let exibindoAlerta = false;
@@ -123,21 +124,14 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // Extração
-            let voz = 'Ricardo';
+            let vozEscolhida = 'Ricardo';
             let textoReal = alertaAtual.mensagem || "";
 
             if (textoReal.includes('|')) {
                 const partes = textoReal.split('|');
-                voz = partes[0].trim();
+                vozEscolhida = partes[0].trim();
                 textoReal = partes[1].trim();
             }
-
-            // Busca o ID dinâmico no mapa. Se não achar, usa uma voz padrão de segurança.
-            const voiceId = MAPA_VOZES[voz] || "UgBBYS2sOqTuMpoF3BR0";
-
-            // Debug
-            console.log("Voz:", voz, "ID:", voiceId, "Texto:", textoReal);
 
             // Exibição na tela
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
@@ -145,38 +139,32 @@
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // Motor ElevenLabs (Via API interna)
-            const tocadorAudio = document.getElementById('player-voz');
+            // --- MOTOR DE VOZ NATIVO COM ESCOLHA ---
+            const msg = new SpeechSynthesisUtterance(textoReal);
+            msg.lang = 'pt-BR';
 
-            try {
-                const response = await fetch('/api/tts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: textoReal,
-                        voiceId: voiceId
-                    })
-                });
+            // Busca a voz no sistema baseada no mapa
+            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria"; // Padrão caso não ache
+            const todasVozes = window.speechSynthesis.getVoices();
+            const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
 
-                if (!response.ok) throw new Error('Falha na resposta da API');
+            msg.voice = vozEncontrada;
+            window.speechSynthesis.speak(msg);
 
-                const blob = await response.blob();
-                tocadorAudio.src = URL.createObjectURL(blob);
-                await audioContext.resume();
-                await tocadorAudio.play();
-            } catch (e) {
-                console.warn("Erro de áudio:", e);
-            }
-
-            // Temporizador fixo (8 segundos)
-            setTimeout(() => {
-                container.classList.remove('mostrar');
+            msg.onend = () => {
                 setTimeout(() => {
-                    exibindoAlerta = false;
-                    processarFila();
-                }, 600);
-            }, 8000);
+                    container.classList.remove('mostrar');
+                    setTimeout(() => {
+                        exibindoAlerta = false;
+                        processarFila();
+                    }, 600);
+                }, 1000);
+            };
         }
+
+        window.speechSynthesis.onvoiceschanged = () => {
+            console.log("Vozes carregadas:", window.speechSynthesis.getVoices().map(v => v.name));
+        };
     </script>
 </body>
 
