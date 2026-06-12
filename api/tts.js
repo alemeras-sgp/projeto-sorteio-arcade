@@ -2,7 +2,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Método não permitido');
 
     const { text, voiceId } = req.body;
-    const apiKey = process.env.sk_bdbeab11ae78b0eda3dbdc589fc1b591c5a3a950effc0cb4;
+    const apiKey = process.env.ELEVENLABS_API_KEY;
 
     try {
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
