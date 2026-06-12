@@ -133,33 +133,43 @@
                 textoReal = partes[1].trim();
             }
 
-            // Exibição na tela
+            // 1. Exibir na tela
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // --- MOTOR DE VOZ NATIVO COM ESCOLHA ---
+            // 2. Configurar a voz
             const msg = new SpeechSynthesisUtterance(textoReal);
             msg.lang = 'pt-BR';
 
-            // Busca a voz no sistema baseada no mapa
-            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria"; // Padrão caso não ache
+            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria";
             const todasVozes = window.speechSynthesis.getVoices();
             const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
 
             msg.voice = vozEncontrada;
-            window.speechSynthesis.speak(msg);
 
+            // 3. O que acontece quando terminar de falar
             msg.onend = () => {
+                console.log("Fala terminou!");
+                container.classList.remove('mostrar');
+                // Pequena pausa antes de pegar o próximo
                 setTimeout(() => {
-                    container.classList.remove('mostrar');
-                    setTimeout(() => {
-                        exibindoAlerta = false;
-                        processarFila();
-                    }, 600);
-                }, 1000);
+                    exibindoAlerta = false;
+                    processarFila();
+                }, 500);
             };
+
+            // 4. Caso dê erro na voz (para não travar o alerta)
+            msg.onerror = (e) => {
+                console.error("Erro na voz:", e);
+                container.classList.remove('mostrar');
+                exibindoAlerta = false;
+                processarFila();
+            };
+
+            // 5. DISPARAR A FALA
+            window.speechSynthesis.speak(msg);
         }
 
         window.speechSynthesis.onvoiceschanged = () => {
