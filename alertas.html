@@ -89,11 +89,7 @@
 
         // Dicionário de IDs da ElevenLabs (Substitua pelos IDs reais que você pegar lá no site)
         const MAPA_VOZES = {
-            "Lendario": "pNInz6obpgDaG3T448n7", // Voz: Adam (Pre-made)
-            "Acogueirao": "EXAVITQu4vr4xnRVKMaL", // Voz: Bella (Pre-made)
-            "Sergin": "21m00Tcm4TlvDq8ikWAM",    // Voz: Rachel (Pre-made)
-            "Otto_Brabo": "AZnzlk1XvdvUeBnXmlld", // Voz: Josh (Pre-made)
-            "Brock_gringo": "ErXwkeaI7047aM7K6K6T" // Voz: Antoni (Pre-made)
+            "Lendario": "UgBBYS2sOqTuMpoF3BR0", // Voz: Adam (Pre-made)
         };
 
         // 2. Sistema de Fila (Queue)
@@ -138,7 +134,7 @@
             }
 
             // Busca o ID dinâmico no mapa. Se não achar, usa uma voz padrão de segurança.
-            const voiceId = MAPA_VOZES[voz] || "pNInz6obpgDaG3T448n7";
+            const voiceId = MAPA_VOZES[voz] || "UgBBYS2sOqTuMpoF3BR0";
 
             // Debug
             console.log("Voz:", voz, "ID:", voiceId, "Texto:", textoReal);
