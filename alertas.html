@@ -145,8 +145,7 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // As vozes oficiais da StreamElements (Vitoria, Ricardo, Camila, Brian)
-            let vozEscolhida = 'Vitoria';
+            let vozEscolhida = 'Ricardo';
             let textoReal = alertaAtual.mensagem || "";
 
             if (textoReal.includes('|')) {
@@ -161,35 +160,42 @@
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // 2. Gerar a URL da StreamElements (encodeURIComponent previne qualquer erro de caractere!)
-            const urlSegura = `https://api.streamelements.com/kappa/v2/speech?voice=${vozEscolhida}&text=${encodeURIComponent(textoReal)}`;
-            const audio = new Audio(urlSegura);
+            // 2. Configurar a voz nativa (Offline e Imune a falhas de rede)
+            const msg = new SpeechSynthesisUtterance(textoReal);
+            msg.lang = 'pt-BR';
 
-            // 3. Função ajudante para fechar o alerta de forma segura e chamar o próximo
-            const fecharEContinuar = (tempoEspera) => {
+            // Certifique-se de que o MAPA_VOZES_NATIVAS ainda existe no seu código!
+            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria";
+            const todasVozes = window.speechSynthesis.getVoices();
+            const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
+
+            msg.voice = vozEncontrada;
+
+            // 3. O que acontece quando terminar de falar
+            msg.onend = () => {
                 setTimeout(() => {
                     container.classList.remove('mostrar');
                     setTimeout(() => {
                         exibindoAlerta = false;
                         processarFila();
                     }, 600);
-                }, tempoEspera);
+                }, 1000); // Fica 1 segundo na tela após a fala
             };
 
-            // Se tocar com sucesso, fica 1 segundo na tela e some
-            audio.onended = () => fecharEContinuar(1000);
-
-            // Se a internet falhar ou a API bugar, deixa 4 segundos (mudo) e some
-            audio.onerror = (e) => {
-                console.error("Falha na API de voz. Fechando alerta:", e);
-                fecharEContinuar(4000);
+            // 4. Rede de segurança: se a voz bugar, remove da tela e puxa o próximo
+            msg.onerror = (e) => {
+                console.error("Erro na voz. Fechando alerta por segurança:", e);
+                setTimeout(() => {
+                    container.classList.remove('mostrar');
+                    setTimeout(() => {
+                        exibindoAlerta = false;
+                        processarFila();
+                    }, 600);
+                }, 3000);
             };
 
-            // 4. Toca a voz (O OBS já foi liberado pelo seu botão!)
-            audio.play().catch(e => {
-                console.error("Erro no Play do OBS:", e);
-                fecharEContinuar(4000);
-            });
+            // 5. Dispara a fala
+            window.speechSynthesis.speak(msg);
         }
     </script>
 </body>
