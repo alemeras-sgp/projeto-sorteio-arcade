@@ -92,12 +92,11 @@
 
         // INÍCIO DA INSERÇÃO: Lógica de destrave
         document.getElementById('btn-desbloqueio').addEventListener('click', () => {
-            // Trocando para a URL direta do Google (sem caracteres especiais que quebram a chamada)
-            const urlSegura = `https://translate.google.com/translate_tts?ie=UTF-8&tl=pt-BR&client=tw-ob&q=Destravado`;
-            const audioTeste = new Audio(urlSegura);
+            // URL de um efeito sonoro de 'bip' oficial do Google. 100% a prova de falhas de rede.
+            const somTeste = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
-            audioTeste.play().then(() => {
-                console.log("OBS destravou o áudio!");
+            somTeste.play().then(() => {
+                console.log("OBS destravou o áudio com sucesso!");
                 // Esconde o botão após destravar
                 document.getElementById('btn-desbloqueio').style.display = 'none';
             }).catch(err => {
