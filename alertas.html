@@ -136,8 +136,7 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // Lógica para separar a voz do texto (ex: "Vitoria | Salve mano!")
-            let vozEscolhida = 'Vitoria'; // Voz padrão PT-BR
+            let vozEscolhida = 'Ricardo';
             let textoReal = alertaAtual.mensagem || "";
 
             if (textoReal.includes('|')) {
@@ -146,32 +145,48 @@
                 textoReal = partes[1].trim();
             }
 
-            // 1. Exibir o alerta na tela
+            // 1. Exibir na tela
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // 2. Tocar o áudio via API Pública do StreamElements
-            // Vozes PT-BR disponíveis: Vitoria, Ricardo, Camila
-            const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${vozEscolhida}&text=${encodeURIComponent(textoReal)}`;
-            const audio = new Audio(urlAudio);
+            // 2. Configurar a voz nativa (Offline e Imune a falhas de rede)
+            const msg = new SpeechSynthesisUtterance(textoReal);
+            msg.lang = 'pt-BR';
 
-            // 3. Dispara o áudio (O OBS vai liberar sozinho se a caixa estiver marcada)
-            audio.play().catch(e => {
-                console.error("Erro ao tocar áudio. Marque 'Controlar áudio via OBS' nas propriedades da fonte.", e);
-            });
+            // Certifique-se de que o MAPA_VOZES_NATIVAS ainda existe no seu código!
+            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria";
+            const todasVozes = window.speechSynthesis.getVoices();
+            const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
 
-            // 4. Fechar o alerta e chamar o próximo APÓS o áudio terminar
-            audio.onended = () => {
+            msg.voice = vozEncontrada;
+
+            // 3. O que acontece quando terminar de falar
+            msg.onend = () => {
                 setTimeout(() => {
                     container.classList.remove('mostrar');
                     setTimeout(() => {
                         exibindoAlerta = false;
                         processarFila();
-                    }, 600); // Tempo para a animação de saída terminar
-                }, 1000); // Tempo que o alerta fica na tela após a voz calar
+                    }, 600);
+                }, 1000); // Fica 1 segundo na tela após a fala
             };
+
+            // 4. Rede de segurança: se a voz bugar, remove da tela e puxa o próximo
+            msg.onerror = (e) => {
+                console.error("Erro na voz. Fechando alerta por segurança:", e);
+                setTimeout(() => {
+                    container.classList.remove('mostrar');
+                    setTimeout(() => {
+                        exibindoAlerta = false;
+                        processarFila();
+                    }, 600);
+                }, 3000);
+            };
+
+            // 5. Dispara a fala
+            window.speechSynthesis.speak(msg);
         }
     </script>
 </body>
