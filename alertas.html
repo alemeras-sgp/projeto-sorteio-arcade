@@ -92,18 +92,19 @@
 
         // INÍCIO DA INSERÇÃO: Lógica de destrave
         document.getElementById('btn-desbloqueio').addEventListener('click', () => {
-            // Toca um áudio real da API para forçar o navegador do OBS a abrir as portas
-            const audioTeste = new Audio("https://api.streamelements.com/kappa/v2/speech?voice=Vitoria&text=Áudio%20liberado%20com%20sucesso");
+            // Trocando para a URL direta do Google (sem caracteres especiais que quebram a chamada)
+            const urlSegura = `https://translate.google.com/translate_tts?ie=UTF-8&tl=pt-BR&client=tw-ob&q=Destravado`;
+            const audioTeste = new Audio(urlSegura);
 
             audioTeste.play().then(() => {
                 console.log("OBS destravou o áudio!");
-                // Esconde o botão para a live ficar limpa
+                // Esconde o botão após destravar
                 document.getElementById('btn-desbloqueio').style.display = 'none';
             }).catch(err => {
                 console.error("Erro no destrave:", err);
             });
         });
-        
+
         // FIM DA INSERÇÃO
         // 2. Sistema de Fila (Queue)
         const filaAlertas = [];
