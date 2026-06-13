@@ -86,13 +86,7 @@
         const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
-        // Dicionário de equivalência de vozes (Nome que você envia -> Nome da voz no Windows/Chrome)
-        const MAPA_VOZES_NATIVAS = {
-            "Ricardo": "Microsoft Daniel",
-            "Vitoria": "Microsoft Maria",
-            "Camila": "Google português do Brasil"
-            // Adicione mais se desejar, seguindo o padrão acima
-        };
+     
         // 2. Sistema de Fila (Queue)
         const filaAlertas = [];
         let exibindoAlerta = false;
@@ -119,62 +113,48 @@
 
         // 4. O Motor da Fila e do TTS (Robô de Voz atualizado)
         async function processarFila() {
-            if (exibindoAlerta || filaAlertas.length === 0) return;
+    if (exibindoAlerta || filaAlertas.length === 0) return;
+    
+    exibindoAlerta = true;
+    const alertaAtual = filaAlertas.shift();
 
-            exibindoAlerta = true;
-            const alertaAtual = filaAlertas.shift();
+    // Lógica para separar a voz do texto (ex: "Vitoria | Salve mano!")
+    let vozEscolhida = 'Vitoria'; // Voz padrão PT-BR
+    let textoReal = alertaAtual.mensagem || "";
 
-            let vozEscolhida = 'Ricardo';
-            let textoReal = alertaAtual.mensagem || "";
+    if (textoReal.includes('|')) {
+        const partes = textoReal.split('|');
+        vozEscolhida = partes[0].trim();
+        textoReal = partes[1].trim();
+    }
 
-            if (textoReal.includes('|')) {
-                const partes = textoReal.split('|');
-                vozEscolhida = partes[0].trim();
-                textoReal = partes[1].trim();
-            }
+    // 1. Exibir o alerta na tela
+    document.getElementById('nome-usuario').textContent = alertaAtual.nome;
+    document.getElementById('msg-usuario').textContent = textoReal;
+    const container = document.getElementById('container-alerta');
+    container.classList.add('mostrar');
 
-            // 1. Exibir na tela
-            document.getElementById('nome-usuario').textContent = alertaAtual.nome;
-            document.getElementById('msg-usuario').textContent = textoReal;
-            const container = document.getElementById('container-alerta');
-            container.classList.add('mostrar');
+    // 2. Tocar o áudio via API Pública do StreamElements
+    // Vozes PT-BR disponíveis: Vitoria, Ricardo, Camila
+    const urlAudio = `https://api.streamelements.com/kappa/v2/speech?voice=${vozEscolhida}&text=${encodeURIComponent(textoReal)}`;
+    const audio = new Audio(urlAudio);
+    
+    // 3. Dispara o áudio (O OBS vai liberar sozinho se a caixa estiver marcada)
+    audio.play().catch(e => {
+        console.error("Erro ao tocar áudio. Marque 'Controlar áudio via OBS' nas propriedades da fonte.", e);
+    });
 
-            // 2. Configurar a voz
-            const msg = new SpeechSynthesisUtterance(textoReal);
-            msg.lang = 'pt-BR';
-
-            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria";
-            const todasVozes = window.speechSynthesis.getVoices();
-            const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
-
-            msg.voice = vozEncontrada;
-
-            // 3. O que acontece quando terminar de falar
-            msg.onend = () => {
-                console.log("Fala terminou!");
-                container.classList.remove('mostrar');
-                // Pequena pausa antes de pegar o próximo
-                setTimeout(() => {
-                    exibindoAlerta = false;
-                    processarFila();
-                }, 500);
-            };
-
-            // 4. Caso dê erro na voz (para não travar o alerta)
-            msg.onerror = (e) => {
-                console.error("Erro na voz:", e);
-                container.classList.remove('mostrar');
+    // 4. Fechar o alerta e chamar o próximo APÓS o áudio terminar
+    audio.onended = () => {
+        setTimeout(() => {
+            container.classList.remove('mostrar');
+            setTimeout(() => {
                 exibindoAlerta = false;
                 processarFila();
-            };
-
-            // 5. DISPARAR A FALA
-            window.speechSynthesis.speak(msg);
-        }
-
-        window.speechSynthesis.onvoiceschanged = () => {
-            console.log("Vozes carregadas:", window.speechSynthesis.getVoices().map(v => v.name));
-        };
+            }, 600); // Tempo para a animação de saída terminar
+        }, 1000); // Tempo que o alerta fica na tela após a voz calar
+    };
+}
     </script>
 </body>
 
