@@ -311,9 +311,11 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         atualizarBotaoCompra();
         // carregarGrade();
 
-    } catch (erro) {
-        console.error("Erro na operação:", erro);
-        alert("Ops! Houve um erro ao processar. Tente novamente.");
+    } catch (err) {
+        console.error("DETALHE DO ERRO:", err);
+        // Se o erro vier do Supabase, o erro real está no err.message
+        // Se for erro de rede, o err pode estar em err.status
+        alert("Erro ao processar: " + (err.message || "Verifique o console (F12)"));
     } finally {
         btnConfirmar.textContent = textoOriginalBotao;
         btnConfirmar.disabled = false;
