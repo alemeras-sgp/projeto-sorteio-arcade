@@ -327,7 +327,9 @@ async function liberarNumerosNoBanco(ids) {
 }
 
 // --- EVENTO DE FECHAR O MODAL ---
-fecharModalPix.addEventListener('click', async function () {
+
+// 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
+async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
     clearInterval(intervaloTimerPix);
 
@@ -336,6 +338,29 @@ fecharModalPix.addEventListener('click', async function () {
             numerosEmPagamento = [];
             carregarGrade(); // Recarrega a grade para garantir que voltem como disponíveis
         });
+    }
+
+    // --- LIMPEZA DE ESTADO (FIM DO BUG DO F5) ---
+    nomeCompradorAtual = ''; // Zera a variável global
+    
+    const camposParaLimpar = ['nome', 'email', 'mensagem'];
+    camposParaLimpar.forEach(id => {
+        const elemento = document.getElementById(id);
+        if (elemento) elemento.value = '';
+    });
+    
+    const selectVoz = document.getElementById('voz-bot');
+    if (selectVoz) selectVoz.selectedIndex = 0;
+}
+
+// 2. Dispara ao clicar no botão "fechar"
+fecharModalPix.addEventListener('click', fecharModalPixELimparEstado);
+
+// 3. Dispara ao clicar FORA do modal (no fundo escuro)
+window.addEventListener('click', function (event) {
+    // Se o elemento clicado for exatamente o fundo do modalPix, ele fecha e limpa
+    if (event.target === modalPix) {
+        fecharModalPixELimparEstado();
     }
 });
 
