@@ -84,6 +84,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
+    <script>
+        const inputValor = document.getElementById('novo-valor');
+        inputValor.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            v = (v / 100).toFixed(2);
+            e.target.value = v;
+        });
+    </script>
+
 </body>
 
 </html>
