@@ -54,6 +54,7 @@ async function buscarConfiguracoes() {
     }
 }
 
+
 // 4. QUARTO: Executa a função
 atualizarPrecoDoBanco();
 

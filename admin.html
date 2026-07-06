@@ -48,8 +48,9 @@
         <div style="display: flex; gap: 15px; align-items: flex-end;">
             <div>
                 <label>Valor por Número (R$):</label><br>
-                <input type="number" step="0.01" id="novo-valor" value="0.05"
-                    style="padding: 8px; background: #121214; color: white; border: 1px solid #444;">
+                <input type="text" id="novo-valor" placeholder="10,00"
+                    style="padding: 8px; background: #121214; color: white; border: 1px solid #444;"
+                    oninput="aplicarMascaraMoeda(this)">
             </div>
             <div>
                 <label>Qtd de Números:</label><br>

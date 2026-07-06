@@ -68,12 +68,16 @@ async function carregarVendas() {
 
 carregarVendas();
 
+
 // --- INÍCIO DA INSERÇÃO: Motor de Reset ---
 async function gerarNovoSorteio() {
     if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
 
     // Substitua a linha atual por esta:
-    const valorInput = parseFloat(document.getElementById('novo-valor').value.replace(',', '.'));
+    let valorInput = parseFloat(document.getElementById('novo-valor').value
+        .replace(/\./g, '')  // Remove os pontos de milhar
+        .replace(',', '.')   // Troca a vírgula por ponto decimal
+    );
     const qtd = parseInt(document.getElementById('nova-qtd').value);
 
     // 1. Limpa a tabela de sorteios
@@ -100,5 +104,14 @@ async function gerarNovoSorteio() {
 
     alert("Sorteio reiniciado com sucesso! " + qtd + " números disponíveis.");
     location.reload(); // Atualiza a página para mostrar a tabela vazia
+}
+
+function aplicarMascaraMoeda(input) {
+    let valor = input.value.replace(/\D/g, ''); // Remove tudo que não é número
+    valor = (valor / 100).toFixed(2) + '';
+    valor = valor.replace('.', ','); // Troca ponto por vírgula
+    valor = valor.replace(/(\d)(\d{3})(\d{3}),/g, '$1.$2.$3,'); // Formata milhar
+    valor = valor.replace(/(\d)(\d{3}),/g, '$1.$2,'); // Formata centena
+    input.value = valor;
 }
 // --- FIM DA INSERÇÃO ---
