@@ -216,10 +216,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     nomeCompradorAtual = nome;
     const email = document.getElementById('email').value;
     const msgTexto = document.getElementById('mensagem').value;
-    const vozEscolhida = document.getElementById('voz-bot').value;
-    // Junta a voz e a mensagem com um " | " (pipe)
-    const msg = `${vozEscolhida}|${msgTexto}`;
-
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
     const valorTotal = Number((idsParaAtualizar.length * VALOR_POR_NUMERO).toFixed(2));
 
