@@ -4,18 +4,19 @@
 
 let nomeCompradorAtual = "";
 
-let VALOR_POR_NUMERO = 0.05;
+let VALOR_POR_NUMERO = 0.05; // Valor padrão inicial
 
-async function buscarPrecoAtual() {
+// Função que busca o preço atual do banco
+async function atualizarPrecoDoBanco() {
     const { data, error } = await db.from('configuracoes').select('valor_numero').eq('id', 1).single();
     if (data) {
         VALOR_POR_NUMERO = parseFloat(data.valor_numero);
-        console.log("Preço sincronizado com o banco:", VALOR_POR_NUMERO);
+        console.log("Preço carregado do banco:", VALOR_POR_NUMERO);
     }
 }
 
-// Chame essa função assim que a página carregar
-buscarPrecoAtual();
+// Chama a função assim que o script carregar
+atualizarPrecoDoBanco();
 
 
 const gridNumeros = document.getElementById('grid-numeros');
@@ -230,7 +231,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const msg = `${msgTexto}`;
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
-    const valorTotal = Number((idsParaAtualizar.length * VALOR_POR_NUMERO).toFixed(2));
+    const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
 
     // Salva os números que estão sendo comprados nesta sessão
     numerosEmPagamento = [...idsParaAtualizar];
