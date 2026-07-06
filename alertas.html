@@ -119,14 +119,18 @@
 
                     if (numeroMudou.status === 'pago' && numeroAntigo.status !== 'pago') {
 
-                        // --- FILTRO ANTI-METRALHADORA ---
-                        // Evita spam na tela se a pessoa comprou vários números de uma vez
-                        const jaNaFila = filaAlertas.some(a => a.nome === numeroMudou.nome_comprador);
-                        const mostrandoAgora = (exibindoAlerta && document.getElementById('nome-usuario').textContent === numeroMudou.nome_comprador);
+                        const nomeComprador = numeroMudou.nome_comprador;
+                        const agora = Date.now();
+                        const tempoUltimoAlerta = alertasRecentes.get(nomeComprador) || 0;
 
-                        if (!jaNaFila && !mostrandoAgora) {
+                        // Se faz menos de 15 segundos que esse nome gerou um alerta, ele ignora
+                        if (agora - tempoUltimoAlerta > 15000) {
+
+                            // Registra o momento exato desse alerta para bloquear os próximos
+                            alertasRecentes.set(nomeComprador, agora);
+
                             filaAlertas.push({
-                                nome: numeroMudou.nome_comprador,
+                                nome: nomeComprador,
                                 mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!"
                             });
                             processarFila();
