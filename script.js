@@ -281,7 +281,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 'Authorization': `Bearer ${supabaseKey}`,
                 'apikey': supabaseKey
             },
-            body: JSON.stringify({ valor: valorTotal, email: email, nome: nome, ids: idsParaAtualizar })
+            body: JSON.stringify({ valor: totalCompra, email: email, nome: nome, ids: idsParaAtualizar })
         });
 
         if (!respostaPix.ok) {
