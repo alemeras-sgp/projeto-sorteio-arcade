@@ -58,7 +58,7 @@
                         <option value="Vitoria">Vic</option>
                         <option value="Camila">Camilinha</option>
                         <option value="Brian">Brian gringo</option>
-                   
+
                     </select>
                     <small id="contador-msg" style="color: #888; font-weight: bold;">200 caracteres restantes</small>
                 </div>
@@ -96,6 +96,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+    <!-- INÍCIO DA INSERÇÃO: EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function () {
+            // Inicializa o EmailJS com a sua Public Key
+            emailjs.init("cB6dPZB7aeFuZzDQr");
+        })();
+    </script>
+    <!-- FIM DA INSERÇÃO -->
 </body>
 
 </html>

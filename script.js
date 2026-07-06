@@ -326,6 +326,34 @@ async function liberarNumerosNoBanco(ids) {
     }
 }
 
+// --- INÍCIO DA INSERÇÃO: Envio de E-mail ---
+function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados) {
+    // Verificação de segurança: não tenta enviar se faltar o e-mail
+    if (!emailComprador) {
+        console.warn("E-mail não fornecido. Disparo cancelado.");
+        return;
+    }
+
+    // Parâmetros que vão preencher as variáveis {{nome}}, {{numeros}} e {{email_destino}} lá no template do EmailJS
+    const templateParams = {
+        nome: nomeComprador,
+        numeros: numerosComprados.join(', '), // Transforma o array [1,2,3] em texto "1, 2, 3"
+        email_destino: emailComprador
+    };
+
+    // Substitua os valores abaixo pelos seus IDs reais do painel do EmailJS
+    const SERVICE_ID = 'service_b7krsmk';
+    const TEMPLATE_ID = 'template_glemw92';
+
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+        .then(function (response) {
+            console.log('E-MAIL ENVIADO COM SUCESSO!', response.status, response.text);
+        }, function (error) {
+            console.error('FALHA AO ENVIAR E-MAIL...', error);
+        });
+}
+// --- FIM DA INSERÇÃO ---
+
 // --- EVENTO DE FECHAR O MODAL ---
 
 // 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
@@ -342,13 +370,13 @@ async function fecharModalPixELimparEstado() {
 
     // --- LIMPEZA DE ESTADO (FIM DO BUG DO F5) ---
     nomeCompradorAtual = ''; // Zera a variável global
-    
+
     const camposParaLimpar = ['nome', 'email', 'mensagem'];
     camposParaLimpar.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.value = '';
     });
-    
+
     const selectVoz = document.getElementById('voz-bot');
     if (selectVoz) selectVoz.selectedIndex = 0;
 }
@@ -414,6 +442,18 @@ db.channel('mudancas_sorteio')
             </button>
         </div>
     `;
+                // --- INÍCIO DA INSERÇÃO: DISPARO DO E-MAIL ---
+                // Verifica se o timer ainda está ativo. Isso garante que o e-mail 
+                // seja enviado apenas UMA VEZ, mesmo se o usuário comprou vários números juntos.
+                if (intervaloTimerPix !== null) {
+                    // Puxa o e-mail diretamente da resposta do banco de dados (numeroMudou.email)
+                    enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
+
+                    // Para o cronômetro imediatamente e anula a variável
+                    clearInterval(intervaloTimerPix);
+                    intervaloTimerPix = null;
+                }
+                // --- FIM DA INSERÇÃO ---
 
                 // Para o cronômetro imediatamente
                 clearInterval(intervaloTimerPix);
