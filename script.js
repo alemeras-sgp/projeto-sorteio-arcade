@@ -11,13 +11,25 @@ const modalCheckout = document.getElementById('modal-checkout');
 const fecharModal = document.getElementById('fechar-modal');
 const resumoNumeros = document.getElementById('resumo-numeros');
 let numerosSelecionados = [];
-// INSERIR NO FINAL DA REGIÃO 1 (VARIÁVEIS)
-const VALOR_POR_NUMERO = 0.05; // Valor de cada número em reais
 const modalPix = document.getElementById('modal-pix');
 const fecharModalPix = document.getElementById('fechar-modal-pix');
 const imgQrcode = document.getElementById('img-qrcode');
 const inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
+
+let VALOR_POR_NUMERO = 0.05; // Valor padrão de emergência
+
+async function buscarPrecoAtual() {
+    const { data } = await db.from('configuracoes').select('valor_numero').eq('id', 1).single();
+    if (data) {
+        VALOR_POR_NUMERO = parseFloat(data.valor_numero);
+        console.log("Preço atualizado do banco:", VALOR_POR_NUMERO);
+    }
+}
+
+// Chame essa função assim que a página carregar
+buscarPrecoAtual();
+
 // INSERIR NO FINAL DA REGIÃO 1
 const spanTempoRestante = document.getElementById('tempo-restante');
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio

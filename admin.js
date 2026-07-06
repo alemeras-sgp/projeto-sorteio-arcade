@@ -67,3 +67,32 @@ async function carregarVendas() {
 }
 
 carregarVendas();
+
+// --- INÍCIO DA INSERÇÃO: Motor de Reset ---
+async function gerarNovoSorteio() {
+    if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
+
+    const valor = parseFloat(document.getElementById('novo-valor').value);
+    const qtd = parseInt(document.getElementById('nova-qtd').value);
+
+    // 1. Limpa a tabela de sorteios
+    const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0); // Deleta tudo
+    if (erroDelete) return alert("Erro ao limpar: " + erroDelete.message);
+
+    // 2. Prepara os novos números
+    const novosNumeros = [];
+    for (let i = 1; i <= qtd; i++) {
+        novosNumeros.push({ id: i, status: 'disponivel' });
+    }
+
+    // 3. Insere em lote
+    const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
+    if (erroInsert) return alert("Erro ao gerar: " + erroInsert.message);
+
+    // Dentro da sua função gerarNovoSorteio(), adicione essa linha antes do alert:
+    await db.from('configuracoes').update({ valor_numero: valor }).eq('id', 1);
+
+    alert("Sorteio reiniciado com sucesso! " + qtd + " números disponíveis.");
+    location.reload(); // Atualiza a página para mostrar a tabela vazia
+}
+// --- FIM DA INSERÇÃO ---
