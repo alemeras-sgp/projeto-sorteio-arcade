@@ -93,6 +93,10 @@ async function gerarNovoSorteio() {
     // Dentro da sua função gerarNovoSorteio(), adicione essa linha antes do alert:
     await db.from('configuracoes').update({ valor_numero: valorInput }).eq('id', 1);
 
+    const tempo = parseInt(document.getElementById('novo-tempo').value);
+    // E atualize o banco:
+    await db.from('configuracoes').update({ valor_numero: valorInput, tempo_pix_minutos: tempo }).eq('id', 1);
+
 
     alert("Sorteio reiniciado com sucesso! " + qtd + " números disponíveis.");
     location.reload(); // Atualiza a página para mostrar a tabela vazia

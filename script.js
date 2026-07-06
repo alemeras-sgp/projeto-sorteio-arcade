@@ -156,13 +156,20 @@ async function liberarNumerosNoBanco(ids) {
         .in('id', ids);
 }
 
-// Nossa função de timer agora chama a função acima de forma limpa
+// --- CRONÔMETRO DINÂMICO ---
 function iniciarCronometroPix() {
-    let tempo = 120;
-    spanTempoRestante.textContent = "02:00";
+    // TEMPO_LIMITE_PIX foi o que buscamos do banco na função buscarConfiguracoes()
+    // Convertemos minutos para segundos
+    let tempo = TEMPO_LIMITE_PIX * 60;
+
+    // Atualiza o display inicial com o tempo formatado
+    const minInicial = String(Math.floor(tempo / 60)).padStart(2, '0');
+    const segInicial = String(tempo % 60).padStart(2, '0');
+    spanTempoRestante.textContent = `${minInicial}:${segInicial}`;
+
     clearInterval(intervaloTimerPix);
 
-    intervaloTimerPix = setInterval(async () => { // O 'async' vai aqui no setInterval
+    intervaloTimerPix = setInterval(async () => {
         tempo--;
         const minutos = String(Math.floor(tempo / 60)).padStart(2, '0');
         const segundos = String(tempo % 60).padStart(2, '0');
@@ -172,11 +179,10 @@ function iniciarCronometroPix() {
             clearInterval(intervaloTimerPix);
             modalPix.classList.add('escondido');
 
-            // Chamamos a função async que criamos lá em cima
             await liberarNumerosNoBanco(numerosEmPagamento);
 
             numerosEmPagamento = [];
-            carregarGrade(); // Garante que a tela atualize
+            carregarGrade();
             alert("O tempo para pagamento expirou! Os números foram liberados.");
         }
     }, 1000);
