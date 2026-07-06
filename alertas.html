@@ -105,9 +105,10 @@
         });
 
         // FIM DA INSERÇÃO
-        // 2. Sistema de Fila (Queue)
+        // 2. Sistema de Fila (Queue) e Memória de Tempo
         const filaAlertas = [];
         let exibindoAlerta = false;
+        const alertasRecentes = new Map(); // Guarda quem comprou e a que horas
 
         // 3. O Ouvinte do Banco de Dados (Realtime)
         db.channel('mudancas_obs')
