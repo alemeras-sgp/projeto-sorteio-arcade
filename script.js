@@ -4,21 +4,6 @@
 
 let nomeCompradorAtual = "";
 
-let VALOR_POR_NUMERO = 0.05; // Valor padrão inicial
-
-// Função que busca o preço atual do banco
-async function atualizarPrecoDoBanco() {
-    const { data, error } = await db.from('configuracoes').select('valor_numero').eq('id', 1).single();
-    if (data) {
-        VALOR_POR_NUMERO = parseFloat(data.valor_numero);
-        console.log("Preço carregado do banco:", VALOR_POR_NUMERO);
-    }
-}
-
-// Chama a função assim que o script carregar
-atualizarPrecoDoBanco();
-
-
 const gridNumeros = document.getElementById('grid-numeros');
 const btnComprar = document.getElementById('btn-comprar');
 const qtdSelecionadosSpan = document.getElementById('qtd-selecionados');
@@ -32,6 +17,7 @@ const imgQrcode = document.getElementById('img-qrcode');
 const inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
 const spanTempoRestante = document.getElementById('tempo-restante');
+
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
 // ==========================================
@@ -43,6 +29,22 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log("Supabase inicializado com sucesso!");
+
+// 2. SEGUNDO: Define a variável de preço
+let VALOR_POR_NUMERO = 0.05;
+
+// 3. TERCEIRO: Cria a função de busca
+async function atualizarPrecoDoBanco() {
+    // Agora o 'db' já existe, então o erro sumirá
+    const { data, error } = await db.from('configuracoes').select('valor_numero').eq('id', 1).single();
+    if (data) {
+        VALOR_POR_NUMERO = parseFloat(data.valor_numero);
+        console.log("Preço sincronizado com o banco:", VALOR_POR_NUMERO);
+    }
+}
+
+// 4. QUARTO: Executa a função
+atualizarPrecoDoBanco();
 
 // ==========================================
 // 3. LÓGICA DA GRADE DE NÚMEROS
