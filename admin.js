@@ -72,7 +72,8 @@ carregarVendas();
 async function gerarNovoSorteio() {
     if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
 
-    const valorInput = parseFloat(document.getElementById('novo-valor').value);
+    // Substitua a linha atual por esta:
+    const valorInput = parseFloat(document.getElementById('novo-valor').value.replace(',', '.'));
     const qtd = parseInt(document.getElementById('nova-qtd').value);
 
     // 1. Limpa a tabela de sorteios
@@ -91,6 +92,7 @@ async function gerarNovoSorteio() {
 
     // Dentro da sua função gerarNovoSorteio(), adicione essa linha antes do alert:
     await db.from('configuracoes').update({ valor_numero: valorInput }).eq('id', 1);
+
 
     alert("Sorteio reiniciado com sucesso! " + qtd + " números disponíveis.");
     location.reload(); // Atualiza a página para mostrar a tabela vazia
