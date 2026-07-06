@@ -43,6 +43,17 @@ async function atualizarPrecoDoBanco() {
     }
 }
 
+let TEMPO_LIMITE_PIX = 10; // Padrão
+
+async function buscarConfiguracoes() {
+    const { data } = await db.from('configuracoes').select('valor_numero, tempo_pix_minutos').eq('id', 1).single();
+    if (data) {
+        VALOR_POR_NUMERO = parseFloat(data.valor_numero);
+        TEMPO_LIMITE_PIX = parseInt(data.tempo_pix_minutos);
+        console.log("Configurações carregadas: Valor R$", VALOR_POR_NUMERO, "| Tempo:", TEMPO_LIMITE_PIX, "min");
+    }
+}
+
 // 4. QUARTO: Executa a função
 atualizarPrecoDoBanco();
 
