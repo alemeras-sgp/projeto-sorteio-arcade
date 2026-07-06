@@ -85,15 +85,6 @@
     <audio id="player-voz" style="display: none;"></audio>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Dicionário de vozes do sistema. O nome na esquerda é o que o script.js envia.
-        // O nome na direita deve bater com as vozes disponíveis no seu Windows/Chrome.
-        const MAPA_VOZES_NATIVAS = {
-            "Ricardo": "Microsoft Daniel",
-            "Vitoria": "Microsoft Maria",
-            "Camila": "Google português do Brasil",
-            "Brian": "Microsoft David" // Padrão inglês, se precisar
-        };
-
         // 1. Configuração do Supabase
         const supabaseUrl = 'https://wfnimuncbyvfglhbqjtj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
@@ -145,57 +136,34 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            let vozEscolhida = 'Ricardo';
+            // 1. Limpa a mensagem (remove a tag de voz invisível "Vitoria|" que o seu script ainda envia)
             let textoReal = alertaAtual.mensagem || "";
-
             if (textoReal.includes('|')) {
-                const partes = textoReal.split('|');
-                vozEscolhida = partes[0].trim();
-                textoReal = partes[1].trim();
+                textoReal = textoReal.split('|')[1].trim();
             }
 
-            // 1. Exibir na tela
+            // 2. Exibir na tela
             document.getElementById('nome-usuario').textContent = alertaAtual.nome;
             document.getElementById('msg-usuario').textContent = textoReal;
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // 2. Configurar a voz nativa (Offline e Imune a falhas de rede)
-            const msg = new SpeechSynthesisUtterance(textoReal);
-            msg.lang = 'pt-BR';
+            // 3. Tocar o som de notificação
+            // DICA: Você pode baixar um som de caixa registradora ou "ding" em mp3, 
+            // colocar na mesma pasta do alertas.html e mudar aqui para: new Audio("seu-som.mp3")
+            const somNotificacao = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+            somNotificacao.volume = 0.5; // Ajuste o volume se achar muito alto
 
-            // Certifique-se de que o MAPA_VOZES_NATIVAS ainda existe no seu código!
-            const nomeDesejado = MAPA_VOZES_NATIVAS[vozEscolhida] || "Microsoft Maria";
-            const todasVozes = window.speechSynthesis.getVoices();
-            const vozEncontrada = todasVozes.find(v => v.name.includes(nomeDesejado)) || todasVozes[0];
+            somNotificacao.play().catch(e => console.error("Erro no áudio do OBS:", e));
 
-            msg.voice = vozEncontrada;
-
-            // 3. O que acontece quando terminar de falar
-            msg.onend = () => {
+            // 4. Tempo na tela (8 segundos para dar tempo de você ler ao vivo)
+            setTimeout(() => {
+                container.classList.remove('mostrar');
                 setTimeout(() => {
-                    container.classList.remove('mostrar');
-                    setTimeout(() => {
-                        exibindoAlerta = false;
-                        processarFila();
-                    }, 600);
-                }, 1000); // Fica 1 segundo na tela após a fala
-            };
-
-            // 4. Rede de segurança: se a voz bugar, remove da tela e puxa o próximo
-            msg.onerror = (e) => {
-                console.error("Erro na voz. Fechando alerta por segurança:", e);
-                setTimeout(() => {
-                    container.classList.remove('mostrar');
-                    setTimeout(() => {
-                        exibindoAlerta = false;
-                        processarFila();
-                    }, 600);
-                }, 3000);
-            };
-
-            // 5. Dispara a fala dele
-            window.speechSynthesis.speak(msg);
+                    exibindoAlerta = false;
+                    processarFila();
+                }, 600); // Tempo para a animação CSS terminar de sumir
+            }, 8000); // 8000 milissegundos = 8 segundos
         }
     </script>
 </body>
