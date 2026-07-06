@@ -176,6 +176,23 @@
                 }, 600); // Tempo para a animação de saída terminar
             }, 8000);
         }
+        
+        // --- INÍCIO DA INSERÇÃO: Ouvinte do Botão de Replay do Admin ---
+        db.channel('canal_replay_alertas')
+            .on('broadcast', { event: 'forcar_alerta' }, (mensagem) => {
+                const dados = mensagem.payload;
+                console.log("Comando de replay recebido do Admin:", dados);
+                
+                // Coloca o alerta na fila ignorando o filtro de tempo, pois foi manual
+                filaAlertas.push({
+                    nome: dados.nome,
+                    mensagem: dados.mensagem
+                });
+                
+                processarFila();
+            })
+            .subscribe();
+        // --- FIM DA INSERÇÃO ---
     </script>
 </body>
 
