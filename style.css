@@ -229,7 +229,7 @@ body {
 }
 
 .modal-content p {
-    color: #8257e5;
+    color: #015488;
     margin-bottom: 1.5rem;
     font-weight: bold;
 }
@@ -260,12 +260,12 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #8257e5;
+    border-color: #015488;
 }
 
 .btn-confirmar {
     width: 100%;
-    background-color: #8257e5;
+    background-color:#015488;
     color: white;
     border: none;
     padding: 1rem;
