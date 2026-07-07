@@ -491,7 +491,7 @@ db.channel('mudancas_sorteio')
                 Print esta tela para guardar seus números ou baixe o comprovante oficial clicando no botão abaixo:
             </p>
             <button onclick="baixarComprovante()" 
-                    style="width: 100%; background:#8257e5; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
+                    style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
                     📥 Baixar Comprovante
             </button>
             <button onclick="modalPix.classList.add('escondido')" 

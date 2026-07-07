@@ -307,3 +307,58 @@ body {
     text-transform: uppercase;
     font-weight: 700 !important;
 }
+
+
+/* =========================================
+   DESIGN DOS NÚMEROS: BOTÕES DE ARCADE
+   ========================================= */
+
+/* 1. Botão Normal (Solto/Disponível) */
+.numero {
+    background-color: #323238; /* Cor base do botão */
+    color: #ffffff;
+    border: 2px solid #121214; /* Aro do botão */
+    border-radius: 50%; /* Deixa o botão perfeitamente redondo */
+    width: 60px; /* Largura fixa */
+    height: 60px; /* Altura fixa */
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    
+    /* A mágica do 3D: a primeira sombra faz a lateral, a segunda faz a sombra no chão */
+    box-shadow: 0 6px 0 #121214, 0 10px 15px rgba(0, 0, 0, 0.5);
+    
+    /* Transição rápida para dar a sensação tátil de "click" */
+    transition: all 0.1s ease;
+    transform: translateY(0);
+}
+
+/* Efeito Hover (passar o mouse antes de clicar) */
+.numero:hover:not(:disabled) {
+    background-color: #4a4a4a;
+}
+
+/* 2. Botão Selecionado (Pressionado pelo usuário) */
+.numero.selecionado {
+    background-color: #015488; /* Azul da sua identidade */
+    border-color: #013b60;
+    
+    /* Reduzimos a sombra lateral e empurramos o botão para baixo (4px) */
+    box-shadow: 0 2px 0 #013b60, 0 5px 8px rgba(0, 0, 0, 0.5);
+    transform: translateY(4px); 
+}
+
+/* 3. Botão Comprado/Reservado (Travado no fundo) */
+.numero.reservado,
+.numero.pago {
+    background-color: #ff4747; /* Vermelho para indicar que já era */
+    border-color: #cc0000;
+    color: #fff;
+    
+    /* Sombra zerada e botão totalmente afundado (6px) */
+    box-shadow: 0 0 0 #cc0000;
+    transform: translateY(6px); 
+    
+    cursor: not-allowed;
+    opacity: 0.8; /* Dá uma leve apagada para tirar o foco */
+}
