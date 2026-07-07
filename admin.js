@@ -81,6 +81,7 @@ async function gerarNovoSorteio() {
     const qtd = parseInt(document.getElementById('nova-qtd').value);
     const tempo = parseInt(document.getElementById('novo-tempo').value);
     const nome = document.getElementById('novo-nome').value;
+    const novoEstado = document.getElementById('novo-estado').value;
 
     // 2. Limpa a tabela de sorteios
     const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0);
@@ -100,6 +101,7 @@ async function gerarNovoSorteio() {
         nome_sorteio: nome,
         valor_numero: valorInput,
         tempo_pix_minutos: tempo,
+        estado_produto: novoEstado, // <-- LINHA INSERIDA AQUI
         criado_em: new Date().toISOString()
     }).eq('id', 1);
 
@@ -123,6 +125,7 @@ async function carregarStatusSorteio() {
         document.getElementById('status-data').textContent = config.criado_em ? new Date(config.criado_em).toLocaleDateString('pt-BR') : "--/--/----";
         document.getElementById('status-valor').textContent = `R$ ${parseFloat(config.valor_numero).toFixed(2).replace('.', ',')}`;
         document.getElementById('status-tempo').textContent = config.tempo_pix_minutos;
+        document.getElementById('status-estado').textContent = config.estado_produto || "Não definido"; // <-- LINHA INSERIDA AQUI
     }
 
     const vendidos = total - disponiveis;

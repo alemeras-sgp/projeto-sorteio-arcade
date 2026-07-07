@@ -63,6 +63,13 @@
                     style="padding: 8px; background: #121214; color: white; border: 1px solid #444;">
             </div>
             <div>
+                <label>Estado do Produto:</label><br>
+                <select id="novo-estado" style="padding: 8px; background: #121214; color: white; border: 1px solid #444; height: 35px;">
+                    <option value="Novo">Novo</option>
+                    <option value="Usado">Usado</option>
+                </select>
+            </div>
+            <div>
                 <label>Tempo para PIX (minutos):</label><br>
                 <input type="number" id="novo-tempo" value="10"
                     style="padding: 8px; background: #121214; color: white; border: 1px solid #444;">
@@ -85,6 +92,7 @@
         <div><strong>Criado em:</strong> <span id="status-data">...</span></div>
         <div><strong>Valor:</strong> <span id="status-valor">...</span></div>
         <div><strong>Números:</strong> <span id="status-qtd">...</span></div>
+        <div><strong>Estado:</strong> <span id="status-estado">...</span></div>
         <div><strong>Tempo Pix:</strong> <span id="status-tempo">...</span> min</div>
     </div>
     </div>
