@@ -102,30 +102,39 @@ body {
     margin-top: 2rem;
 }
 
+/* ESTILO PADRÃO (Para Desktop/Tamanho Normal) */
 #btn-comprar {
-    /* Manter estilos originais, mas adicionar: */
-    position: fixed;
-    bottom: 20px;
-    /* Distância do fundo */
-    left: 20px;
-    right: 20px;
-    z-index: 1000;
-    /* Garante que fique acima de tudo */
-
-    /* Adicionando um visual de destaque */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    border-radius: 12px;
-    padding: 15px;
+    padding: 15px 30px;
     font-size: 1.2rem;
     font-weight: bold;
     text-align: center;
     background: #8257e5;
-    /* Ou a sua cor de destaque */
     color: white;
-    transition: transform 0.3s ease;
-    transform: translateY(150%); /* Escondido por padrão */
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%; /* Ou o tamanho que você usa no layout desktop */
 }
 
+/* ESTILO MOBILE (Apenas telas pequenas) */
+@media (max-width: 768px) {
+    #btn-comprar {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        
+        /* Estado escondido no mobile (ele sobe com a classe .visivel) */
+        transform: translateY(150%);
+    }
+
+    #btn-comprar.visivel {
+        transform: translateY(0);
+    }
+}
 .btn-comprar:hover:not(:disabled) {
     background-color: #015f43;
 }
@@ -140,15 +149,7 @@ body {
     transform: translateY(0); /* Aparece com um efeito de subida */
 }
 
-@media (min-width: 768px) {
-    #btn-comprar {
-        position: relative;
-        bottom: auto;
-        left: auto;
-        right: auto;
-        width: 100%;
-    }
-}
+
 /* Modal de Checkout */
 .modal {
     position: fixed;
