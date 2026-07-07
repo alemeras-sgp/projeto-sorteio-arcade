@@ -36,6 +36,78 @@
             border: none;
             cursor: pointer;
         }
+
+        /* =========================================
+   LOGIN: CENTRALIZADO E PREMIUM
+   ========================================= */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            /* Fundo degradê cinza para preto */
+            background: linear-gradient(135deg, #121214 0%, #000000 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+
+        .login-box {
+            background: #18181b;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid #27272a;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: #ffffff;
+            margin-bottom: 25px;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        /* Inputs focados e clean */
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            color: #fff;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+
+        .login-box input:focus {
+            border-color: #015488;
+            /* Roxo do seu painel */
+            outline: none;
+        }
+
+        /* Botão destaque */
+        #btn-login-admin {
+            width: 100%;
+            padding: 14px;
+            background: #015488;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        #btn-login-admin:hover {
+            background: #015488;
+        }
     </style>
 </head>
 
@@ -44,7 +116,6 @@
 
     <div id="tela-login" class="login-container">
         <div class="login-box">
-            <div style="margin-bottom: 20px; font-size: 2rem;">🚀</div>
             <h2>RESTRITO O BAGULHO</h2>
             <input type="email" id="email-admin" placeholder="E-mail">
             <input type="password" id="senha-admin" placeholder="Senha">
