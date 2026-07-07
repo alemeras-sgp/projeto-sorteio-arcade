@@ -313,9 +313,27 @@ body {
    DESIGN DOS NÚMEROS: ARCADE ESTILO DESENHO (FLAT)
    ========================================= */
 
-/* 1. Botão Normal (Cinza/Disponível) */
+/* =========================================
+   DESIGN DOS NÚMEROS: EFEITO DE FOGO (ANIMAÇÃO)
+   ========================================= */
+
+/* Animação do fogo aceso (pulsação suave) */
+@keyframes brasa-disponivel {
+    0% { box-shadow: 0 0 8px #ff3300, 0 0 4px #ffaa00; }
+    50% { box-shadow: 0 0 15px #ff5500, 0 0 8px #ffcc00; }
+    100% { box-shadow: 0 0 8px #ff3300, 0 0 4px #ffaa00; }
+}
+
+/* Animação do fogo intenso (quando o usuário clica e seleciona) */
+@keyframes fogo-explodindo {
+    0% { box-shadow: 0 0 15px #ff0000, 0 0 10px #ff7700, 0 0 4px #ffff00; transform: scale(1.02); }
+    50% { box-shadow: 0 0 28px #ff3300, 0 0 18px #ffaa00, 0 0 8px #ffff00; transform: scale(1.08); }
+    100% { box-shadow: 0 0 15px #ff0000, 0 0 10px #ff7700, 0 0 4px #ffff00; transform: scale(1.02); }
+}
+
+/* 1. Número Normal (Fogo Aceso / Disponível) */
 .numero {
-    background: #4a4a4a !important; /* Cor sólida, sem gradiente */
+    background: #1c1c1e !important;
     color: #ffffff !important;
     font-weight: 900;
     font-size: 1.1rem;
@@ -323,16 +341,12 @@ body {
     width: 60px !important;
     height: 60px !important;
     border-radius: 50% !important;
+    border: 3px solid #ff4500 !important; /* Borda cor de fogo */
     
-    /* Borda grossa para simular o traço do desenho */
-    border: 4px solid #555555 !important;
-    
-    /* Sombra dura (sem desfoque) para o efeito 3D em bloco */
-    box-shadow: 0 6px 0 #555555 !important;
-    
+    /* Aplica a animação do fogo pulsando */
+    animation: brasa-disponivel 1.5s infinite ease-in-out;
     cursor: pointer;
-    transition: all 0.1s ease-in-out;
-    transform: translateY(0);
+    transition: all 0.2s ease;
     
     display: flex;
     justify-content: center;
@@ -341,29 +355,45 @@ body {
 }
 
 .numero:hover:not(:disabled) {
-    background: #5a5a5a !important; /* Fica um tom mais claro no hover */
+    background: #252529 !important;
+    border-color: #ff7700 !important;
 }
 
-/* 2. Botão Selecionado (Azul e Pressionado) */
+/* 2. Número Selecionado (O Fogo Aumentou!) */
 .numero.selecionado {
-    background: #015488 !important; /* Azul sólido da live */
-    border-color: #002b47 !important;
+    background: #0a0a0c !important;
+    border-color: #ffff00 !important; /* Borda amarela incandescente */
+    color: #ffff00 !important; /* Número brilha em amarelo */
     
-    /* A sombra diminui e o botão desce, criando a animação de clique */
-    box-shadow: 0 2px 0 #002b47 !important;
-    transform: translateY(4px);
+    /* Ativa o fogo intenso e mais rápido */
+    animation: fogo-explodindo 0.6s infinite ease-in-out;
 }
 
-/* 3. Botão Comprado/Reservado (Vermelho e travado no fundo) */
+/* 3. Número Comprado (Fogo Apagado / Carvão / Esgotado) */
 .numero.reservado,
 .numero.pago {
-    background: #e62e2e !important; /* Vermelho vivo e sólido */
-    border-color: #660000 !important;
-    color: rgba(255, 255, 255, 0.8) !important;
+    background: #26262b !important; /* Cor de carvão apagado */
+    color: #55555d !important; /* Texto escuro/escondido */
+    border: 3px solid #3a3a40 !important; /* Borda fria */
     
-    /* Sombra zerada, botão esmagado até o fim */
-    box-shadow: 0 0 0 #660000 !important;
-    transform: translateY(6px);
+    /* Remove completamente o fogo e qualquer animação */
+    animation: none !important;
+    box-shadow: none !important;
+    transform: scale(0.95); /* Encolhe levemente para parecer desativado */
     
     cursor: not-allowed;
+    position: relative;
+}
+
+/* Um traço de brasa cortando o número para identificar na hora que já foi comprado */
+.numero.reservado::after,
+.numero.pago::after {
+    content: '';
+    position: absolute;
+    width: 65%;
+    height: 4px;
+    background: #ff3300; /* Linha vermelha de fogo extinto */
+    box-shadow: 0 0 6px #ff3300; /* Um leve brilho de brasa morrendo */
+    transform: rotate(-45deg);
+    border-radius: 2px;
 }
