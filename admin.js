@@ -73,38 +73,64 @@ carregarVendas();
 async function gerarNovoSorteio() {
     if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
 
-    // Substitua a linha atual por esta:
+    // 1. Captura e limpa os valores do formulário
     let valorInput = parseFloat(document.getElementById('novo-valor').value
         .replace(/\./g, '')  // Remove os pontos de milhar
         .replace(',', '.')   // Troca a vírgula por ponto decimal
     );
     const qtd = parseInt(document.getElementById('nova-qtd').value);
+    const tempo = parseInt(document.getElementById('novo-tempo').value);
+    const nome = document.getElementById('novo-nome').value;
 
-    // 1. Limpa a tabela de sorteios
-    const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0); // Deleta tudo
-    if (erroDelete) return alert("Erro ao limpar: " + erroDelete.message);
+    // 2. Limpa a tabela de sorteios
+    const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0);
+    if (erroDelete) return alert("Erro ao limpar números: " + erroDelete.message);
 
-    // 2. Prepara os novos números
+    // 3. Prepara e insere os novos números em lote
     const novosNumeros = [];
     for (let i = 1; i <= qtd; i++) {
         novosNumeros.push({ id: i, status: 'disponivel' });
     }
 
-    // 3. Insere em lote
     const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
-    if (erroInsert) return alert("Erro ao gerar: " + erroInsert.message);
+    if (erroInsert) return alert("Erro ao gerar números: " + erroInsert.message);
 
-    // Dentro da sua função gerarNovoSorteio(), adicione essa linha antes do alert:
-    await db.from('configuracoes').update({ valor_numero: valorInput }).eq('id', 1);
+    // 4. Atualiza as configurações globais do sorteio
+    const { error: erroConfig } = await db.from('configuracoes').update({
+        nome_sorteio: nome,
+        valor_numero: valorInput,
+        tempo_pix_minutos: tempo,
+        criado_em: new Date().toISOString()
+    }).eq('id', 1);
 
-    const tempo = parseInt(document.getElementById('novo-tempo').value);
-    // E atualize o banco:
-    await db.from('configuracoes').update({ valor_numero: valorInput, tempo_pix_minutos: tempo }).eq('id', 1);
+    if (erroConfig) return alert("Erro ao salvar config: " + erroConfig.message);
 
-
-    alert("Sorteio reiniciado com sucesso! " + qtd + " números disponíveis.");
-    location.reload(); // Atualiza a página para mostrar a tabela vazia
+    alert("Sorteio '" + nome + "' reiniciado com sucesso! " + qtd + " números disponíveis.");
+    location.reload();
 }
+
+async function carregarStatusSorteio() {
+    // 1. Busca configurações
+    const { data: config } = await db.from('configuracoes').select('*').eq('id', 1).single();
+
+    // 2. Busca contagem de números
+    const { count: total } = await db.from('sorteio').select('*', { count: 'exact', head: true });
+    const { count: disponiveis } = await db.from('sorteio').select('*', { count: 'exact', head: true }).eq('status', 'disponivel');
+
+    // 3. Atualiza os campos na tela
+    if (config) {
+        document.getElementById('status-nome').textContent = config.nome_sorteio || "Não definido";
+        document.getElementById('status-data').textContent = config.criado_em ? new Date(config.criado_em).toLocaleDateString('pt-BR') : "--/--/----";
+        document.getElementById('status-valor').textContent = `R$ ${parseFloat(config.valor_numero).toFixed(2).replace('.', ',')}`;
+        document.getElementById('status-tempo').textContent = config.tempo_pix_minutos;
+    }
+
+    const vendidos = total - disponiveis;
+    document.getElementById('status-qtd').textContent = `${vendidos} comprados / ${total} totais`;
+}
+
+// Chamar ao carregar o painel
+carregarStatusSorteio();
 
 function aplicarMascaraMoeda(input) {
     let valor = input.value.replace(/\D/g, ''); // Remove tudo que não é número
@@ -115,3 +141,5 @@ function aplicarMascaraMoeda(input) {
     input.value = valor;
 }
 // --- FIM DA INSERÇÃO ---
+
+setInterval(carregarStatusSorteio, 30000);

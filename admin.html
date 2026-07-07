@@ -47,6 +47,11 @@
         <h2 style="color: #8257e5; margin-top: 0;">⚙️ Gerador de Novo Sorteio</h2>
         <div style="display: flex; gap: 15px; align-items: flex-end;">
             <div>
+                <label>Nome do Sorteio:</label><br>
+                <input type="text" id="novo-nome" placeholder="Ex: Sorteio do Arcade Stick"
+                    style="width: 100%; padding: 8px; background: #121214; color: white; border: 1px solid #444;">
+            </div>
+            <div>
                 <label>Valor por Número (R$):</label><br>
                 <input type="text" id="novo-valor" placeholder="10,00"
                     style="padding: 8px; background: #121214; color: white; border: 1px solid #444;"
@@ -74,6 +79,15 @@
 
     <h1>SORTEIO ATUAL</h1>
     <button class="btn-export" onclick="exportarCSV()">Exportar para Excel</button>
+    <div id="painel-status"
+        style="background: #202024; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8257e5; display: flex; flex-wrap: wrap; gap: 20px;">
+        <div><strong>Sorteio:</strong> <span id="status-nome">...</span></div>
+        <div><strong>Criado em:</strong> <span id="status-data">...</span></div>
+        <div><strong>Valor:</strong> <span id="status-valor">...</span></div>
+        <div><strong>Números:</strong> <span id="status-qtd">...</span></div>
+        <div><strong>Tempo Pix:</strong> <span id="status-tempo">...</span> min</div>
+    </div>
+    </div>
 
     <table>
         <thead>
