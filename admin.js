@@ -43,6 +43,21 @@ document.addEventListener('click', async (event) => {
     }
 });
 
+// Logica para o botão de Logout
+document.addEventListener('click', async (event) => {
+    
+    // ... (o seu código do botão de login continua aqui) ...
+
+    // NOVO: Verifica se o clique foi no botão de logout
+    if (event.target && event.target.id === 'btn-logout') {
+        const confirmacao = confirm("Deseja realmente sair?");
+        if (confirmacao) {
+            await db.auth.signOut(); // Comando oficial do Supabase para encerrar a sessão
+            location.reload(); // Recarrega a página para voltar à tela de login
+        }
+    }
+});
+
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
 const canalReplay = db.channel('canal_replay_alertas');
 canalReplay.subscribe();
