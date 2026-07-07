@@ -58,6 +58,25 @@ document.addEventListener('click', async (event) => {
     }
 });
 
+async function exportarCSV() {
+    const { data, error } = await db.from('sorteio').select('*');
+    if (error) return alert("Erro ao exportar");
+
+    // Converte JSON para CSV
+    let csv = 'ID,Nome,WhatsApp,Email,Status\n';
+    data.forEach(row => {
+        csv += `${row.id},${row.nome_comprador || ''},${row.whatsapp || ''},${row.email || ''},${row.status || ''}\n`;
+    });
+
+    // Cria o link de download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_sorteio_${new Date().toLocaleDateString()}.csv`;
+    a.click();
+}
+
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
 const canalReplay = db.channel('canal_replay_alertas');
 canalReplay.subscribe();
