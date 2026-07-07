@@ -285,7 +285,7 @@ body {
 
 /* Fundo geral com a vibe da live */
 body {
-    background: linear-gradient(135deg, #0a0a0c 40%, #015488 100%) !important;
+    background: linear-gradient(135deg, #ffffff 40%, #015488 100%) !important;
 }
 
 /* Ajuste nos botões de números para seguir a paleta */
