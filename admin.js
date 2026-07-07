@@ -1,4 +1,4 @@
-
+alert("O arquivo admin.js carregou!");
 
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
 const canalReplay = db.channel('canal_replay_alertas');
