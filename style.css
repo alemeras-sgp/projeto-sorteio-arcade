@@ -371,3 +371,46 @@ body {
     cursor: not-allowed;
     opacity: 0.5; /* Dá uma "apagada" nele */
 }
+
+
+
+/* =========================================
+   PAINEL DE INFORMAÇÕES (INDEX)
+   ========================================= */
+.info-sorteio-publico {
+    background: #121214; /* Fundo escuro alinhado com o tema */
+    border: 1px solid #323238; /* Borda sutil */
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px auto 30px auto; /* Espaçamento entre o topo e a grade */
+    max-width: 900px; /* Mesma largura máxima da grade de números */
+    text-align: center;
+}
+
+.info-sorteio-publico h2 {
+    color: #ffffff;
+    margin: 0 0 15px 0;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+}
+
+.info-badges {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap; /* Permite quebrar linha no celular */
+}
+
+.info-badges .badge {
+    background: #202024;
+    border: 1px solid #444;
+    padding: 8px 15px;
+    border-radius: 6px;
+    color: #e1e1e6;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.info-badges .badge span {
+    color: #015488; /* Azul da sua identidade para destacar os valores */
+}

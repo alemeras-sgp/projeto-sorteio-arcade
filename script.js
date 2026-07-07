@@ -561,3 +561,32 @@ function baixarComprovante() {
     a.download = `comprovante_sorteio_${nome.replace(/\s+/g, '_')}.txt`;
     a.click();
 }
+
+// --- INÍCIO DA INSERÇÃO: Carregar Info Pública ---
+async function carregarInfoSorteioPublico() {
+    const { data: config, error } = await db.from('configuracoes').select('*').eq('id', 1).single();
+
+    if (error) {
+        console.error("Erro ao carregar informações do sorteio:", error);
+        return;
+    }
+
+    if (config) {
+        // Atualiza os textos no HTML
+        const elNome = document.getElementById('publico-nome');
+        if (elNome) elNome.textContent = config.nome_sorteio || "Sorteio Atual";
+
+        const elData = document.getElementById('publico-data');
+        if (elData) elData.textContent = config.criado_em ? new Date(config.criado_em).toLocaleDateString('pt-BR') : "--/--/----";
+
+        const elValor = document.getElementById('publico-valor');
+        if (elValor) elValor.textContent = `R$ ${parseFloat(config.valor_numero).toFixed(2).replace('.', ',')}`;
+
+        const elEstado = document.getElementById('publico-estado');
+        if (elEstado) elEstado.textContent = config.estado_produto || "Não definido";
+    }
+}
+
+// Executa a função assim que o script carregar
+carregarInfoSorteioPublico();
+// --- FIM DA INSERÇÃO ---
