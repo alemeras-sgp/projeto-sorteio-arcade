@@ -295,4 +295,25 @@ body {
 #modal-pix h2 { color: #ffffff !important; text-transform: uppercase; }
 #modal-pix #input-copiacola { background: #4a4a4a !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
 #modal-pix .btn-confirmar { background: #015488 !important; border: 2px solid #ffffff !important; color: #ffffff !important; }
-#modal-pix #tempo-restante { color: #ff4747 !important; }
+#modal-checkout #tempo-restante { color: #ff4747 !important; }
+
+
+/* --- 2. IDENTIDADE DO PIX (A cara da sua live) --- */
+#modal-checkout .modal-content {
+    background-color: #0a0a0c !important;
+    border: 3px solid #015488 !important; /* Azul da Live */
+    border-radius: 0 !important; /* Cantos vivos */
+    padding: 30px !important;
+    width: 90% !important;
+    max-width: 450px !important;
+    color: #ffffff !important;
+    position: relative;
+    box-shadow: 0 0 25px rgba(1, 84, 136, 0.6) !important;
+    text-align: center;
+}
+
+/* --- 3. ELEMENTOS INTERNOS DO PIX --- */
+#modal-checkout h2 { color: #ffffff !important; text-transform: uppercase; }
+#modal-checkout #input-copiacola { background: #4a4a4a !important; color: #ffffff !important; border: 1px solid #ffffff !important; }
+#modal-checkout .btn-confirmar { background: #015488 !important; border: 2px solid #ffffff !important; color: #ffffff !important; }
+#modal-checkout #tempo-restante { color: #ff4747 !important; }
