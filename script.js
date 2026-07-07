@@ -334,6 +334,11 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         modalCheckout.classList.add('escondido');
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
+        // --- AJUSTE DO BOTÃO FLUTUANTE ---
+        const btnComprar = document.getElementById('btn-comprar');
+        btnComprar.style.zIndex = '0'; // Joga o botão para trás
+        btnComprar.style.opacity = '0'; // Esconde ele visualmente
+
 
         // INSERIR ESTA LINHA AQUI:
         iniciarCronometroPix(); // <--- Dá o play no relógio!
@@ -404,6 +409,11 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 // 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
+    // --- DEVOLVE O BOTÃO ---
+    const btnComprar = document.getElementById('btn-comprar');
+    btnComprar.style.zIndex = '1000';
+    btnComprar.style.opacity = '1';
+    // -----------------------
     clearInterval(intervaloTimerPix);
 
     if (numerosEmPagamento.length > 0) {
