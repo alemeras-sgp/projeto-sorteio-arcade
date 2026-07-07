@@ -105,7 +105,7 @@ body {
 /* ESTILO GERAL DO BOTÃO (Sempre flutuando) */
 #btn-comprar {
     position: fixed;
-    bottom: 30px;
+    bottom: 20px;
     z-index: 1000;
     
     /* Estética */
