@@ -334,10 +334,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         modalCheckout.classList.add('escondido');
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
-        // --- AJUSTE DO BOTÃO FLUTUANTE ---
-        const btnComprar = document.getElementById('btn-comprar');
-        btnComprar.style.zIndex = '0'; // Joga o botão para trás
-        btnComprar.style.opacity = '0'; // Esconde ele visualmente
+        btnComprar.classList.add('escondido-atras-do-modal');
 
 
         // INSERIR ESTA LINHA AQUI:
@@ -410,9 +407,7 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
     // --- DEVOLVE O BOTÃO ---
-    const btnComprar = document.getElementById('btn-comprar');
-    btnComprar.style.zIndex = '1000';
-    btnComprar.style.opacity = '1';
+    btnComprar.classList.remove('escondido-atras-do-modal');
     // -----------------------
     clearInterval(intervaloTimerPix);
 
