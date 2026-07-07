@@ -484,7 +484,7 @@ db.channel('mudancas_sorteio')
         <div style="text-align: center; padding: 20px;">
             <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
             <p>Seus números da sorte são:</p>
-            <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #8257e5;">
+            <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488a;">
                 ${numerosComprados}
             </div>
             <p style="font-size: 0.9rem; color: #ccc;">
