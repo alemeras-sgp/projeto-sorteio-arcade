@@ -310,90 +310,64 @@ body {
 
 
 /* =========================================
-   DESIGN DOS NÚMEROS: ARCADE ESTILO DESENHO (FLAT)
+   DESIGN DA GRADE E NÚMEROS: SIMPLES E COMPACTO
    ========================================= */
 
-/* =========================================
-   DESIGN DOS NÚMEROS: EFEITO DE FOGO (ANIMAÇÃO)
-   ========================================= */
-
-/* Animação do fogo aceso (pulsação suave) */
-@keyframes brasa-disponivel {
-    0% { box-shadow: 0 0 8px #ff3300, 0 0 4px #ffaa00; }
-    50% { box-shadow: 0 0 15px #ff5500, 0 0 8px #ffcc00; }
-    100% { box-shadow: 0 0 8px #ff3300, 0 0 4px #ffaa00; }
+/* 1. O Container da Grade (Faz caber MUITOS números) */
+#grid-numeros {
+    display: grid;
+    /* Mágica do CSS: Cria colunas lado a lado automaticamente (mínimo de 45px por botão) */
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 8px; /* Espaço bem pequeno entre os números para render mais na tela */
+    width: 100%;
+    max-width: 900px; /* Segura a largura no PC para não ficar esticado demais */
+    margin: 0 auto;
+    padding: 10px;
 }
 
-/* Animação do fogo intenso (quando o usuário clica e seleciona) */
-@keyframes fogo-explodindo {
-    0% { box-shadow: 0 0 15px #ff0000, 0 0 10px #ff7700, 0 0 4px #ffff00; transform: scale(1.02); }
-    50% { box-shadow: 0 0 28px #ff3300, 0 0 18px #ffaa00, 0 0 8px #ffff00; transform: scale(1.08); }
-    100% { box-shadow: 0 0 15px #ff0000, 0 0 10px #ff7700, 0 0 4px #ffff00; transform: scale(1.02); }
-}
-
-/* 1. Número Normal (Fogo Aceso / Disponível) */
+/* 2. O Botão Normal (Simples e Clean) */
 .numero {
-    background: #1c1c1e !important;
-    color: #ffffff !important;
-    font-weight: 900;
-    font-size: 1.1rem;
+    background-color: #202024 !important; /* Cinza escuro limpo */
+    color: #e1e1e6 !important;
+    border: 1px solid #323238 !important; /* Borda bem discreta */
+    border-radius: 6px !important; /* Quadrado com cantos arredondados economiza espaço */
     
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    border: 3px solid #ff4500 !important; /* Borda cor de fogo */
+    /* Tamanho enxuto */
+    width: 100% !important;
+    height: 45px !important;
+    font-size: 1rem !important;
+    font-weight: bold;
     
-    /* Aplica a animação do fogo pulsando */
-    animation: brasa-disponivel 1.5s infinite ease-in-out;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s, border-color 0.2s;
     
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0 !important;
+    box-shadow: none !important; /* Sem sombras para não poluir */
+    transform: none !important; /* Sem animações de pulo */
 }
 
+/* Efeito sutil ao passar o mouse */
 .numero:hover:not(:disabled) {
-    background: #252529 !important;
-    border-color: #ff7700 !important;
+    background-color: #323238 !important;
+    border-color: #015488 !important; /* Borda acende no seu azul da live */
 }
 
-/* 2. Número Selecionado (O Fogo Aumentou!) */
+/* 3. Botão Selecionado */
 .numero.selecionado {
-    background: #0a0a0c !important;
-    border-color: #ffff00 !important; /* Borda amarela incandescente */
-    color: #ffff00 !important; /* Número brilha em amarelo */
-    
-    /* Ativa o fogo intenso e mais rápido */
-    animation: fogo-explodindo 0.6s infinite ease-in-out;
+    background-color: #015488 !important; /* Azul sólido */
+    border-color: #015488 !important;
+    color: #ffffff !important;
 }
 
-/* 3. Número Comprado (Fogo Apagado / Carvão / Esgotado) */
+/* 4. Botão Comprado/Reservado (Fica neutro e apagado para não chamar atenção) */
 .numero.reservado,
 .numero.pago {
-    background: #26262b !important; /* Cor de carvão apagado */
-    color: #55555d !important; /* Texto escuro/escondido */
-    border: 3px solid #3a3a40 !important; /* Borda fria */
-    
-    /* Remove completamente o fogo e qualquer animação */
-    animation: none !important;
-    box-shadow: none !important;
-    transform: scale(0.95); /* Encolhe levemente para parecer desativado */
-    
+    background-color: #121214 !important; /* Fundo super escuro, mescla com o site */
+    border-color: #121214 !important;
+    color: #4a4a4a !important; /* Número quase invisível */
     cursor: not-allowed;
-    position: relative;
-}
-
-/* Um traço de brasa cortando o número para identificar na hora que já foi comprado */
-.numero.reservado::after,
-.numero.pago::after {
-    content: '';
-    position: absolute;
-    width: 65%;
-    height: 4px;
-    background: #ff3300; /* Linha vermelha de fogo extinto */
-    box-shadow: 0 0 6px #ff3300; /* Um leve brilho de brasa morrendo */
-    transform: rotate(-45deg);
-    border-radius: 2px;
+    opacity: 0.5; /* Dá uma "apagada" nele */
 }
