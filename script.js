@@ -21,56 +21,45 @@ const spanTempoRestante = document.getElementById('tempo-restante');
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
 
-// --- INÍCIO DA INSERÇÃO: Autenticação Real com Supabase ---
-
-// 1. Função que checa se você já está logado
-async function checarSessao() {
-    const { data: { session } } = await db.auth.getSession();
-    if (session) {
-        document.getElementById('tela-login').style.display = 'none';
-        document.getElementById('conteudo-admin').style.display = 'block';
-    }
-}
-checarSessao();
-
-// 2. Lógica de Login via EventListener (Mais seguro e sem erro de referência)
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-login-admin');
     
     if (btn) {
         btn.addEventListener('click', async () => {
+            console.log("Clique detectado no botão de login!"); // TESTE 1
+
             const inputEmail = document.getElementById('email-admin').value;
             const inputSenha = document.getElementById('senha-admin').value;
             const msgErro = document.getElementById('erro-login');
-            const telaLogin = document.getElementById('tela-login');
-            const painelAdmin = document.getElementById('conteudo-admin');
 
-            btn.textContent = "Autenticando...";
-            btn.disabled = true;
+            if (!inputEmail || !inputSenha) {
+                console.log("Campos vazios!");
+                return;
+            }
 
-            const { data, error } = await db.auth.signInWithPassword({
-                email: inputEmail,
-                password: inputSenha,
-            });
+            console.log("Tentando logar com:", inputEmail); // TESTE 2
 
-            if (error) {
-                msgErro.style.display = 'block';
-                document.getElementById('senha-admin').value = '';
-                btn.textContent = "Entrar no Painel";
-                btn.disabled = false;
-            } else {
-                telaLogin.style.display = 'none';
-                painelAdmin.style.display = 'block';
+            try {
+                const { data, error } = await db.auth.signInWithPassword({
+                    email: inputEmail,
+                    password: inputSenha,
+                });
+
+                if (error) {
+                    console.error("Erro retornado pelo Supabase:", error.message); // TESTE 3
+                    msgErro.style.display = 'block';
+                    msgErro.textContent = error.message; // Mostra o erro real na tela
+                } else {
+                    console.log("Login realizado com sucesso!", data); // TESTE 4
+                    document.getElementById('tela-login').style.display = 'none';
+                    document.getElementById('conteudo-admin').style.display = 'block';
+                }
+            } catch (err) {
+                console.error("Erro inesperado no bloco catch:", err); // TESTE 5
             }
         });
-    }
-
-    // Permite logar com a tecla Enter
-    const inputSenha = document.getElementById('senha-admin');
-    if(inputSenha) {
-        inputSenha.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') document.getElementById('btn-login-admin').click();
-        });
+    } else {
+        console.error("Botão btn-login-admin não encontrado na página!");
     }
 });
 
