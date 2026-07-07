@@ -23,7 +23,7 @@ const chave = urlParams.get('chave');
 
 // Se a chave não for a correta, chuta o intruso para fora imediatamente
 if (chave !== 'al3m3r45') {
-    console.warn("Acesso não autorizado! Redirecionando...");
+    console.warn("Mete o loco não mano! Redirecionando...");
     window.location.href = 'index.html';
 }
 // ------------------------------------------------
