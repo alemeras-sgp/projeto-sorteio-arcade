@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 1. Primeira trava: Só entra na página se tiver a chave, 
     // MAS vamos dar uma chance para quem já está logado (opcional)
-    if (chave !== 'meusegredo123') {
+    if (chave !== 'al3m3r45') {
         // Se não tem a chave, manda embora
         window.location.href = 'index.html';
         return; // Para o código aqui
