@@ -369,7 +369,7 @@ body {
     border-color: #121214 !important;
     color: #4a4a4a !important; /* Número quase invisível */
     cursor: not-allowed;
-    opacity: 0.5; /* Dá uma "apagada" nele */
+    opacity: 0.8; /* Dá uma "apagada" nele */
 }
 
 
@@ -379,8 +379,8 @@ body {
    ========================================= */
 .info-sorteio-publico {
     background: #000000; /* Fundo preto absoluto e limpo */
-    margin: 10px auto 25px auto;
-    max-width: 900px; /* Alinha perfeitamente com a grade */
+    margin: 0px auto 0px auto;
+    max-width: 1000px; /* Alinha perfeitamente com a grade */
     text-align: center;
     padding: 15px 10px;
 }
@@ -411,4 +411,6 @@ body {
 .info-badges .badge span {
     color: #e1e1e6;
     font-weight: normal;
+    font-weight: bold;
+    font-style: italic;
 }
