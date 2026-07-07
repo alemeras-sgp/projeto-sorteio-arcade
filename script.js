@@ -31,84 +31,56 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 console.log("Supabase inicializado com sucesso!");
 // --- INÍCIO DA INSERÇÃO: Autenticação Real com Supabase ---
 
-
-
-// 1. Função que checa se você já está logado ao atualizar a página
+// 1. Função que checa se você já está logado
 async function checarSessao() {
-    // Pergunta ao Supabase se existe uma sessão ativa salva no navegador
     const { data: { session } } = await db.auth.getSession();
-    
     if (session) {
-        // Se a sessão for real, libera a tela
         document.getElementById('tela-login').style.display = 'none';
         document.getElementById('conteudo-admin').style.display = 'block';
     }
 }
-// Roda a checagem assim que a tela abre
 checarSessao();
 
-// 2. Função acionada pelo botão de "Entrar"
-window.entrarAdmin = async function() {
-    const inputEmail = document.getElementById('email-admin').value;
-    const inputSenha = document.getElementById('senha-admin').value;
-    const msgErro = document.getElementById('erro-login');
-    const telaLogin = document.getElementById('tela-login');
-    const painelAdmin = document.getElementById('conteudo-admin');
-
-    // Botão muda de texto para indicar que está carregando
-    const btn = document.querySelector('.login-box button');
-    btn.textContent = "Autenticando...";
-    btn.disabled = true;
-
-    // Dispara a tentativa de login no Supabase
-    const { data, error } = await db.auth.signInWithPassword({
-        email: inputEmail,
-        password: inputSenha,
-    });
-
-    if (error) {
-        // Se a senha for errada ou o e-mail não existir
-        console.error("Erro no login:", error.message);
-        msgErro.style.display = 'block';
-        document.getElementById('senha-admin').value = ''; // Limpa só a senha
-        btn.textContent = "Entrar no Painel";
-        btn.disabled = false;
-    } else {
-        // Sucesso absoluto! O Supabase gerou o Token.
-        console.log("Login feito com sucesso!");
-        telaLogin.style.display = 'none';
-        painelAdmin.style.display = 'block';
-        btn.textContent = "Entrar no Painel";
-        btn.disabled = false;
-    }
-}
-
-// Continua permitindo logar apertando a tecla "Enter"
+// 2. Lógica de Login via EventListener (Mais seguro e sem erro de referência)
 document.addEventListener('DOMContentLoaded', () => {
-    const inputSenha = document.getElementById('senha-admin');
-    if(inputSenha) {
-        inputSenha.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                entrarAdmin();
+    const btn = document.getElementById('btn-login-admin');
+    
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            const inputEmail = document.getElementById('email-admin').value;
+            const inputSenha = document.getElementById('senha-admin').value;
+            const msgErro = document.getElementById('erro-login');
+            const telaLogin = document.getElementById('tela-login');
+            const painelAdmin = document.getElementById('conteudo-admin');
+
+            btn.textContent = "Autenticando...";
+            btn.disabled = true;
+
+            const { data, error } = await db.auth.signInWithPassword({
+                email: inputEmail,
+                password: inputSenha,
+            });
+
+            if (error) {
+                msgErro.style.display = 'block';
+                document.getElementById('senha-admin').value = '';
+                btn.textContent = "Entrar no Painel";
+                btn.disabled = false;
+            } else {
+                telaLogin.style.display = 'none';
+                painelAdmin.style.display = 'block';
             }
         });
     }
-});
-// --- FIM DA INSERÇÃO ---
 
-
-// 2. SEGUNDO: Define a variável de preço
-let VALOR_POR_NUMERO = 0.05;
-
-// 3. TERCEIRO: Cria a função de busca
-async function atualizarPrecoDoBanco() {
-    // Agora o 'db' já existe, então o erro sumirá
-    const { data, error } = await db.from('configuracoes').select('valor_numero').eq('id', 1).single();
-    if (data) {
-        VALOR_POR_NUMERO = parseFloat(data.valor_numero);
-        console.log("Preço sincronizado com o banco:", VALOR_POR_NUMERO);
+    // Permite logar com a tecla Enter
+    const inputSenha = document.getElementById('senha-admin');
+    if(inputSenha) {
+        inputSenha.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('btn-login-admin').click();
+        });
     }
-}
+});
 
 let TEMPO_LIMITE_PIX = 10; // Padrão
 
