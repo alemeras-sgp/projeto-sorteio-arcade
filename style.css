@@ -29,6 +29,11 @@ body {
     padding: 0 1rem;
 }
 
+/* Adicione isso ao container que segura a grade de números */
+.container-grade {
+    padding-bottom: 100px; /* Espaço suficiente para o botão flutuante não cobrir os números */
+}
+
 /* Container do Grid de Números */
 .grid-numeros {
     display: grid;
@@ -117,6 +122,8 @@ body {
     background: #8257e5;
     /* Ou a sua cor de destaque */
     color: white;
+    transition: transform 0.3s ease;
+    transform: translateY(150%); /* Escondido por padrão */
 }
 
 .btn-comprar:hover:not(:disabled) {
@@ -127,6 +134,10 @@ body {
     background-color: #323238;
     color: #7c7c8a;
     cursor: not-allowed;
+}
+
+#btn-comprar.visivel {
+    transform: translateY(0); /* Aparece com um efeito de subida */
 }
 
 /* Modal de Checkout */
