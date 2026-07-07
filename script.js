@@ -334,7 +334,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         modalCheckout.classList.add('escondido');
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
-        btnComprar.style.zIndex = '5'; // Joga para trás do modal (10)
+
 
 
         // INSERIR ESTA LINHA AQUI:
@@ -406,7 +406,7 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 // 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
-    btnComprar.style.zIndex = '1000'; // Devolve o valor original
+   
     // -----------------------
     clearInterval(intervaloTimerPix);
 
