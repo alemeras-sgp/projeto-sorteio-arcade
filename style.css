@@ -102,53 +102,53 @@ body {
     margin-top: 2rem;
 }
 
-/* ESTILO PADRÃO (Para Desktop/Tamanho Normal) */
+/* ESTILO GERAL DO BOTÃO (Sempre flutuando) */
 #btn-comprar {
+    position: fixed;
+    bottom: 20px;
+    z-index: 1000;
+    
+    /* Estética */
+    background: #8257e5;
+    color: white;
+    border-radius: 12px;
     padding: 15px 30px;
     font-size: 1.2rem;
     font-weight: bold;
     text-align: center;
-    background: #8257e5;
-    color: white;
-    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 100%; /* Ou o tamanho que você usa no layout desktop */
-}
-
-/* ESTILO MOBILE (Apenas telas pequenas) */
-@media (max-width: 768px) {
-    #btn-comprar {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        right: 20px;
-        z-index: 1000;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        
-        /* Estado escondido no mobile (ele sobe com a classe .visivel) */
-        transform: translateY(150%);
-    }
-
-    #btn-comprar.visivel {
-        transform: translateY(0);
-    }
-}
-.btn-comprar:hover:not(:disabled) {
-    background-color: #015f43;
-}
-
-.btn-comprar:disabled {
-    background-color: #323238;
-    color: #7c7c8a;
-    cursor: not-allowed;
+    
+    /* Comportamento de saída */
+    transform: translateY(150%);
 }
 
 #btn-comprar.visivel {
-    transform: translateY(0); /* Aparece com um efeito de subida */
+    transform: translateY(0);
 }
 
+/* AJUSTE PARA CELULAR (Esticado) */
+@media (max-width: 768px) {
+    #btn-comprar {
+        left: 20px;
+        right: 20px; /* Estica de um lado ao outro */
+    }
+}
+
+/* AJUSTE PARA DESKTOP (Botão com largura fixa/normal) */
+@media (min-width: 769px) {
+    #btn-comprar {
+        left: 50%;
+        transform: translate(-50%, 150%); /* O 'translateY' para sair da tela */
+        width: 300px; /* Largura controlada */
+    }
+    
+    #btn-comprar.visivel {
+        transform: translate(-50%, 0); /* Sobe centralizado */
+    }
+}
 
 /* Modal de Checkout */
 .modal {
