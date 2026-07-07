@@ -97,16 +97,26 @@ body {
     margin-top: 2rem;
 }
 
-.btn-comprar {
-    background-color: #00875f;
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
+#btn-comprar {
+    /* Manter estilos originais, mas adicionar: */
+    position: fixed;
+    bottom: 20px;
+    /* Distância do fundo */
+    left: 20px;
+    right: 20px;
+    z-index: 1000;
+    /* Garante que fique acima de tudo */
+
+    /* Adicionando um visual de destaque */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 15px;
     font-size: 1.2rem;
     font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s;
+    text-align: center;
+    background: #8257e5;
+    /* Ou a sua cor de destaque */
+    color: white;
 }
 
 .btn-comprar:hover:not(:disabled) {
