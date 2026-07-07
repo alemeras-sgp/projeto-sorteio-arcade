@@ -294,10 +294,6 @@ body {
     border-color: #ffffff !important;
 }
 
-.numero.reservado {
-    color: #121214 !important;
-}
-
 /* Ajuste no botão de compra para ficar Gamer */
 #btn-comprar {
     background-color: #015488 !important;
@@ -371,9 +367,8 @@ body {
 }
 
 /* 4. Botão Comprado/Reservado (Fica neutro e apagado para não chamar atenção) */
-.numero.reservado,
 .numero.pago {
-    background-color: #121214 !important;
+    background-color: #141312 !important;
     /* Fundo super escuro, mescla com o site */
     border-color: #121214 !important;
     color: #4a4a4a !important;
