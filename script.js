@@ -19,6 +19,18 @@ const btnCopiar = document.getElementById('btn-copiar');
 const spanTempoRestante = document.getElementById('tempo-restante');
 // --- TRAVA DE SEGURANÇA: Chave Secreta na URL ---
 
+
+// --- INÍCIO DA INSERÇÃO: Sincronização em Tempo Real ---
+db.channel('mudancas_config')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
+    console.log("Mudança detectada, atualizando informações...");
+    carregarInfoSorteioPublico(); // Atualiza o cabeçalho
+    location.reload(); // Recarrega a página para atualizar os números
+  })
+  .subscribe();
+// --- FIM DA INSERÇÃO ---
+
+
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
 let TEMPO_LIMITE_PIX = 10; // Padrão
@@ -92,8 +104,6 @@ async function carregarGrade() {
     });
 }
 
-// Inicia a busca assim que o script carrega
-carregarGrade();
 
 // ==========================================
 // 4. LÓGICA DO CARRINHO E MODAL
@@ -570,3 +580,23 @@ async function carregarInfoSorteioPublico() {
 // Executa a função assim que o script carregar
 carregarInfoSorteioPublico();
 // --- FIM DA INSERÇÃO ---
+
+// ==========================================
+// 7. INICIALIZAÇÃO SEGURA (Window Onload)
+// ==========================================
+window.onload = async () => {
+    console.log("Página carregada, inicializando...");
+    
+    // 1. Busca configurações de preço e tempo primeiro
+    await buscarConfiguracoes();
+    
+    // 2. Carrega as informações do sorteio no cabeçalho
+    await carregarInfoSorteioPublico();
+    
+    // 3. Carrega a grade de números
+    await carregarGrade();
+
+    await buscarConfiguracoes();
+    
+    console.log("Sistema pronto para uso!");
+};
