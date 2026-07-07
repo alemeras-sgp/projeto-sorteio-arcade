@@ -375,42 +375,40 @@ body {
 
 
 /* =========================================
-   PAINEL DE INFORMAÇÕES (INDEX)
+   PAINEL DE INFORMAÇÕES (INDEX) - CLEAN
    ========================================= */
 .info-sorteio-publico {
-    background: #121214; /* Fundo escuro alinhado com o tema */
-    border: 1px solid #323238; /* Borda sutil */
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px auto 30px auto; /* Espaçamento entre o topo e a grade */
-    max-width: 900px; /* Mesma largura máxima da grade de números */
+    background: #000000; /* Fundo preto absoluto e limpo */
+    margin: 10px auto 25px auto;
+    max-width: 900px; /* Alinha perfeitamente com a grade */
     text-align: center;
+    padding: 15px 10px;
 }
 
 .info-sorteio-publico h2 {
     color: #ffffff;
-    margin: 0 0 15px 0;
-    font-size: 1.5rem;
+    margin: 0 0 8px 0;
+    font-size: 1rem; /* Título pequeno e discreto */
+    font-weight: normal;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .info-badges {
     display: flex;
     justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap; /* Permite quebrar linha no celular */
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
+/* Remove os fundos e bordas, deixando só o texto pequeno */
 .info-badges .badge {
-    background: #202024;
-    border: 1px solid #444;
-    padding: 8px 15px;
-    border-radius: 6px;
-    color: #e1e1e6;
-    font-weight: bold;
-    font-size: 0.9rem;
+    color: #737380; /* Cinza bem discreto para os rótulos */
+    font-size: 0.85rem; /* Texto pequeno e clean */
 }
 
+/* Deixa o valor da informação um pouco mais claro que o rótulo */
 .info-badges .badge span {
-    color: #015488; /* Azul da sua identidade para destacar os valores */
+    color: #e1e1e6;
+    font-weight: normal;
 }
