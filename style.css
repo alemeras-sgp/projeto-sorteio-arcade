@@ -106,8 +106,8 @@ body {
 
 /* 3. Reservado (Aguardando o pagamento do Pix) */
 .numero.reservado {
-    background-color: #e1a000;
-    color: #121214;
+    background-color: #e1a000 !important;
+    color: #121214 !important;
     cursor: not-allowed;
     opacity: 0.8;
 }
