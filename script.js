@@ -30,22 +30,34 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log("Supabase inicializado com sucesso!");
 
-// --- INÍCIO DA INSERÇÃO: Lógica de Login ---
-// Defina aqui a sua senha de acesso
+// --- INÍCIO DA INSERÇÃO: Lógica de Login Robusta ---
 const SENHA_CORRETA = "admin123"; 
 
 window.entrarAdmin = function() {
-    const senhaDigitada = document.getElementById('senha-admin').value;
-    const msgErro = document.getElementById('erro-login');
+    console.log("Botão de login clicado!"); // Aviso de teste
     
-    if (senhaDigitada === SENHA_CORRETA) {
-        // Senha certa: Esconde o login e mostra o painel
-        document.getElementById('tela-login').style.display = 'none';
-        document.getElementById('conteudo-admin').style.display = 'block';
+    const inputSenha = document.getElementById('senha-admin');
+    const msgErro = document.getElementById('erro-login');
+    const telaLogin = document.getElementById('tela-login');
+    const painelAdmin = document.getElementById('conteudo-admin');
+    
+    // Verificação de segurança para ver se todos os elementos existem no HTML
+    if (!inputSenha || !msgErro || !telaLogin || !painelAdmin) {
+        console.error("ERRO: Algum ID está faltando no seu HTML.");
+        console.log("tela-login existe?", !!telaLogin);
+        console.log("conteudo-admin existe?", !!painelAdmin);
+        alert("Erro no código: Abra o Console (F12) para ver os detalhes.");
+        return;
+    }
+
+    if (inputSenha.value === SENHA_CORRETA) {
+        console.log("Senha correta! Liberando acesso...");
+        telaLogin.style.display = 'none';
+        painelAdmin.style.display = 'block';
     } else {
-        // Senha errada: Mostra a mensagem de erro
+        console.log("Senha incorreta!");
         msgErro.style.display = 'block';
-        document.getElementById('senha-admin').value = ''; // Limpa o campo
+        inputSenha.value = ''; 
     }
 }
 
