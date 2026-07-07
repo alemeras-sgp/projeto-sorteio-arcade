@@ -11,16 +11,40 @@ body {
     color: #e1e1e6;
 }
 
-.header {
-    text-align: center;
-    padding: 2rem;
-    background-color: #202024;
-    border-bottom: 2px solid #8257e5;
+/* Limpa qualquer formatação prévia do header */
+#header-customizado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: none;
+    border: none;
 }
 
-.header p {
-    margin-top: 0.5rem;
-    color: #a8a8b3;
+/* Container do Logo */
+.container-imagem.logo img {
+    max-width: 300px;
+    /* Ajuste conforme necessário */
+    height: auto;
+}
+
+/* Container do Prêmio (1000x300 fixo) */
+.container-imagem.premio img {
+    width: 1000px;
+    height: 300px;
+    object-fit: cover;
+    /* Garante que a imagem preencha o tamanho sem deformar */
+    display: block;
+}
+
+/* Responsividade: para não quebrar no celular */
+@media (max-width: 1000px) {
+    .container-imagem.premio img {
+        width: 100%;
+        height: auto;
+        /* Deixa proporcional no celular */
+    }
 }
 
 .container {
@@ -31,7 +55,8 @@ body {
 
 /* Adicione isso ao container que segura a grade de números */
 .container-grade {
-    padding-bottom: 100px; /* Espaço suficiente para o botão flutuante não cobrir os números */
+    padding-bottom: 100px;
+    /* Espaço suficiente para o botão flutuante não cobrir os números */
 }
 
 /* Container do Grid de Números */
@@ -108,7 +133,7 @@ body {
     position: fixed;
     bottom: 20px;
     z-index: 1000;
-    
+
     /* Estética */
     background: #8257e5;
     color: white;
@@ -121,7 +146,7 @@ body {
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     /* Comportamento de saída */
     transform: translateY(150%);
 }
@@ -134,7 +159,8 @@ body {
 @media (max-width: 768px) {
     #btn-comprar {
         left: 20px;
-        right: 20px; /* Estica de um lado ao outro */
+        right: 20px;
+        /* Estica de um lado ao outro */
     }
 }
 
@@ -142,12 +168,15 @@ body {
 @media (min-width: 769px) {
     #btn-comprar {
         left: 50%;
-        transform: translate(-50%, 150%); /* O 'translateY' para sair da tela */
-        width: 300px; /* Largura controlada */
+        transform: translate(-50%, 150%);
+        /* O 'translateY' para sair da tela */
+        width: 300px;
+        /* Largura controlada */
     }
-    
+
     #btn-comprar.visivel {
-        transform: translate(-50%, 0); /* Sobe centralizado */
+        transform: translate(-50%, 0);
+        /* Sobe centralizado */
     }
 }
 
