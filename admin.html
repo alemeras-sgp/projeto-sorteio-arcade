@@ -45,9 +45,10 @@
     <div id="tela-login" class="login-container">
         <div class="login-box">
             <h2>🔒 Acesso Restrito</h2>
+            <input type="email" id="email-admin" placeholder="E-mail do administrador...">
             <input type="password" id="senha-admin" placeholder="Digite a senha...">
             <button onclick="entrarAdmin()">Entrar no Painel</button>
-            <p id="erro-login" style="display: none;">Senha incorreta. Tente novamente.</p>
+            <p id="erro-login" style="display: none; color: #ff4747; margin-top: 15px;">E-mail ou senha incorretos.</p>
         </div>
     </div>
 
@@ -127,43 +128,6 @@
         </table>
     </div>
 
-
-    <script>
-        // Defina a senha aqui
-        const SENHA_CORRETA = "admin123"; 
-
-        function entrarAdmin() {
-            const inputSenha = document.getElementById('senha-admin');
-            const msgErro = document.getElementById('erro-login');
-            const telaLogin = document.getElementById('tela-login');
-            const painelAdmin = document.getElementById('conteudo-admin');
-            
-            if (inputSenha.value === SENHA_CORRETA) {
-                // Senha certa: Esconde o login e mostra o painel
-                telaLogin.style.display = 'none';
-                painelAdmin.style.display = 'block';
-            } else {
-                // Senha errada: Mostra a mensagem de erro
-                msgErro.style.display = 'block';
-                inputSenha.value = ''; 
-                inputSenha.focus(); // Já deixa o cursor piscando de novo pra facilitar
-            }
-        }
-
-        // Permite logar apertando a tecla "Enter"
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputSenha = document.getElementById('senha-admin');
-            if(inputSenha) {
-                inputSenha.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        entrarAdmin();
-                    }
-                });
-            }
-        });
-    </script>
-    </body>
-</html>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
