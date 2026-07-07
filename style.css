@@ -320,7 +320,7 @@ body {
     grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
     gap: 8px; /* Espaço bem pequeno entre os números para render mais na tela */
     width: 100%;
-    max-width: 900px; /* Segura a largura no PC para não ficar esticado demais */
+    max-width: 1000px; /* Segura a largura no PC para não ficar esticado demais */
     margin: 0 auto;
     padding: 10px;
 }
