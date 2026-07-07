@@ -7,9 +7,9 @@
 }
 
 body {
-    background-color: #121214;
+    /*background-color: #121214;*/
     color: #e1e1e6;
-    background-image: url(images/bg.png) no-repeat 0 0 fixed;
+    background: url(images/bg.png) no-repeat 0 0 fixed;
 }
 
 /* Limpa qualquer formatação prévia do header */
