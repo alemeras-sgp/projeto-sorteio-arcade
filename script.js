@@ -45,11 +45,6 @@ async function buscarConfiguracoes() {
 }
 
 
-
-
-// 4. QUARTO: Executa a função
-atualizarPrecoDoBanco();
-
 // ==========================================
 // 3. LÓGICA DA GRADE DE NÚMEROS
 // ==========================================
