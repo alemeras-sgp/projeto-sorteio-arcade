@@ -17,6 +17,16 @@ const imgQrcode = document.getElementById('img-qrcode');
 const inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
 const spanTempoRestante = document.getElementById('tempo-restante');
+// --- TRAVA DE SEGURANÇA: Chave Secreta na URL ---
+const urlParams = new URLSearchParams(window.location.search);
+const chave = urlParams.get('chave');
+
+// Se a chave não for a correta, chuta o intruso para fora imediatamente
+if (chave !== 'al3m3r45') {
+    console.warn("Acesso não autorizado! Redirecionando...");
+    window.location.href = 'index.html';
+}
+// ------------------------------------------------
 
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
@@ -30,6 +40,8 @@ async function buscarConfiguracoes() {
         console.log("Configurações carregadas: Valor R$", VALOR_POR_NUMERO, "| Tempo:", TEMPO_LIMITE_PIX, "min");
     }
 }
+
+
 
 
 // 4. QUARTO: Executa a função
