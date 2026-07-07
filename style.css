@@ -31,7 +31,7 @@ body {
 
 /* Container do Prêmio (1000x300 fixo) */
 .container-imagem.premio img {
-    width: 1030px;
+    width: 1000px;
     height: 200px;
     object-fit: cover;
     /* Garante que a imagem preencha o tamanho sem deformar */
@@ -48,7 +48,7 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1030px;
     margin: 0rem auto 3rem auto;
     padding: 0 1rem;
 }
