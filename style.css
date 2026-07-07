@@ -250,3 +250,37 @@ body {
 .btn-confirmar:hover {
     background-color: #996dff;
 }
+
+
+/* --- ADIÇÃO DE IDENTIDADE VISUAL - NÃO APAGUE O QUE ESTÁ ACIMA --- */
+
+/* Fundo geral com a vibe da live */
+body {
+    background: linear-gradient(135deg, #0a0a0c 40%, #015488 100%) !important;
+}
+
+/* Ajuste nos botões de números para seguir a paleta */
+.numero {
+    background-color: #4a4a4a !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+}
+
+.numero.selecionado {
+    background-color: #015488 !important;
+    border-color: #ffffff !important;
+}
+
+/* Ajuste no botão de compra para ficar Gamer */
+#btn-comprar {
+    background-color: #015488 !important;
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    text-transform: uppercase;
+    font-weight: 700 !important;
+}
+
+/* Mantém o seu rodapé/header com a cara da live */
+.header-sorteio {
+    border-bottom: 3px solid #015488 !important;
+}
