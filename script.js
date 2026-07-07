@@ -265,12 +265,9 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
     const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
-    // ADICIONE ISSO AQUI:
-    console.log("Valores atuais no momento do clique:", {
-        VALOR_POR_NUMERO,
-        totalCompra,
-        tentativa: "Clicou no botão"
-    });
+    const valorFormatado = parseFloat(totalCompra.toFixed(2)); // Isso resolve o 0.15000000000000002
+
+    console.log("Enviando valor para API:", valorFormatado);
 
     // Salva os números que estão sendo comprados nesta sessão
     numerosEmPagamento = [...idsParaAtualizar];
@@ -318,7 +315,13 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 'Authorization': `Bearer ${supabaseKey}`,
                 'apikey': supabaseKey
             },
-            body: JSON.stringify({ valor: totalCompra, email: email, nome: nome, ids: idsParaAtualizar })
+            // Use 'valorFormatado' aqui
+            body: JSON.stringify({
+                valor: valorFormatado,
+                email: email,
+                nome: nome,
+                ids: idsParaAtualizar
+            })
         });
 
         if (!respostaPix.ok) {
