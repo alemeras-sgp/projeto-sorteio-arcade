@@ -1,6 +1,6 @@
 // Removemos qualquer listener antigo e usamos um único que monitora o documento inteiro
 document.addEventListener('click', async (event) => {
-    
+
     // Verifica se o elemento clicado é o nosso botão de login
     if (event.target && event.target.id === 'btn-login-admin') {
         console.log("Clique capturado no botão de login!");
@@ -12,7 +12,7 @@ document.addEventListener('click', async (event) => {
         const painelAdmin = document.getElementById('conteudo-admin');
 
         // Validação básica
-        if(!inputEmail || !inputSenha) {
+        if (!inputEmail || !inputSenha) {
             alert("Preencha e-mail e senha!");
             return;
         }
@@ -43,9 +43,34 @@ document.addEventListener('click', async (event) => {
     }
 });
 
+// --- AJUSTE NO TOPO DO ADMIN.JS ---
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chave = urlParams.get('chave');
+
+    // 1. Primeira trava: Só entra na página se tiver a chave, 
+    // MAS vamos dar uma chance para quem já está logado (opcional)
+    if (chave !== 'meusegredo123') {
+        // Se não tem a chave, manda embora
+        window.location.href = 'index.html';
+        return; // Para o código aqui
+    }
+
+    // 2. Só depois de validar a chave, checamos a sessão do Supabase
+    const { data: { session } } = await db.auth.getSession();
+
+    if (session) {
+        document.getElementById('tela-login').style.display = 'none';
+        document.getElementById('conteudo-admin').style.display = 'block';
+    } else {
+        // Se não tem sessão, mostra a tela de login
+        document.getElementById('tela-login').style.display = 'flex';
+    }
+});
+
 // Logica para o botão de Logout
 document.addEventListener('click', async (event) => {
-    
+
     // ... (o seu código do botão de login continua aqui) ...
 
     // NOVO: Verifica se o clique foi no botão de logout
@@ -64,13 +89,13 @@ async function exportarCSV() {
 
     // 1. Cabeçalho com ponto e vírgula
     let csv = 'ID;Nome;WhatsApp;Email;Status\n';
-    
+
     data.forEach(row => {
         // Remove quebras de linha que poderiam quebrar o CSV
         const nome = (row.nome_comprador || '').replace(/"/g, '""').replace(/\n/g, ' ');
         const zap = (row.whatsapp || '').replace(/"/g, '""').replace(/\n/g, ' ');
         const email = (row.email || '').replace(/"/g, '""').replace(/\n/g, ' ');
-        
+
         // 2. Linhas com ponto e vírgula
         csv += `"${row.id}";"${nome}";"${zap}";"${email}";"${row.status || ''}"\n`;
     });
@@ -78,7 +103,7 @@ async function exportarCSV() {
     // 3. Adiciona o BOM (Byte Order Mark) para o Excel reconhecer acentos
     const bom = '\uFEFF';
     const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
-    
+
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -191,7 +216,7 @@ async function gerarNovoSorteio() {
     if (erroConfig) return alert("Erro ao salvar config: " + erroConfig.message);
 
     alert("Sorteio '" + nome + "' reiniciado com sucesso! " + qtd + " números disponíveis.");
-    location.reload();
+    window.location.href = window.location.href;
 }
 
 async function carregarStatusSorteio() {

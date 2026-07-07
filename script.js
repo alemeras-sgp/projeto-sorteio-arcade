@@ -18,15 +18,6 @@ const inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
 const spanTempoRestante = document.getElementById('tempo-restante');
 // --- TRAVA DE SEGURANÇA: Chave Secreta na URL ---
-const urlParams = new URLSearchParams(window.location.search);
-const chave = urlParams.get('chave');
-
-// Se a chave não for a correta, chuta o intruso para fora imediatamente
-if (chave !== 'al3m3r45') {
-    console.warn("Mete o loco não mano! Redirecionando...");
-    window.location.href = 'index.html';
-}
-// ------------------------------------------------
 
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
