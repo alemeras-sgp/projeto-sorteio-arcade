@@ -433,3 +433,7 @@ body {
     font-style: italic;
 }
 
+footer {
+    border-top: 1px solid #18181b;
+    margin-top: 50px;
+}
