@@ -481,28 +481,14 @@ db.channel('mudancas_sorteio')
 
                 // Limpa o conteúdo antigo (QR Code, Timer, Inputs) e insere a mensagem de sucesso
                 modalPix.querySelector('.modal-content').innerHTML = `
-                    <span onclick="modalPix.classList.add('escondido')" class="fechar">&times;</span>
-                    <div style="text-align: center;">
-                        <h2 style="color: #00ff9d;">✅ PAGAMENTO CONFIRMADO!</h2>
-                        <p>Seus números da sorte são:</p>
-                        <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #ffffff;">
-                            ${numerosComprados}
-                        </div>
-                        <p style="font-size: 0.9rem; color: #a8a8b3;">
-                            Guarde seus números para o sorteio!
-                        </p>
-                        
-                        <!-- Usamos a classe .btn-confirmar que criamos no CSS -->
-                        <button onclick="baixarComprovante()" class="btn-confirmar">
-                            📥 Baixar Comprovante
-                        </button>
-                        
-                        <button onclick="modalPix.classList.add('escondido')" 
-                                style="width: 100%; background: transparent; color: #888; padding: 10px; border: 1px solid #444; margin-top: 10px; cursor: pointer; text-transform: uppercase;">
-                            Fechar
-                        </button>
-                    </div>
-                `;
+    <span onclick="modalPix.classList.add('escondido')" class="fechar">&times;</span>
+    <h2 style="text-align: center;">✅ Pagamento Confirmado!</h2>
+    <p style="text-align: center; color: #015488;">Seus números:</p>
+    <div style="background: #202024; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
+        ${numerosComprados}
+    </div>
+    <button onclick="baixarComprovante()" class="btn-confirmar">📥 Baixar Comprovante</button>
+`;
                 // --- INÍCIO DA INSERÇÃO: DISPARO DO E-MAIL ---
                 // Verifica se o timer ainda está ativo. Isso garante que o e-mail 
                 // seja enviado apenas UMA VEZ, mesmo se o usuário comprou vários números juntos.

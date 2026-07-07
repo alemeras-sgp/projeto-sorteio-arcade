@@ -185,6 +185,8 @@ body {
 /* --- BLOCO ÚNICO DE ESTILO PARA MODAIS --- */
 
 /* Fundo escuro fixo para todos os modais */
+/* --- ESTILO MODAL MODERN & CLEAN --- */
+
 .modal {
     position: fixed !important;
     z-index: 9999 !important;
@@ -192,67 +194,70 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(10, 10, 12, 0.95) !important;
+    /* Fundo escuro levemente esfumado */
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(8px) !important; /* O charme do vidro */
     display: flex !important;
     justify-content: center;
     align-items: center;
+    transition: opacity 0.3s ease;
 }
 
-/* Esconde quando tiver a classe */
 .modal.escondido {
     display: none !important;
+    opacity: 0;
 }
 
-/* Caixa central dos modais */
 .modal-content {
-    background-color: #0a0a0c !important;
-    border: 3px solid #015488 !important; /* Azul da Live */
-    border-radius: 0 !important; /* Cantos vivos */
-    padding: 2rem !important;
+    background: #121214 !important; /* Cinza grafite profundo */
+    border: 1px solid #202024 !important;
+    padding: 2.5rem !important;
     width: 90% !important;
-    max-width: 500px !important;
-    color: #ffffff !important;
+    max-width: 420px !important;
+    border-radius: 16px !important; /* Cantos arredondados na medida */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+    color: #e1e1e6 !important;
     position: relative;
-    box-shadow: 0 0 25px rgba(1, 84, 136, 0.5) !important;
 }
 
-/* Botão Fechar */
-.fechar {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    color: #ffffff !important;
-    font-size: 28px;
-    cursor: pointer;
+.modal-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    text-align: center;
 }
 
-/* Inputs e Textareas Gamer */
+/* Inputs minimalistas */
 input, textarea {
-    background: #4a4a4a !important;
-    border: 1px solid #ffffff !important;
-    color: #ffffff !important;
-    width: 100% !important;
-    padding: 10px !important;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+    background: #202024 !important;
+    border: 2px solid transparent !important;
+    padding: 14px !important;
+    border-radius: 8px !important;
+    transition: 0.3s !important;
 }
 
-/* Botão Confirmar/Copiar */
+input:focus {
+    border-color: #015488 !important; /* Azul da Live no foco */
+    outline: none;
+}
+
+/* Botão Estilo "Action" */
 .btn-confirmar {
     background: #015488 !important;
-    color: #ffffff !important;
-    border: 2px solid #ffffff !important;
-    width: 100% !important;
-    padding: 12px !important;
-    font-weight: 700 !important;
+    color: white !important;
+    padding: 14px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
     text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: 0.3s;
+    border: none !important;
+    margin-top: 1rem !important;
 }
 
 .btn-confirmar:hover {
-    background: #ffffff !important;
-    color: #015488 !important;
+    background: #026cae !important;
+    transform: translateY(-2px);
 }
 
 /* --- ADIÇÃO DE IDENTIDADE VISUAL - NÃO APAGUE O QUE ESTÁ ACIMA --- */
