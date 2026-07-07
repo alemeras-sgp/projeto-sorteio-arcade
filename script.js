@@ -530,7 +530,7 @@ function baixarComprovante() {
     const numeros = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
 
     const conteudo = `
-        Comprovante de Participação - Sorteio Arcade Stick
+        Comprovante de Participação - Sorteio Canal Alemeras
         -------------------------------------------------
         Nome: ${nome}
         Números: ${numeros}
