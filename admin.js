@@ -1,4 +1,47 @@
-alert("O arquivo admin.js carregou!");
+// Removemos qualquer listener antigo e usamos um único que monitora o documento inteiro
+document.addEventListener('click', async (event) => {
+    
+    // Verifica se o elemento clicado é o nosso botão de login
+    if (event.target && event.target.id === 'btn-login-admin') {
+        console.log("Clique capturado no botão de login!");
+
+        const inputEmail = document.getElementById('email-admin').value;
+        const inputSenha = document.getElementById('senha-admin').value;
+        const msgErro = document.getElementById('erro-login');
+        const telaLogin = document.getElementById('tela-login');
+        const painelAdmin = document.getElementById('conteudo-admin');
+
+        // Validação básica
+        if(!inputEmail || !inputSenha) {
+            alert("Preencha e-mail e senha!");
+            return;
+        }
+
+        event.target.textContent = "Autenticando...";
+        event.target.disabled = true;
+
+        try {
+            const { data, error } = await db.auth.signInWithPassword({
+                email: inputEmail,
+                password: inputSenha,
+            });
+
+            if (error) {
+                console.error("Erro do Supabase:", error.message);
+                msgErro.style.display = 'block';
+                msgErro.textContent = "Erro: " + error.message;
+                event.target.textContent = "Entrar no Painel";
+                event.target.disabled = false;
+            } else {
+                console.log("Sucesso!");
+                telaLogin.style.display = 'none';
+                painelAdmin.style.display = 'block';
+            }
+        } catch (e) {
+            console.error("Erro inesperado:", e);
+        }
+    }
+});
 
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
 const canalReplay = db.channel('canal_replay_alertas');

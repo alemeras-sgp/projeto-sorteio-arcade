@@ -20,49 +20,6 @@ const spanTempoRestante = document.getElementById('tempo-restante');
 
 let intervaloTimerPix; // Variável que vai guardar o motor do relógio
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('btn-login-admin');
-    
-    if (btn) {
-        btn.addEventListener('click', async () => {
-            console.log("Clique detectado no botão de login!"); // TESTE 1
-
-            const inputEmail = document.getElementById('email-admin').value;
-            const inputSenha = document.getElementById('senha-admin').value;
-            const msgErro = document.getElementById('erro-login');
-
-            if (!inputEmail || !inputSenha) {
-                console.log("Campos vazios!");
-                return;
-            }
-
-            console.log("Tentando logar com:", inputEmail); // TESTE 2
-
-            try {
-                const { data, error } = await db.auth.signInWithPassword({
-                    email: inputEmail,
-                    password: inputSenha,
-                });
-
-                if (error) {
-                    console.error("Erro retornado pelo Supabase:", error.message); // TESTE 3
-                    msgErro.style.display = 'block';
-                    msgErro.textContent = error.message; // Mostra o erro real na tela
-                } else {
-                    console.log("Login realizado com sucesso!", data); // TESTE 4
-                    document.getElementById('tela-login').style.display = 'none';
-                    document.getElementById('conteudo-admin').style.display = 'block';
-                }
-            } catch (err) {
-                console.error("Erro inesperado no bloco catch:", err); // TESTE 5
-            }
-        });
-    } else {
-        console.error("Botão btn-login-admin não encontrado na página!");
-    }
-});
-
 let TEMPO_LIMITE_PIX = 10; // Padrão
 
 async function buscarConfiguracoes() {
