@@ -482,12 +482,14 @@ db.channel('mudancas_sorteio')
                 // Limpa o conteúdo antigo (QR Code, Timer, Inputs) e insere a mensagem de sucesso
                 modalPix.querySelector('.modal-content').innerHTML = `
     <span onclick="modalPix.classList.add('escondido')" class="fechar">&times;</span>
-    <h2 style="text-align: center;">✅ Pagamento Confirmado!</h2>
-    <p style="text-align: center; color: #015488;">Seus números:</p>
-    <div style="background: #202024; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2rem; margin-bottom: 20px;">
-        ${numerosComprados}
+    <div style="text-align: center;">
+        <h2 style="color: #015488;">✅ Pagamento Confirmado!</h2>
+        <p>Números:</p>
+        <div style="background: #f4f4f4; padding: 15px; border-radius: 6px; font-weight: bold; margin-bottom: 15px;">
+            ${numerosComprados}
+        </div>
+        <button onclick="baixarComprovante()" class="btn-confirmar">📥 Baixar Comprovante</button>
     </div>
-    <button onclick="baixarComprovante()" class="btn-confirmar">📥 Baixar Comprovante</button>
 `;
                 // --- INÍCIO DA INSERÇÃO: DISPARO DO E-MAIL ---
                 // Verifica se o timer ainda está ativo. Isso garante que o e-mail 

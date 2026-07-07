@@ -180,87 +180,67 @@ body {
         /* Sobe centralizado */
     }
 }
+/* --- ESTILO MODAL CLEAN & MODERN --- */
 
-/* Modal de Checkout */
-/* --- BLOCO ÚNICO DE ESTILO PARA MODAIS --- */
-
-/* Fundo escuro fixo para todos os modais */
-/* --- ESTILO MODAL MODERN & CLEAN --- */
-
+/* 1. O fundo escuro que cobre a tela */
 .modal {
     position: fixed !important;
-    z-index: 9999 !important;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    /* Fundo escuro levemente esfumado */
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    backdrop-filter: blur(8px) !important; /* O charme do vidro */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(5px) !important;
     display: flex !important;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.3s ease;
+    z-index: 9999 !important;
 }
 
 .modal.escondido {
     display: none !important;
-    opacity: 0;
 }
 
+/* 2. O bloco branco/cinza do modal */
 .modal-content {
-    background: #121214 !important; /* Cinza grafite profundo */
-    border: 1px solid #202024 !important;
-    padding: 2.5rem !important;
+    background: #ffffff !important;
+    color: #333 !important;
     width: 90% !important;
-    max-width: 420px !important;
-    border-radius: 16px !important; /* Cantos arredondados na medida */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
-    color: #e1e1e6 !important;
+    max-width: 400px !important;
+    padding: 24px !important;
+    border-radius: 12px !important;
     position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
 }
 
+/* 3. Títulos e Textos */
 .modal-content h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    text-align: center;
+    margin: 0 0 15px 0 !important;
+    font-size: 1.25rem !important;
+    color: #000 !important;
 }
 
-/* Inputs minimalistas */
-input, textarea {
-    background: #202024 !important;
-    border: 2px solid transparent !important;
-    padding: 14px !important;
-    border-radius: 8px !important;
-    transition: 0.3s !important;
+/* 4. Inputs com visual de App */
+.modal-content input, 
+.modal-content textarea {
+    width: 100% !important;
+    padding: 12px !important;
+    margin: 8px 0 15px 0 !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
 }
 
-input:focus {
-    border-color: #015488 !important; /* Azul da Live no foco */
-    outline: none;
-}
-
-/* Botão Estilo "Action" */
+/* 5. O Botão Estilo Pix (Azulão) */
 .btn-confirmar {
+    width: 100% !important;
+    padding: 12px !important;
     background: #015488 !important;
-    color: white !important;
-    padding: 14px !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
+    color: #fff !important;
     border: none !important;
-    margin-top: 1rem !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
 }
 
-.btn-confirmar:hover {
-    background: #026cae !important;
-    transform: translateY(-2px);
-}
-
-/* --- ADIÇÃO DE IDENTIDADE VISUAL - NÃO APAGUE O QUE ESTÁ ACIMA --- */
 
 /* Ajuste nos botões de números para seguir a paleta */
 .numero {
