@@ -234,6 +234,7 @@ body {
     font-weight: bold;
 }
 
+
 /* Formulário */
 .form-group {
     margin-bottom: 1rem;
@@ -309,3 +310,53 @@ body {
 }
 
 
+/* --- ESTILO BLINDADO PARA O MODAL DO PIX --- */
+
+/* Força o modal do Pix a ter identidade própria */
+#modal-pix.modal {
+    background-color: rgba(10, 10, 12, 0.95) !important;
+}
+
+/* Painel do Pix: Cantos vivos e borda azul */
+#modal-pix .modal-content {
+    background-color: #0a0a0c !important;
+    border: 3px solid #015488 !important; /* Azul da Live */
+    border-radius: 0 !important; /* Cantos vivos */
+    box-shadow: 0 0 20px rgba(1, 84, 136, 0.5) !important;
+}
+
+/* Ajustes de tipografia do Pix */
+#modal-pix h2 {
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+}
+
+/* Input e Botão dentro do modal Pix */
+#modal-pix #input-copiacola {
+    background: #4a4a4a !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+    padding: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+#modal-pix #btn-copiar {
+    background: #015488 !important;
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    cursor: pointer;
+}
+
+#modal-pix #btn-copiar:hover {
+    background: #ffffff !important;
+    color: #015488 !important;
+}
+
+/* Tempo restante em destaque */
+#modal-pix #tempo-restante {
+    color: #ff4747 !important;
+    font-size: 1.8rem !important;
+}
