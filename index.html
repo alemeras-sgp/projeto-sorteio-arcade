@@ -9,9 +9,18 @@
 </head>
 
 <body>
-    <header class="header">
-        <h1>Sorteio Arcade Stick teste</h1>
-        <p>Escolha seus números da sorte abaixo!</p>
+    <header class="header-sorteio">
+        <div class="logo-area">
+            <img src="seu-logo.png" alt="Sua Marca" class="logo-stream">
+        </div>
+
+        <div class="banner-sorteio">
+            <img src="imagem-premio.jpg" alt="Prêmio do Sorteio" class="imagem-premio">
+            <div class="info-rapida">
+                <h1>Nome do Sorteio</h1>
+                <p>Valor por número: R$ 0,00</p>
+            </div>
+        </div>
     </header>
 
     <main class="container">
@@ -51,7 +60,7 @@
                     <label for="mensagem">Mensagem na Live: (é opcional, mas mande, interaja com a live, seu
                         puto!)</label>
                     <textarea id="mensagem" maxlength="200" placeholder="Mande um salve na live!"></textarea>
-                   
+
                     <small id="contador-msg" style="color: #888; font-weight: bold;">200 caracteres restantes</small>
                 </div>
                 <button type="submit" class="btn-confirmar">Gerar Pix</button>

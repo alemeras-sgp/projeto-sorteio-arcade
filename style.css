@@ -11,17 +11,41 @@ body {
     color: #e1e1e6;
 }
 
-.header {
+
+
+
+.header-sorteio {
+    background: linear-gradient(180deg, #0f0f12 0%, #1a1a20 100%);
+    padding: 20px;
     text-align: center;
-    padding: 2rem;
-    background-color: #202024;
-    border-bottom: 2px solid #8257e5;
+    border-bottom: 2px solid #8257e5; /* Cor do seu brand */
 }
 
-.header p {
-    margin-top: 0.5rem;
-    color: #a8a8b3;
+.logo-stream {
+    max-width: 200px;
+    filter: drop-shadow(0 0 10px rgba(130, 87, 229, 0.5));
 }
+
+.banner-sorteio {
+    margin-top: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #333;
+}
+
+.imagem-premio {
+    width: 100%;
+    transition: transform 0.3s ease;
+}
+
+.imagem-premio:hover {
+    transform: scale(1.05); /* Efeito imersivo */
+}
+
+
 
 .container {
     max-width: 1000px;
