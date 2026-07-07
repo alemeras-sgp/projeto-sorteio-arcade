@@ -60,20 +60,29 @@ document.addEventListener('click', async (event) => {
 
 async function exportarCSV() {
     const { data, error } = await db.from('sorteio').select('*');
-    if (error) return alert("Erro ao exportar");
+    if (error) return alert("Erro ao exportar: " + error.message);
 
-    // Converte JSON para CSV
-    let csv = 'ID,Nome,WhatsApp,Email,Status\n';
+    // 1. Cabeçalho com ponto e vírgula
+    let csv = 'ID;Nome;WhatsApp;Email;Status\n';
+    
     data.forEach(row => {
-        csv += `${row.id},${row.nome_comprador || ''},${row.whatsapp || ''},${row.email || ''},${row.status || ''}\n`;
+        // Remove quebras de linha que poderiam quebrar o CSV
+        const nome = (row.nome_comprador || '').replace(/"/g, '""').replace(/\n/g, ' ');
+        const zap = (row.whatsapp || '').replace(/"/g, '""').replace(/\n/g, ' ');
+        const email = (row.email || '').replace(/"/g, '""').replace(/\n/g, ' ');
+        
+        // 2. Linhas com ponto e vírgula
+        csv += `"${row.id}";"${nome}";"${zap}";"${email}";"${row.status || ''}"\n`;
     });
 
-    // Cria o link de download
-    const blob = new Blob([csv], { type: 'text/csv' });
+    // 3. Adiciona o BOM (Byte Order Mark) para o Excel reconhecer acentos
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+    
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `backup_sorteio_${new Date().toLocaleDateString()}.csv`;
+    a.download = `backup_sorteio_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
 }
 
