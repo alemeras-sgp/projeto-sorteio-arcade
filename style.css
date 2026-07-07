@@ -102,11 +102,6 @@ body {
     margin-top: 8rem;
 }
 
-.escondido-atras-do-modal {
-    z-index: -1 !important; /* Força ele a ficar atrás de tudo */
-    opacity: 0 !important;   /* Oculta visualmente */
-    pointer-events: none;    /* Impede cliques no botão */
-}
 
 /* ESTILO GERAL DO BOTÃO (Sempre flutuando) */
 #btn-comprar {
