@@ -128,6 +128,43 @@
     </div>
 
 
+    <script>
+        // Defina a senha aqui
+        const SENHA_CORRETA = "admin123"; 
+
+        function entrarAdmin() {
+            const inputSenha = document.getElementById('senha-admin');
+            const msgErro = document.getElementById('erro-login');
+            const telaLogin = document.getElementById('tela-login');
+            const painelAdmin = document.getElementById('conteudo-admin');
+            
+            if (inputSenha.value === SENHA_CORRETA) {
+                // Senha certa: Esconde o login e mostra o painel
+                telaLogin.style.display = 'none';
+                painelAdmin.style.display = 'block';
+            } else {
+                // Senha errada: Mostra a mensagem de erro
+                msgErro.style.display = 'block';
+                inputSenha.value = ''; 
+                inputSenha.focus(); // Já deixa o cursor piscando de novo pra facilitar
+            }
+        }
+
+        // Permite logar apertando a tecla "Enter"
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputSenha = document.getElementById('senha-admin');
+            if(inputSenha) {
+                inputSenha.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        entrarAdmin();
+                    }
+                });
+            }
+        });
+    </script>
+    </body>
+</html>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="admin.js"></script>
 
