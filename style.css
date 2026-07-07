@@ -290,7 +290,6 @@ body {
 
 /* Ajuste nos botões de números para seguir a paleta */
 .numero {
-    background-color: #4a4a4a !important;
     border: none !important;
     color: #ffffff !important;
 }
