@@ -265,6 +265,12 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
     const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
+    // ADICIONE ISSO AQUI:
+    console.log("Valores atuais no momento do clique:", {
+        VALOR_POR_NUMERO,
+        totalCompra,
+        tentativa: "Clicou no botão"
+    });
 
     // Salva os números que estão sendo comprados nesta sessão
     numerosEmPagamento = [...idsParaAtualizar];
@@ -406,7 +412,7 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 // 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
-   
+
     // -----------------------
     clearInterval(intervaloTimerPix);
 
