@@ -119,11 +119,24 @@ carregarGrade();
 // 4. LÓGICA DO CARRINHO E MODAL
 // ==========================================
 function atualizarBotaoCompra() {
+    // 1. Atualiza o texto/quantidade
     qtdSelecionadosSpan.textContent = numerosSelecionados.length;
+
+    // 2. Lógica para habilitar/desabilitar o botão
     if (numerosSelecionados.length > 0) {
         btnComprar.disabled = false;
+
+        // --- ADICIONE ISTO ---
+        btnComprar.classList.add('visivel');
+        btnComprar.textContent = `COMPRAR ${numerosSelecionados.length} NÚMERO(S)`;
+        // ---------------------
     } else {
         btnComprar.disabled = true;
+
+        // --- ADICIONE ISTO ---
+        btnComprar.classList.remove('visivel');
+        btnComprar.textContent = "COMPRAR"; // Ou o texto original do seu botão
+        // ---------------------
     }
 }
 
