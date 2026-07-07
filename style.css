@@ -299,6 +299,10 @@ body {
     border-color: #ffffff !important;
 }
 
+.numero.reservado {
+    color: #121214 !important;
+}
+
 /* Ajuste no botão de compra para ficar Gamer */
 #btn-comprar {
     background-color: #015488 !important;
