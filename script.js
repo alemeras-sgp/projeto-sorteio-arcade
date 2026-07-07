@@ -30,6 +30,38 @@ const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 console.log("Supabase inicializado com sucesso!");
 
+// --- INÍCIO DA INSERÇÃO: Lógica de Login ---
+// Defina aqui a sua senha de acesso
+const SENHA_CORRETA = "admin123"; 
+
+window.entrarAdmin = function() {
+    const senhaDigitada = document.getElementById('senha-admin').value;
+    const msgErro = document.getElementById('erro-login');
+    
+    if (senhaDigitada === SENHA_CORRETA) {
+        // Senha certa: Esconde o login e mostra o painel
+        document.getElementById('tela-login').style.display = 'none';
+        document.getElementById('conteudo-admin').style.display = 'block';
+    } else {
+        // Senha errada: Mostra a mensagem de erro
+        msgErro.style.display = 'block';
+        document.getElementById('senha-admin').value = ''; // Limpa o campo
+    }
+}
+
+// Permite logar apertando a tecla "Enter"
+document.addEventListener('DOMContentLoaded', () => {
+    const inputSenha = document.getElementById('senha-admin');
+    if(inputSenha) {
+        inputSenha.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                entrarAdmin();
+            }
+        });
+    }
+});
+// --- FIM DA INSERÇÃO ---
+
 // 2. SEGUNDO: Define a variável de preço
 let VALOR_POR_NUMERO = 0.05;
 
