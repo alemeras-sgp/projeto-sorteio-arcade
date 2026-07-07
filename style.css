@@ -140,6 +140,15 @@ body {
     transform: translateY(0); /* Aparece com um efeito de subida */
 }
 
+@media (min-width: 768px) {
+    #btn-comprar {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        width: 100%;
+    }
+}
 /* Modal de Checkout */
 .modal {
     position: fixed;
