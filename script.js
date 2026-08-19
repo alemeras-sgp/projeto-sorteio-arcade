@@ -258,27 +258,19 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         console.log("Números livres! 2. Chamando API do PIX...");
 
-        // 2. CHAMA A API DO PIX (Seguro, pois sabemos que estão livres)
-        const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseKey}`,
-                'apikey': supabaseKey
-            },
-            body: JSON.stringify({
+        // 2. CHAMA A API DO PIX (Usando a invoke oficial do Supabase)
+        const { data: dadosPix, error: erroFuncao } = await db.functions.invoke('gerar-pix', {
+            body: {
                 valor: valorFormatado,
                 email: email,
                 nome: nome,
                 ids: idsParaAtualizar
-            })
+            }
         });
 
-        if (!respostaPix.ok) {
-            const erroDetalhado = await respostaPix.text();
-            throw new Error(`Erro na API do PIX: ${erroDetalhado}`);
+        if (erroFuncao) {
+            throw new Error(`Erro na geração do PIX: ${erroFuncao.message || JSON.stringify(erroFuncao)}`);
         }
-        const dadosPix = await respostaPix.json();
 
         console.log("PIX Gerado! 3. Travando os números no banco...");
 
