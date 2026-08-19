@@ -229,10 +229,24 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("Iniciando corrida atômica no banco de dados...");
+        console.log("Iniciando dupla checagem de segurança...");
 
-        // 1. A ATUALIZAÇÃO BLINDADA (Atômica)
-        const { data: updateData, error: erroBanco } = await db
+        // 1. OLHA ANTES DE PULAR
+        const { data: checagem } = await db
+            .from('sorteio')
+            .select('id, status')
+            .in('id', idsParaAtualizar);
+
+        const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
+        if (numerosRoubados.length > 0) {
+            alert("⚠️ Ops! Alguém acabou de reservar esse número na sua frente! Escolha outro.");
+            carregarGrade();
+            modalCheckout.classList.add('escondido');
+            return;
+        }
+
+        // 2. TENTA PEGAR
+        await db
             .from('sorteio')
             .update({
                 status: 'reservado',
@@ -243,22 +257,25 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 reservado_em: new Date().toISOString()
             })
             .in('id', idsParaAtualizar)
-            .eq('status', 'disponivel')
-            .select('id'); 
+            .eq('status', 'disponivel');
 
-        if (erroBanco) throw erroBanco;
+        // 3. CONFERE SE PEGOU MESMO (A Trava Definitiva)
+        const { data: confirmacao } = await db
+            .from('sorteio')
+            .select('id, nome_comprador')
+            .in('id', idsParaAtualizar);
 
-        // 2. O JUIZ DA CORRIDA
-        if (!updateData || updateData.length !== idsParaAtualizar.length) {
-            alert("⚠️ Ops! Alguém foi mais rápido e reservou esse número milissegundos antes de você! Por favor, escolha outro.");
-            carregarGrade(); 
+        // Se o nome salvo no banco não for o do usuário atual, ele perdeu a corrida no último milissegundo
+        const perdiACorrida = confirmacao.some(num => num.nome_comprador !== nome);
+        
+        if (perdiACorrida) {
+            alert("⚠️ Que azar! No exato milissegundo, outra pessoa levou o número.");
+            carregarGrade();
             modalCheckout.classList.add('escondido');
-            btnConfirmar.textContent = textoOriginalBotao;
-            btnConfirmar.disabled = false;
-            return; 
+            return; // Bloqueia e NÃO gera o PIX
         }
 
-        console.log("Você ganhou a corrida! Números reservados com sucesso. Gerando PIX...");
+        console.log("Números garantidos! Gerando PIX...");
 
         // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
         idsParaAtualizar.forEach(id => {
@@ -273,7 +290,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             });
         });
 
-        // 3. ENVIAMOS PARA A API DO PIX
+        // 4. CHAMA O PIX
         const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
             method: 'POST',
             headers: {
@@ -290,6 +307,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         });
 
         if (!respostaPix.ok) {
+            // Se a API do banco cair, libera o número para não sujar o sistema
             await liberarNumerosNoBanco(idsParaAtualizar);
             const erroDetalhado = await respostaPix.text();
             throw new Error(`Erro na geração do PIX: ${erroDetalhado}`);
