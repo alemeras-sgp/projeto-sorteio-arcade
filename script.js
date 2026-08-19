@@ -488,7 +488,7 @@ db.channel('mudancas_sorteio')
                     style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
                     📥 Baixar Comprovante
             </button>
-            <button onclick="modalPix.classList.add('escondido')" 
+            <button onclick="fecharModalPixELimparEstado()" 
                     style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
                     Fechar
             </button>
