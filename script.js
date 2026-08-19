@@ -17,23 +17,19 @@ const imgQrcode = document.getElementById('img-qrcode');
 const inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
 const spanTempoRestante = document.getElementById('tempo-restante');
-// --- TRAVA DE SEGURANÇA: Chave Secreta na URL ---
-
 
 // --- INÍCIO DA INSERÇÃO: Sincronização em Tempo Real ---
 db.channel('mudancas_config')
   .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
     console.log("Mudança detectada, atualizando informações...");
-    carregarInfoSorteioPublico(); // Atualiza o cabeçalho
-    location.reload(); // Recarrega a página para atualizar os números
+    carregarInfoSorteioPublico(); 
+    location.reload(); 
   })
   .subscribe();
 // --- FIM DA INSERÇÃO ---
 
-
-let intervaloTimerPix; // Variável que vai guardar o motor do relógio
-
-let TEMPO_LIMITE_PIX = 10; // Padrão
+let intervaloTimerPix; 
+let TEMPO_LIMITE_PIX = 10; 
 
 async function buscarConfiguracoes() {
     const { data } = await db.from('configuracoes').select('valor_numero, tempo_pix_minutos').eq('id', 1).single();
@@ -44,14 +40,12 @@ async function buscarConfiguracoes() {
     }
 }
 
-
 // ==========================================
 // 3. LÓGICA DA GRADE DE NÚMEROS
 // ==========================================
 async function carregarGrade() {
-    gridNumeros.innerHTML = ''; // Limpa a grade antes de carregar
+    gridNumeros.innerHTML = ''; 
 
-    // Busca os números no banco
     const { data: numerosBanco, error } = await db
         .from('sorteio')
         .select('*')
@@ -62,20 +56,17 @@ async function carregarGrade() {
         return;
     }
 
-    // Cria os botões na tela
     numerosBanco.forEach(item => {
         const numeroFormatado = String(item.id).padStart(3, '0');
         const botao = document.createElement('button');
         botao.textContent = numeroFormatado;
 
-        // Aplica o status que veio do banco
         botao.classList.add('numero', item.status);
 
         if (item.status === 'reservado' || item.status === 'pago') {
             botao.disabled = true;
         }
 
-        // Lógica de clique no número
         botao.addEventListener('click', function () {
             if (!botao.classList.contains('reservado') && !botao.classList.contains('pago')) {
                 botao.classList.toggle('selecionado');
@@ -99,45 +90,33 @@ async function carregarGrade() {
     });
 }
 
-
 // ==========================================
 // 4. LÓGICA DO CARRINHO E MODAL
 // ==========================================
 function atualizarBotaoCompra() {
-    // 1. Atualiza o texto/quantidade
     qtdSelecionadosSpan.textContent = numerosSelecionados.length;
 
-    // 2. Lógica para habilitar/desabilitar o botão
     if (numerosSelecionados.length > 0) {
         btnComprar.disabled = false;
-
-        // --- ADICIONE ISTO ---
         btnComprar.classList.add('visivel');
         btnComprar.textContent = `COMPRAR ${numerosSelecionados.length} NÚMERO(S)`;
-        // ---------------------
     } else {
         btnComprar.disabled = true;
-
-        // --- ADICIONE ISTO ---
         btnComprar.classList.remove('visivel');
-        btnComprar.textContent = "COMPRAR"; // Ou o texto original do seu botão
-        // ---------------------
+        btnComprar.textContent = "COMPRAR"; 
     }
 }
 
-// Abre o Modal
 btnComprar.addEventListener('click', function () {
     numerosSelecionados.sort();
     resumoNumeros.textContent = `Números selecionados: ${numerosSelecionados.join(', ')}`;
     modalCheckout.classList.remove('escondido');
 });
 
-// Fecha o Modal no (X)
 fecharModal.addEventListener('click', function () {
     modalCheckout.classList.add('escondido');
 });
 
-// Fecha o Modal clicando fora
 window.addEventListener('click', function (event) {
     if (event.target === modalCheckout) {
         modalCheckout.classList.add('escondido');
@@ -148,31 +127,30 @@ window.addEventListener('click', function (event) {
 // 5. ENVIANDO DADOS PARA O BANCO E GERANDO PIX
 // ==========================================
 
-// --- VALIDAÇÃO DO WHATSAPP ---
-const zap = document.getElementById('whatsapp').value.replace(/\D/g, ''); // Remove tudo que não for número
+const zap = document.getElementById('whatsapp').value.replace(/\D/g, ''); 
+let numerosEmPagamento = []; 
 
-let numerosEmPagamento = []; // Controla quais números o usuário atual está pagando
-
-// INSERIR NA REGIÃO 5, LOGO ANTES DO ADDEVENTLISTENER DO FORM-CHECKOUT
-// Criamos uma função separada para liberar o banco
+// --- FUNÇÃO DE APOIO PARA LIBERAR NÚMEROS (BLINDADA) ---
 async function liberarNumerosNoBanco(ids) {
-    await db
-        .from('sorteio')
-        .update({
-            status: 'disponivel',
-            nome_comprador: null,
-            reservado_em: null
-        })
-        .in('id', ids);
+    if (ids.length > 0) {
+        await db
+            .from('sorteio')
+            .update({
+                status: 'disponivel',
+                nome_comprador: null,
+                whatsapp: null,
+                email: null,
+                mensagem_live: null,
+                reservado_em: null
+            })
+            .in('id', ids)
+            .eq('status', 'reservado'); // SEGURANÇA: Só libera se ainda for 'reservado'. Impede soltar número já pago!
+    }
 }
 
-// --- CRONÔMETRO DINÂMICO ---
 function iniciarCronometroPix() {
-    // TEMPO_LIMITE_PIX foi o que buscamos do banco na função buscarConfiguracoes()
-    // Convertemos minutos para segundos
     let tempo = TEMPO_LIMITE_PIX * 60;
 
-    // Atualiza o display inicial com o tempo formatado
     const minInicial = String(Math.floor(tempo / 60)).padStart(2, '0');
     const segInicial = String(tempo % 60).padStart(2, '0');
     spanTempoRestante.textContent = `${minInicial}:${segInicial}`;
@@ -198,8 +176,6 @@ function iniciarCronometroPix() {
     }, 1000);
 }
 
-
-// --- CONTADOR DE CARACTERES DA MENSAGEM ---
 const campoMensagem = document.getElementById('mensagem');
 const contadorMsg = document.getElementById('contador-msg');
 
@@ -210,26 +186,21 @@ campoMensagem.addEventListener('input', function () {
 
     contadorMsg.textContent = `${restante} caracteres restantes`;
 
-    // Efeito visual: Muda a cor para vermelho quando estiver acabando (menos de 20 letras)
     if (restante <= 20) {
-        contadorMsg.style.color = '#ff4d4d'; // Vermelho de alerta
+        contadorMsg.style.color = '#ff4d4d'; 
     } else {
-        contadorMsg.style.color = '#888'; // Cor padrão
+        contadorMsg.style.color = '#888'; 
     }
 });
 
-
-
-// SUBSTIUIR APENAS ESTE BLOCO NA REGIÃO 5
+// --- SUBMISSÃO DO FORMULÁRIO (TRAVA ATÔMICA) ---
 document.getElementById('form-checkout').addEventListener('submit', async function (e) {
     e.preventDefault();
     console.log("O botão de confirmar foi clicado e o form disparou!");
 
-    // 1. Pegamos o valor bruto primeiro
     const zapBruto = document.getElementById('whatsapp').value;
-    const zap = zapBruto.replace(/\D/g, ''); // Remove caracteres especiais
+    const zap = zapBruto.replace(/\D/g, ''); 
 
-    // 2. Fazemos a validação
     if (zap.length < 10 || zap.length > 11) {
         alert("Por favor, insira um número de WhatsApp válido com DDD.");
         document.getElementById('whatsapp').focus();
@@ -258,32 +229,10 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("Iniciando verificação de segurança no banco...");
+        console.log("Iniciando corrida atômica no banco de dados...");
 
-        // 1. TRAVA DE CONCORRÊNCIA: Antes de atualizar, pegamos o status atualizado no banco
-        const { data: checagem, error: erroChecagem } = await db
-            .from('sorteio')
-            .select('id, status')
-            .in('id', idsParaAtualizar);
-
-        if (erroChecagem) throw erroChecagem;
-
-        // Verifica se ALGUM dos números escolhidos não está mais "disponivel"
-        const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
-        
-        if (numerosRoubados.length > 0) {
-            alert("⚠️ Ops! Alguém acabou de reservar um desses números na sua frente. Por favor, escolha outros números.");
-            carregarGrade(); // Recarrega a grade
-            modalCheckout.classList.add('escondido');
-            btnConfirmar.textContent = textoOriginalBotao;
-            btnConfirmar.disabled = false;
-            return; // PARA A COMPRA AQUI
-        }
-
-        console.log("Números livres! Enviando reserva...");
-
-        // 2. A ATUALIZAÇÃO BLINDADA (Fim do bug do NULL e sobreposição)
-        const { error: erroBanco } = await db
+        // 1. A ATUALIZAÇÃO BLINDADA (Atômica)
+        const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
             .update({
                 status: 'reservado',
@@ -294,11 +243,22 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 reservado_em: new Date().toISOString()
             })
             .in('id', idsParaAtualizar)
-            .eq('status', 'disponivel'); // Dupla garantia
+            .eq('status', 'disponivel')
+            .select('id'); 
 
         if (erroBanco) throw erroBanco;
 
-        console.log("Reserva enviada com sucesso ao banco!");
+        // 2. O JUIZ DA CORRIDA
+        if (!updateData || updateData.length !== idsParaAtualizar.length) {
+            alert("⚠️ Ops! Alguém foi mais rápido e reservou esse número milissegundos antes de você! Por favor, escolha outro.");
+            carregarGrade(); 
+            modalCheckout.classList.add('escondido');
+            btnConfirmar.textContent = textoOriginalBotao;
+            btnConfirmar.disabled = false;
+            return; 
+        }
+
+        console.log("Você ganhou a corrida! Números reservados com sucesso. Gerando PIX...");
 
         // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
         idsParaAtualizar.forEach(id => {
@@ -313,7 +273,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             });
         });
 
-        // Enviamos requisição para a Edge Function
+        // 3. ENVIAMOS PARA A API DO PIX
         const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
             method: 'POST',
             headers: {
@@ -330,7 +290,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         });
 
         if (!respostaPix.ok) {
-            // FIM DO BUG DE NUMEROS TRAVADOS SE O PIX CAIR
             await liberarNumerosNoBanco(idsParaAtualizar);
             const erroDetalhado = await respostaPix.text();
             throw new Error(`Erro na geração do PIX: ${erroDetalhado}`);
@@ -364,41 +323,18 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     }
 });
 
-
-
-// --- FUNÇÃO DE APOIO PARA LIBERAR NÚMEROS
-async function liberarNumerosNoBanco(ids) {
-    if (ids.length > 0) {
-        await db
-            .from('sorteio')
-            .update({
-                status: 'disponivel',
-                nome_comprador: null,
-                whatsapp: null,
-                email: null,
-                mensagem_live: null,
-                reservado_em: null
-            })
-            .in('id', ids);
-    }
-}
-
-// --- INÍCIO DA INSERÇÃO: Envio de E-mail ---
 function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados) {
-    // Verificação de segurança: não tenta enviar se faltar o e-mail
     if (!emailComprador) {
         console.warn("E-mail não fornecido. Disparo cancelado.");
         return;
     }
 
-    // Parâmetros que vão preencher as variáveis {{nome}}, {{numeros}} e {{email_destino}} lá no template do EmailJS
     const templateParams = {
         nome: nomeComprador,
-        numeros: numerosComprados.join(', '), // Transforma o array [1,2,3] em texto "1, 2, 3"
+        numeros: numerosComprados.join(', '), 
         email_destino: emailComprador
     };
 
-    // Substitua os valores abaixo pelos seus IDs reais do painel do EmailJS
     const SERVICE_ID = 'service_b7krsmk';
     const TEMPLATE_ID = 'template_glemw92';
 
@@ -409,26 +345,24 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
             console.error('FALHA AO ENVIAR E-MAIL...', error);
         });
 }
-// --- FIM DA INSERÇÃO ---
 
-// --- EVENTO DE FECHAR O MODAL ---
+// ==========================================
+// 6. EVENTOS DO MODAL E REALTIME
+// ==========================================
 
-// 1. Isolamos a lógica em uma função para reutilizar nos dois tipos de clique
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
 
-    // -----------------------
     clearInterval(intervaloTimerPix);
 
     if (numerosEmPagamento.length > 0) {
         liberarNumerosNoBanco(numerosEmPagamento).then(() => {
             numerosEmPagamento = [];
-            carregarGrade(); // Recarrega a grade para garantir que voltem como disponíveis
+            carregarGrade(); 
         });
     }
 
-    // --- LIMPEZA DE ESTADO (FIM DO BUG DO F5) ---
-    nomeCompradorAtual = ''; // Zera a variável global
+    nomeCompradorAtual = ''; 
 
     const camposParaLimpar = ['nome', 'email', 'mensagem'];
     camposParaLimpar.forEach(id => {
@@ -440,12 +374,9 @@ async function fecharModalPixELimparEstado() {
     if (selectVoz) selectVoz.selectedIndex = 0;
 }
 
-// 2. Dispara ao clicar no botão "fechar"
 fecharModalPix.addEventListener('click', fecharModalPixELimparEstado);
 
-// 3. Dispara ao clicar FORA do modal (no fundo escuro)
 window.addEventListener('click', function (event) {
-    // Se o elemento clicado for exatamente o fundo do modalPix, ele fecha e limpa
     if (event.target === modalPix) {
         fecharModalPixELimparEstado();
     }
@@ -463,9 +394,7 @@ btnCopiar.addEventListener('click', () => {
     }, 2000);
 });
 
-// ==========================================
-// 6. REALTIME (A Mágica do Tempo Real)
-// ==========================================
+// --- REALTIME ---
 db.channel('mudancas_sorteio')
     .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'sorteio' },
@@ -473,14 +402,9 @@ db.channel('mudancas_sorteio')
             const numeroMudou = payload.new;
             const idFormatado = String(numeroMudou.id).padStart(3, '0');
 
-            // --- NOTIFICAÇÃO DO COMPRADOR NO MODAL ---
-            // Se o número que mudou para 'pago' for o que este usuário acabou de comprar:
-            // --- NOTIFICAÇÃO DO COMPRADOR NO MODAL ---
             if (numerosEmPagamento.includes(numeroMudou.id) && numeroMudou.status === 'pago') {
-                const modalContent = modalPix.querySelector('.modal-content'); // Ajuste o seletor se necessário
                 const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
 
-                // Limpa o conteúdo antigo (QR Code, Timer, Inputs) e insere a mensagem de sucesso
                 modalPix.querySelector('.modal-content').innerHTML = `
         <div style="text-align: center; padding: 20px;">
             <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
@@ -501,23 +425,12 @@ db.channel('mudancas_sorteio')
             </button>
         </div>
     `;
-                // --- INÍCIO DA INSERÇÃO: DISPARO DO E-MAIL ---
-                // Verifica se o timer ainda está ativo. Isso garante que o e-mail 
-                // seja enviado apenas UMA VEZ, mesmo se o usuário comprou vários números juntos.
                 if (intervaloTimerPix !== null) {
-                    // Puxa o e-mail diretamente da resposta do banco de dados (numeroMudou.email)
                     enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
-
-                    // Para o cronômetro imediatamente e anula a variável
                     clearInterval(intervaloTimerPix);
                     intervaloTimerPix = null;
                 }
-                // --- FIM DA INSERÇÃO ---
-
-                // Para o cronômetro imediatamente
-                clearInterval(intervaloTimerPix);
             }
-            // ------------------------------------------
 
             const botoes = document.querySelectorAll('.numero');
             botoes.forEach(botao => {
@@ -540,9 +453,8 @@ db.channel('mudancas_sorteio')
     )
     .subscribe();
 
-// --- FUNÇÃO PARA GERAR COMPROVANTE PDF ---
 function baixarComprovante() {
-    const nome = nomeCompradorAtual || "Participante"; // Usa a variável que salvamos
+    const nome = nomeCompradorAtual || "Participante"; 
     const numeros = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
 
     const conteudo = `
@@ -563,7 +475,6 @@ function baixarComprovante() {
     a.click();
 }
 
-// --- INÍCIO DA INSERÇÃO: Carregar Info Pública ---
 async function carregarInfoSorteioPublico() {
     const { data: config, error } = await db.from('configuracoes').select('*').eq('id', 1).single();
 
@@ -573,7 +484,6 @@ async function carregarInfoSorteioPublico() {
     }
 
     if (config) {
-        // Atualiza os textos no HTML
         const elNome = document.getElementById('publico-nome');
         if (elNome) elNome.textContent = config.nome_sorteio || "Sorteio Atual";
 
@@ -594,16 +504,9 @@ async function carregarInfoSorteioPublico() {
 window.onload = async () => {
     console.log("Página carregada, inicializando...");
     
-    // 1. Busca configurações de preço e tempo primeiro
     await buscarConfiguracoes();
-    
-    // 2. Carrega as informações do sorteio no cabeçalho
     await carregarInfoSorteioPublico();
-    
-    // 3. Carrega a grade de números
     await carregarGrade();
-
-    await buscarConfiguracoes();
     
     console.log("Sistema pronto para uso!");
 };
