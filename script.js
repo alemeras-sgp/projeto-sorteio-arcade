@@ -229,68 +229,36 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("Iniciando dupla checagem de segurança...");
+        console.log("1. Verificando disponibilidade dos números ANTES de gerar o PIX...");
 
-        // 1. OLHA ANTES DE PULAR
-        const { data: checagem } = await db
+        // 1. CHECAGEM PRÉVIA: Só olha, não altera. 
+        const { data: checagem, error: erroChecagem } = await db
             .from('sorteio')
             .select('id, status')
             .in('id', idsParaAtualizar);
 
+        if (erroChecagem) throw erroChecagem;
+
+        // Filtra para ver se algum dos números não está mais disponível
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
-        if (numerosRoubados.length > 0) {
-            alert("⚠️ Ops! Alguém acabou de reservar esse número na sua frente! Escolha outro.");
-            carregarGrade();
-            modalCheckout.classList.add('escondido');
-            return;
-        }
-
-        // 2. TENTA PEGAR
-        await db
-            .from('sorteio')
-            .update({
-                status: 'reservado',
-                nome_comprador: nome,
-                whatsapp: zap,
-                email: email,
-                mensagem_live: msg,
-                reservado_em: new Date().toISOString()
-            })
-            .in('id', idsParaAtualizar)
-            .eq('status', 'disponivel');
-
-        // 3. CONFERE SE PEGOU MESMO (A Trava Definitiva)
-        const { data: confirmacao } = await db
-            .from('sorteio')
-            .select('id, nome_comprador')
-            .in('id', idsParaAtualizar);
-
-        // Se o nome salvo no banco não for o do usuário atual, ele perdeu a corrida no último milissegundo
-        const perdiACorrida = confirmacao.some(num => num.nome_comprador !== nome);
         
-        if (perdiACorrida) {
-            alert("⚠️ Que azar! No exato milissegundo, outra pessoa levou o número.");
-            carregarGrade();
+        if (numerosRoubados.length > 0) {
+            // Mapeia os IDs roubados para o formato bonitinho (ex: 001, 015)
+            const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
+            
+            // Mensagem transparente pro usuário
+            alert(`⚠️ Ops! O(s) número(s) ${nomesRoubados} já foi(ram) escolhido(s) por outra pessoa. Por favor, escolha outro(s).`);
+            
+            carregarGrade(); // Atualiza a tela na hora para ele ver os números vermelhos
             modalCheckout.classList.add('escondido');
-            return; // Bloqueia e NÃO gera o PIX
+            btnConfirmar.textContent = textoOriginalBotao;
+            btnConfirmar.disabled = false;
+            return; // PARA A COMPRA AQUI: Nenhum PIX é gerado!
         }
 
-        console.log("Números garantidos! Gerando PIX...");
+        console.log("Números livres! 2. Chamando API do PIX...");
 
-        // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
-        idsParaAtualizar.forEach(id => {
-            const idFormatado = String(id).padStart(3, '0');
-            const botoes = document.querySelectorAll('.numero');
-            botoes.forEach(b => {
-                if (b.textContent === idFormatado) {
-                    b.classList.remove('selecionado', 'disponivel');
-                    b.classList.add('reservado'); 
-                    b.disabled = true;
-                }
-            });
-        });
-
-        // 4. CHAMA O PIX
+        // 2. CHAMA A API DO PIX (Seguro, pois sabemos que estão livres)
         const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
             method: 'POST',
             headers: {
@@ -307,14 +275,56 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         });
 
         if (!respostaPix.ok) {
-            // Se a API do banco cair, libera o número para não sujar o sistema
-            await liberarNumerosNoBanco(idsParaAtualizar);
             const erroDetalhado = await respostaPix.text();
-            throw new Error(`Erro na geração do PIX: ${erroDetalhado}`);
+            throw new Error(`Erro na API do PIX: ${erroDetalhado}`);
         }
-
         const dadosPix = await respostaPix.json();
 
+        console.log("PIX Gerado! 3. Travando os números no banco...");
+
+        // 3. ATUALIZAÇÃO ATÔMICA (A Trava Final de segurança)
+        // Isso protege caso alguém clique EXATAMENTE no mesmo milissegundo que a API do PIX estava carregando
+        const { data: updateData, error: erroBanco } = await db
+            .from('sorteio')
+            .update({
+                status: 'reservado',
+                nome_comprador: nome,
+                whatsapp: zap,
+                email: email,
+                mensagem_live: msg,
+                reservado_em: new Date().toISOString()
+            })
+            .in('id', idsParaAtualizar)
+            .eq('status', 'disponivel')
+            .select('id'); 
+
+        if (erroBanco) throw erroBanco;
+
+        if (!updateData || updateData.length !== idsParaAtualizar.length) {
+            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra de um dos seus números milissegundos antes de você. Por segurança, cancele este PIX e tente novamente.`);
+            carregarGrade(); 
+            modalCheckout.classList.add('escondido');
+            btnConfirmar.textContent = textoOriginalBotao;
+            btnConfirmar.disabled = false;
+            return; 
+        }
+
+        console.log("Você ganhou a corrida! Exibindo QR Code...");
+
+        // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
+        idsParaAtualizar.forEach(id => {
+            const idFormatado = String(id).padStart(3, '0');
+            const botoes = document.querySelectorAll('.numero');
+            botoes.forEach(b => {
+                if (b.textContent === idFormatado) {
+                    b.classList.remove('selecionado', 'disponivel');
+                    b.classList.add('reservado'); 
+                    b.disabled = true;
+                }
+            });
+        });
+
+        // 4. MOSTRA O PIX NA TELA
         imgQrcode.src = `data:image/jpeg;base64,${dadosPix.qr_code_base64}`;
         imgQrcode.style.display = 'inline-block';
         inputCopiaCola.value = dadosPix.qr_code;
