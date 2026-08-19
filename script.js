@@ -384,12 +384,61 @@ async function fecharModalPixELimparEstado() {
 
     nomeCompradorAtual = ''; 
 
+    // --- A MÁGICA: RESTAURAR O HTML ORIGINAL ---
+    const modalContent = modalPix.querySelector('.modal-content');
+    
+    // Aqui estamos reconstruindo o HTML exatamente como ele estava no seu index.html original
+    modalContent.innerHTML = `
+        <span id="fechar-modal-pix" class="fechar">&times;</span>
+        <h2>Pagamento via Pix</h2>
+        <p style="color: #a8a8b3; margin-bottom: 1rem;">Escaneie o QR Code ou copie o código abaixo.</p>
+
+        <div class="qr-code-container">
+            <img id="img-qrcode" src="" alt="QR Code Pix"
+                style="max-width: 250px; border-radius: 8px; margin: 15px 0; border: 4px solid #fff; display: none;">
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+            <label>Pix Copia e Cola:</label>
+            <input type="text" id="input-copiacola" readonly>
+            <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código Pix</button>
+        </div>
+
+        <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span id="tempo-restante">02:00</span></p>
+
+        <p id="status-pagamento"
+            style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando pagamento...</p>
+    `;
+
+    // --- RE-VINCULAR OS EVENTOS DOS BOTÕES NOVOS ---
+    // Como os elementos foram recriados, precisamos reconectar os cliques
+    
+    // 1. Vincular botão de fechar
+    document.getElementById('fechar-modal-pix').addEventListener('click', fecharModalPixELimparEstado);
+
+    // 2. Vincular botão de copiar novamente
+    const btnCopiarNovo = document.getElementById('btn-copiar');
+    btnCopiarNovo.addEventListener('click', () => {
+        const inputCopiaCola = document.getElementById('input-copiacola');
+        inputCopiaCola.select();
+        document.execCommand('copy');
+        const textoAntigo = btnCopiarNovo.textContent;
+        btnCopiarNovo.textContent = 'Copiado!';
+        btnCopiarNovo.style.backgroundColor = '#00875f';
+        setTimeout(() => {
+            btnCopiarNovo.textContent = textoAntigo;
+            btnCopiarNovo.style.backgroundColor = '#8257e5';
+        }, 2000);
+    });
+
+    // Limpar os campos do form principal
     const camposParaLimpar = ['nome', 'email', 'mensagem'];
     camposParaLimpar.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.value = '';
     });
-
+    
+    // Resetar o campo de voz (se existir)
     const selectVoz = document.getElementById('voz-bot');
     if (selectVoz) selectVoz.selectedIndex = 0;
 }
