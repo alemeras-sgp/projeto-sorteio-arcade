@@ -95,6 +95,7 @@ async function exportarCSV() {
         const nome = (row.nome_comprador || '').replace(/"/g, '""').replace(/\n/g, ' ');
         const zap = (row.whatsapp || '').replace(/"/g, '""').replace(/\n/g, ' ');
         const email = (row.email || '').replace(/"/g, '""').replace(/\n/g, ' ');
+        const cpf = (row.cpf || '').replace(/"/g, '""').replace(/\n/g, ' ');
 
         // 2. Linhas com ponto e vírgula
         csv += `"${row.id}";"${nome}";"${zap}";"${email}";"${row.status || ''}"\n`;
@@ -165,6 +166,7 @@ async function carregarVendas() {
             <td>${item.nome_comprador}</td>
             <td>${item.whatsapp}</td>
             <td>${item.email}</td>
+            <td>${item.cpf}</td>
             <td>${item.mensagem_live || ''}<button 
         onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')" 
         style="margin-left: 10px; cursor: pointer; background: #8257e5; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">

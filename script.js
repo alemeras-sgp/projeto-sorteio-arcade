@@ -217,6 +217,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const nome = document.getElementById('nome').value;
     nomeCompradorAtual = nome;
     const email = document.getElementById('email').value;
+    const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
     const msgTexto = document.getElementById('mensagem').value;
     const msg = `${msgTexto}`;
 
@@ -264,6 +265,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 valor: valorFormatado,
                 email: email,
                 nome: nome,
+                cpf: cpf,
                 ids: idsParaAtualizar
             }
         });
@@ -429,7 +431,7 @@ async function fecharModalPixELimparEstado() {
         }, 2000);
     });
 
-    const camposParaLimpar = ['nome', 'email', 'mensagem'];
+    const camposParaLimpar = ['nome', 'email', 'cpf', 'mensagem'];
     camposParaLimpar.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.value = '';
