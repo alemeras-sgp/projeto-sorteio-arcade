@@ -219,6 +219,8 @@ campoMensagem.addEventListener('input', function () {
 });
 
 
+
+// SUBSTIUIR APENAS ESTE BLOCO NA REGIÃO 5
 document.getElementById('form-checkout').addEventListener('submit', async function (e) {
     e.preventDefault();
     console.log("O botão de confirmar foi clicado e o form disparou!");
@@ -231,16 +233,15 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     if (zap.length < 10 || zap.length > 11) {
         alert("Por favor, insira um número de WhatsApp válido com DDD.");
         document.getElementById('whatsapp').focus();
-        return; // Agora funciona, está dentro da função
+        return;
     }
 
-    // 3. Agora o restante do código usa o 'zap' que já está limpo:
     const btnConfirmar = document.querySelector('.btn-confirmar');
-    if (btnConfirmar.disabled) return; // Se já estiver travado, ignora novos cliques
+    if (btnConfirmar.disabled) return; 
 
     const textoOriginalBotao = btnConfirmar.textContent;
     btnConfirmar.textContent = 'Processando...';
-    btnConfirmar.disabled = true; // Botão fica cinza e não clicável
+    btnConfirmar.disabled = true;
 
     const nome = document.getElementById('nome').value;
     nomeCompradorAtual = nome;
@@ -250,17 +251,39 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
     const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
-    const valorFormatado = parseFloat(totalCompra.toFixed(2)); // Isso resolve o 0.15000000000000002
+    const valorFormatado = parseFloat(totalCompra.toFixed(2)); 
 
     console.log("Enviando valor para API:", valorFormatado);
 
-    // Salva os números que estão sendo comprados nesta sessão
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("Iniciando envio para o banco..."); // <-- RASTREAMENTO 1
+        console.log("Iniciando verificação de segurança no banco...");
 
-        const { error: erroBanco, data } = await db
+        // 1. TRAVA DE CONCORRÊNCIA: Antes de atualizar, pegamos o status atualizado no banco
+        const { data: checagem, error: erroChecagem } = await db
+            .from('sorteio')
+            .select('id, status')
+            .in('id', idsParaAtualizar);
+
+        if (erroChecagem) throw erroChecagem;
+
+        // Verifica se ALGUM dos números escolhidos não está mais "disponivel"
+        const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
+        
+        if (numerosRoubados.length > 0) {
+            alert("⚠️ Ops! Alguém acabou de reservar um desses números na sua frente. Por favor, escolha outros números.");
+            carregarGrade(); // Recarrega a grade
+            modalCheckout.classList.add('escondido');
+            btnConfirmar.textContent = textoOriginalBotao;
+            btnConfirmar.disabled = false;
+            return; // PARA A COMPRA AQUI
+        }
+
+        console.log("Números livres! Enviando reserva...");
+
+        // 2. A ATUALIZAÇÃO BLINDADA (Fim do bug do NULL e sobreposição)
+        const { error: erroBanco } = await db
             .from('sorteio')
             .update({
                 status: 'reservado',
@@ -270,14 +293,12 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 mensagem_live: msg,
                 reservado_em: new Date().toISOString()
             })
-            .in('id', idsParaAtualizar);
+            .in('id', idsParaAtualizar)
+            .eq('status', 'disponivel'); // Dupla garantia
 
-        if (erroBanco) {
-            console.error("ERRO DETALHADO DO SUPABASE:", erroBanco); // <-- RASTREAMENTO 2
-            throw erroBanco;
-        }
+        if (erroBanco) throw erroBanco;
 
-        console.log("Reserva enviada com sucesso ao banco!"); // <-- RASTREAMENTO 3
+        console.log("Reserva enviada com sucesso ao banco!");
 
         // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
         idsParaAtualizar.forEach(id => {
@@ -286,13 +307,13 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             botoes.forEach(b => {
                 if (b.textContent === idFormatado) {
                     b.classList.remove('selecionado', 'disponivel');
-                    b.classList.add('reservado'); // AQUI O MÁGICO ACONTECE
+                    b.classList.add('reservado'); 
                     b.disabled = true;
                 }
             });
         });
 
-        // Enviamos também os 'ids' na requisição para a Edge Function
+        // Enviamos requisição para a Edge Function
         const respostaPix = await fetch(`${supabaseUrl}/functions/v1/gerar-pix`, {
             method: 'POST',
             headers: {
@@ -300,7 +321,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 'Authorization': `Bearer ${supabaseKey}`,
                 'apikey': supabaseKey
             },
-            // Use 'valorFormatado' aqui
             body: JSON.stringify({
                 valor: valorFormatado,
                 email: email,
@@ -310,8 +330,10 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         });
 
         if (!respostaPix.ok) {
+            // FIM DO BUG DE NUMEROS TRAVADOS SE O PIX CAIR
+            await liberarNumerosNoBanco(idsParaAtualizar);
             const erroDetalhado = await respostaPix.text();
-            throw new Error(`Status ${respostaPix.status}: ${erroDetalhado}`);
+            throw new Error(`Erro na geração do PIX: ${erroDetalhado}`);
         }
 
         const dadosPix = await respostaPix.json();
@@ -320,7 +342,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         imgQrcode.style.display = 'inline-block';
         inputCopiaCola.value = dadosPix.qr_code;
 
-        // Reseta o texto do modal para o estado de espera
         const statusTxt = document.getElementById('status-pagamento');
         statusTxt.textContent = "⏳ Aguardando pagamento...";
         statusTxt.style.color = "#e1a000";
@@ -329,25 +350,20 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
 
-
-
-        // INSERIR ESTA LINHA AQUI:
-        iniciarCronometroPix(); // <--- Dá o play no relógio!
+        iniciarCronometroPix(); 
 
         numerosSelecionados = [];
         atualizarBotaoCompra();
-        // carregarGrade();
 
     } catch (err) {
         console.error("DETALHE DO ERRO:", err);
-        // Se o erro vier do Supabase, o erro real está no err.message
-        // Se for erro de rede, o err pode estar em err.status
         alert("Erro ao processar: " + (err.message || "Verifique o console (F12)"));
     } finally {
         btnConfirmar.textContent = textoOriginalBotao;
         btnConfirmar.disabled = false;
     }
 });
+
 
 
 // --- FUNÇÃO DE APOIO PARA LIBERAR NÚMEROS
@@ -571,10 +587,6 @@ async function carregarInfoSorteioPublico() {
         if (elEstado) elEstado.textContent = config.estado_produto || "Não definido";
     }
 }
-
-// Executa a função assim que o script carregar
-carregarInfoSorteioPublico();
-// --- FIM DA INSERÇÃO ---
 
 // ==========================================
 // 7. INICIALIZAÇÃO SEGURA (Window Onload)
