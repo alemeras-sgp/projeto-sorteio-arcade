@@ -13,10 +13,10 @@ const resumoNumeros = document.getElementById('resumo-numeros');
 let numerosSelecionados = [];
 const modalPix = document.getElementById('modal-pix');
 const fecharModalPix = document.getElementById('fechar-modal-pix');
-const imgQrcode = document.getElementById('img-qrcode');
-const inputCopiaCola = document.getElementById('input-copiacola');
+let imgQrcode = document.getElementById('img-qrcode');
+let inputCopiaCola = document.getElementById('input-copiacola');
 const btnCopiar = document.getElementById('btn-copiar');
-const spanTempoRestante = document.getElementById('tempo-restante');
+let spanTempoRestante = document.getElementById('tempo-restante');
 
 // --- INÍCIO DA INSERÇÃO: Sincronização em Tempo Real ---
 db.channel('mudancas_config')
@@ -384,10 +384,8 @@ async function fecharModalPixELimparEstado() {
 
     nomeCompradorAtual = ''; 
 
-    // --- A MÁGICA: RESTAURAR O HTML ORIGINAL ---
+    // --- RECONSTRÓI O HTML DO MODAL ---
     const modalContent = modalPix.querySelector('.modal-content');
-    
-    // Aqui estamos reconstruindo o HTML exatamente como ele estava no seu index.html original
     modalContent.innerHTML = `
         <span id="fechar-modal-pix" class="fechar">&times;</span>
         <h2>Pagamento via Pix</h2>
@@ -410,16 +408,16 @@ async function fecharModalPixELimparEstado() {
             style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando pagamento...</p>
     `;
 
-    // --- RE-VINCULAR OS EVENTOS DOS BOTÕES NOVOS ---
-    // Como os elementos foram recriados, precisamos reconectar os cliques
-    
-    // 1. Vincular botão de fechar
+    // --- ATUALIZA AS VARIÁVEIS GLOBAIS PARA OS NOVOS ELEMENTOS ---
+    imgQrcode = document.getElementById('img-qrcode');
+    inputCopiaCola = document.getElementById('input-copiacola');
+    spanTempoRestante = document.getElementById('tempo-restante');
+
+    // --- RE-VINCULA OS EVENTOS ---
     document.getElementById('fechar-modal-pix').addEventListener('click', fecharModalPixELimparEstado);
 
-    // 2. Vincular botão de copiar novamente
     const btnCopiarNovo = document.getElementById('btn-copiar');
     btnCopiarNovo.addEventListener('click', () => {
-        const inputCopiaCola = document.getElementById('input-copiacola');
         inputCopiaCola.select();
         document.execCommand('copy');
         const textoAntigo = btnCopiarNovo.textContent;
@@ -431,14 +429,12 @@ async function fecharModalPixELimparEstado() {
         }, 2000);
     });
 
-    // Limpar os campos do form principal
     const camposParaLimpar = ['nome', 'email', 'mensagem'];
     camposParaLimpar.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.value = '';
     });
     
-    // Resetar o campo de voz (se existir)
     const selectVoz = document.getElementById('voz-bot');
     if (selectVoz) selectVoz.selectedIndex = 0;
 }
