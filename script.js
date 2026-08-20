@@ -325,6 +325,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         paymentBrickController = await bricksBuilder.create('payment', 'pix-brick-container', {
             initialization: {
                 preferenceId: dadosPix.preference_id,
+                amount: valorFormatado,
             },
             customization: {
                 paymentMethods: {
