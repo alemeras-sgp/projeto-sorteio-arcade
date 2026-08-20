@@ -23,8 +23,8 @@ const fecharModalPix = document.getElementById('fechar-modal-pix');
 
 
 
-let intervaloTimerPix; 
-let TEMPO_LIMITE_PIX = 10; 
+let intervaloTimerPix;
+let TEMPO_LIMITE_PIX = 10;
 
 async function buscarConfiguracoes() {
     const { data } = await db.from('configuracoes').select('valor_numero, tempo_pix_minutos').eq('id', 1).single();
@@ -39,7 +39,7 @@ async function buscarConfiguracoes() {
 // 3. LÓGICA DA GRADE DE NÚMEROS
 // ==========================================
 async function carregarGrade() {
-    gridNumeros.innerHTML = ''; 
+    gridNumeros.innerHTML = '';
 
     const { data: numerosBanco, error } = await db
         .from('sorteio')
@@ -98,7 +98,7 @@ function atualizarBotaoCompra() {
     } else {
         btnComprar.disabled = true;
         btnComprar.classList.remove('visivel');
-        btnComprar.textContent = "COMPRAR"; 
+        btnComprar.textContent = "COMPRAR";
     }
 }
 
@@ -122,7 +122,7 @@ window.addEventListener('click', function (event) {
 // 5. ENVIANDO DADOS PARA O BANCO E GERANDO PREFERÊNCIA DO PIX
 // ==========================================
 
-let numerosEmPagamento = []; 
+let numerosEmPagamento = [];
 
 async function liberarNumerosNoBanco(ids) {
     if (ids.length > 0) {
@@ -157,7 +157,7 @@ function iniciarCronometroPix() {
         tempo--;
         const minutos = String(Math.floor(tempo / 60)).padStart(2, '0');
         const segundos = String(tempo % 60).padStart(2, '0');
-        
+
         if (spanTempoRestante) {
             spanTempoRestante.textContent = `${minutos}:${segundos}`;
         }
@@ -191,9 +191,9 @@ if (campoMensagem && contadorMsg) {
         contadorMsg.textContent = `${restante} caracteres restantes`;
 
         if (restante <= 20) {
-            contadorMsg.style.color = '#ff4d4d'; 
+            contadorMsg.style.color = '#ff4d4d';
         } else {
-            contadorMsg.style.color = '#888'; 
+            contadorMsg.style.color = '#888';
         }
     });
 }
@@ -204,7 +204,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     console.log("O botão de confirmar foi clicado e o form disparou!");
 
     const zapBruto = document.getElementById('whatsapp').value;
-    const zap = zapBruto.replace(/\D/g, ''); 
+    const zap = zapBruto.replace(/\D/g, '');
 
     if (zap.length < 10 || zap.length > 11) {
         alert("Por favor, insira um número de WhatsApp válido com DDD.");
@@ -213,7 +213,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     }
 
     const btnConfirmar = document.querySelector('.btn-confirmar');
-    if (btnConfirmar.disabled) return; 
+    if (btnConfirmar.disabled) return;
 
     const textoOriginalBotao = btnConfirmar.textContent;
     btnConfirmar.textContent = 'Processando...';
@@ -228,7 +228,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
     const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
-    const valorFormatado = parseFloat(totalCompra.toFixed(2)); 
+    const valorFormatado = parseFloat(totalCompra.toFixed(2));
 
     numerosEmPagamento = [...idsParaAtualizar];
 
@@ -242,7 +242,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroChecagem) throw erroChecagem;
 
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
-        
+
         if (numerosRoubados.length > 0) {
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
             alert(`⚠️ Ops! O(s) número(s) ${nomesRoubados} já foi(ram) escolhido(s). Escolha outro(s).`);
@@ -281,17 +281,17 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             })
             .in('id', idsParaAtualizar)
             .eq('status', 'disponivel')
-            .select('id'); 
+            .select('id');
 
         if (erroBanco) throw erroBanco;
 
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
             alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra milissegundos antes.`);
-            carregarGrade(); 
+            carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
-            return; 
+            return;
         }
 
         // Atualização visual imediata da grade
@@ -301,7 +301,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             botoes.forEach(b => {
                 if (b.textContent === idFormatado) {
                     b.classList.remove('selecionado', 'disponivel');
-                    b.classList.add('reservado'); 
+                    b.classList.add('reservado');
                     b.disabled = true;
                 }
             });
@@ -320,14 +320,11 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             initialization: {
                 preferenceId: dadosPix.preference_id,
                 amount: valorFormatado,
-                
+
             },
             customization: {
                 paymentMethods: {
-                    creditCard: 'off',
-                    ticket: 'off',
-                    atm: 'off',
-                    bankTransfer: 'all' // <--- Habilita o Pix (que faz parte das transferências bancárias)
+                    bankTransfer: 'all' // Isso habilita o Pix e esconde automaticamente os cartões e boletos
                 }
             },
             callbacks: {
@@ -345,7 +342,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             },
         });
 
-        iniciarCronometroPix(); 
+        iniciarCronometroPix();
         numerosSelecionados = [];
         atualizarBotaoCompra();
 
@@ -366,7 +363,7 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 
     const templateParams = {
         nome: nomeComprador,
-        numeros: numerosComprados.join(', '), 
+        numeros: numerosComprados.join(', '),
         email_destino: emailComprador
     };
 
@@ -395,11 +392,11 @@ async function fecharModalPixELimparEstado() {
     if (numerosEmPagamento.length > 0) {
         liberarNumerosNoBanco(numerosEmPagamento).then(() => {
             numerosEmPagamento = [];
-            carregarGrade(); 
+            carregarGrade();
         });
     }
 
-    nomeCompradorAtual = ''; 
+    nomeCompradorAtual = '';
 
     // Restaura o HTML original do modal
     const modalContent = modalPix.querySelector('.modal-content');
@@ -434,7 +431,7 @@ window.addEventListener('click', function (event) {
 
 
 function baixarComprovante() {
-    const nome = nomeCompradorAtual || "Participante"; 
+    const nome = nomeCompradorAtual || "Participante";
     const numeros = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
 
     const conteudo = `
@@ -485,12 +482,12 @@ async function carregarInfoSorteioPublico() {
 function iniciarRealtime() {
     // Sincronização de Configurações
     db.channel('mudancas_config')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
-        console.log("Mudança detectada, atualizando informações...");
-        carregarInfoSorteioPublico(); 
-        location.reload(); 
-      })
-      .subscribe();
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
+            console.log("Mudança detectada, atualizando informações...");
+            carregarInfoSorteioPublico();
+            location.reload();
+        })
+        .subscribe();
 
     // Sincronização do Sorteio
     db.channel('mudancas_sorteio')
