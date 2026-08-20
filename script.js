@@ -5,12 +5,6 @@
 let nomeCompradorAtual = "";
 let VALOR_POR_NUMERO = 1;
 
-// Inicializa o SDK do Mercado Pago no Front-end (Substitua pela sua Public Key real)
-const mp = new MercadoPago('APP_USR-5314e123-0754-4d5c-a3f8-f2eea7d8b387', {
-    locale: 'pt-BR'
-});
-let paymentBrickController = null;
-
 const gridNumeros = document.getElementById('grid-numeros');
 const btnComprar = document.getElementById('btn-comprar');
 const qtdSelecionadosSpan = document.getElementById('qtd-selecionados');
@@ -20,8 +14,9 @@ const resumoNumeros = document.getElementById('resumo-numeros');
 let numerosSelecionados = [];
 const modalPix = document.getElementById('modal-pix');
 const fecharModalPix = document.getElementById('fechar-modal-pix');
-
-
+let imgQrcode = document.getElementById('img-qrcode');
+let inputCopiaCola = document.getElementById('input-copiacola');
+let btnCopiar = document.getElementById('btn-copiar');
 
 let intervaloTimerPix;
 let TEMPO_LIMITE_PIX = 10;
@@ -165,10 +160,6 @@ function iniciarCronometroPix() {
         if (tempo <= 0) {
             clearInterval(intervaloTimerPix);
             modalPix.classList.add('escondido');
-            if (paymentBrickController) {
-                paymentBrickController.unmount();
-                paymentBrickController = null;
-            }
 
             await liberarNumerosNoBanco(numerosEmPagamento);
 
@@ -381,12 +372,6 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
-
-    if (paymentBrickController) {
-        paymentBrickController.unmount();
-        paymentBrickController = null;
-    }
-
     clearInterval(intervaloTimerPix);
 
     if (numerosEmPagamento.length > 0) {
@@ -398,20 +383,48 @@ async function fecharModalPixELimparEstado() {
 
     nomeCompradorAtual = '';
 
-    // Restaura o HTML original do modal
+    // Restaura o HTML original do modal (AGORA COM A IMAGEM DO QR CODE)
     const modalContent = modalPix.querySelector('.modal-content');
     modalContent.innerHTML = `
         <span id="fechar-modal-pix" class="fechar">&times;</span>
         <h2>Pagamento via Pix</h2>
         <p style="color: #a8a8b3; margin-bottom: 1rem;">Escaneie o QR Code ou copie o código abaixo.</p>
 
-        <div id="pix-brick-container"></div>
+        <div class="qr-code-container">
+            <img id="img-qrcode" src="" alt="QR Code Pix"
+                style="max-width: 250px; border-radius: 8px; margin: 15px 0; border: 4px solid #fff; display: none;">
+        </div>
+
+        <div class="form-group" style="text-align: left;">
+            <label>Pix Copia e Cola:</label>
+            <input type="text" id="input-copiacola" readonly>
+            <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código Pix</button>
+        </div>
+
+        <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span id="tempo-restante">10:00</span></p>
 
         <p id="status-pagamento"
-            style="color: #e1a000; margin-top: 15px; font-weight: bold;">⏳ Aguardando pagamento...</p>
+            style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando pagamento...</p>
     `;
 
+    // Re-vincula os eventos aos novos elementos do HTML
+    imgQrcode = document.getElementById('img-qrcode');
+    inputCopiaCola = document.getElementById('input-copiacola');
+    btnCopiar = document.getElementById('btn-copiar');
+    
     document.getElementById('fechar-modal-pix').addEventListener('click', fecharModalPixELimparEstado);
+
+    btnCopiar.addEventListener('click', () => {
+        inputCopiaCola.select();
+        document.execCommand('copy');
+        const textoAntigo = btnCopiar.textContent;
+        btnCopiar.textContent = 'Copiado!';
+        btnCopiar.style.backgroundColor = '#00875f';
+        setTimeout(() => {
+            btnCopiar.textContent = textoAntigo;
+            btnCopiar.style.backgroundColor = '#8257e5';
+        }, 2000);
+    });
 
     const camposParaLimpar = ['nome', 'email', 'cpf', 'mensagem'];
     camposParaLimpar.forEach(id => {
@@ -428,7 +441,22 @@ window.addEventListener('click', function (event) {
     }
 });
 
-
+// Evento de Copiar o Pix
+if (btnCopiar) {
+    btnCopiar.addEventListener('click', () => {
+        if (inputCopiaCola) {
+            inputCopiaCola.select();
+            document.execCommand('copy');
+            const textoAntigo = btnCopiar.textContent;
+            btnCopiar.textContent = 'Copiado!';
+            btnCopiar.style.backgroundColor = '#00875f';
+            setTimeout(() => {
+                btnCopiar.textContent = textoAntigo;
+                btnCopiar.style.backgroundColor = '#8257e5';
+            }, 2000);
+        }
+    });
+}
 
 function baixarComprovante() {
     const nome = nomeCompradorAtual || "Participante";
@@ -499,11 +527,6 @@ function iniciarRealtime() {
 
                 if (numerosEmPagamento.includes(numeroMudou.id) && numeroMudou.status === 'pago') {
                     const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
-
-                    if (paymentBrickController) {
-                        paymentBrickController.unmount();
-                        paymentBrickController = null;
-                    }
 
                     modalPix.querySelector('.modal-content').innerHTML = `
                         <div style="text-align: center; padding: 20px;">
