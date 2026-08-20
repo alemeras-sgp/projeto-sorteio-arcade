@@ -113,8 +113,8 @@ async function exportarCSV() {
 }
 
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
-const canalReplay = db.channel('canal_replay_alertas');
-canalReplay.subscribe();
+// const canalReplay = db.channel('canal_replay_alertas');
+// canalReplay.subscribe();
 
 // Adicionamos no 'window' para garantir que o botão no HTML consiga achar a função
 window.dispararReplayNaLive = function (nomeComprador, mensagemLive) {
