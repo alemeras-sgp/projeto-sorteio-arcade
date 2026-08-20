@@ -278,7 +278,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroBanco) throw erroBanco;
 
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
-            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra milissegundos antes.`);
+            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra de um número que você escolheu milissegundos antes, volte e escolha outros números`);
             carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
@@ -464,26 +464,6 @@ async function carregarInfoSorteioPublico() {
 
 
 
-// Cole isso logo ACIMA da function iniciarRealtime()
-function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados) {
-    if (!emailComprador) {
-        console.warn("E-mail não fornecido. Disparo cancelado.");
-        return;
-    }
-
-    const templateParams = {
-        nome: nomeComprador,
-        numeros: numerosComprados.join(', '),
-        email_destino: emailComprador
-    };
-
-    emailjs.send('service_b7krsmk', 'template_glemw92', templateParams)
-        .then(function (response) {
-            console.log('E-MAIL ENVIADO COM SUCESSO!', response.status, response.text);
-        }, function (error) {
-            console.error('FALHA AO ENVIAR E-MAIL...', error);
-        });
-}
 
 
 // ==========================================
