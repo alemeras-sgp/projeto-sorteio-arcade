@@ -463,6 +463,29 @@ async function carregarInfoSorteioPublico() {
 }
 
 
+
+// Cole isso logo ACIMA da function iniciarRealtime()
+function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados) {
+    if (!emailComprador) {
+        console.warn("E-mail não fornecido. Disparo cancelado.");
+        return;
+    }
+
+    const templateParams = {
+        nome: nomeComprador,
+        numeros: numerosComprados.join(', '),
+        email_destino: emailComprador
+    };
+
+    emailjs.send('service_b7krsmk', 'template_glemw92', templateParams)
+        .then(function (response) {
+            console.log('E-MAIL ENVIADO COM SUCESSO!', response.status, response.text);
+        }, function (error) {
+            console.error('FALHA AO ENVIAR E-MAIL...', error);
+        });
+}
+
+
 // ==========================================
 // REALTIME SEGURO (Iniciado após o carregamento)
 // ==========================================
@@ -509,7 +532,7 @@ function iniciarRealtime() {
                     `;
 
                     if (intervaloTimerPix !== null) {
-                        // O envio de e-mail agora é responsabilidade exclusiva do Webhook no servidor!
+                        enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
                         clearInterval(intervaloTimerPix);
                         intervaloTimerPix = null;
                     }
