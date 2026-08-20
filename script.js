@@ -3,6 +3,7 @@
 // ==========================================
 
 let nomeCompradorAtual = "";
+let VALOR_POR_NUMERO = 1;
 
 // Inicializa o SDK do Mercado Pago no Front-end (Substitua pela sua Public Key real)
 const mp = new MercadoPago('APP_USR-5314e123-0754-4d5c-a3f8-f2eea7d8b387', {
@@ -325,6 +326,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         paymentBrickController = await bricksBuilder.create('payment', 'pix-brick-container', {
             initialization: {
                 preferenceId: dadosPix.preference_id,
+                amount: valorFormatado,
                 
             },
             customization: {
@@ -552,10 +554,14 @@ async function carregarInfoSorteioPublico() {
 // ==========================================
 window.onload = async () => {
     console.log("Página carregada, inicializando...");
-    
-    await buscarConfiguracoes();
-    await carregarInfoSorteioPublico();
-    await carregarGrade();
-    
-    console.log("Sistema pronto para uso!");
+
+    try {
+        await buscarConfiguracoes();
+        await carregarInfoSorteioPublico();
+        await carregarGrade();
+        console.log("Sistema pronto para uso!");
+    } catch (erro) {
+        console.error("ERRO CRÍTICO NA INICIALIZAÇÃO:", erro);
+        alert("Erro ao carregar o sistema. Verifique o console (F12).");
+    }
 };
