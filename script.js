@@ -4,6 +4,12 @@
 
 let nomeCompradorAtual = "";
 
+// Inicializa o SDK do Mercado Pago no Front-end (Substitua pela sua Public Key real)
+const mp = new MercadoPago('APP_USR-6798932299132419-060915-9776d9db6de338df368eda815a958288-3461390721', {
+    locale: 'pt-BR'
+});
+let paymentBrickController = null;
+
 const gridNumeros = document.getElementById('grid-numeros');
 const btnComprar = document.getElementById('btn-comprar');
 const qtdSelecionadosSpan = document.getElementById('qtd-selecionados');
@@ -13,12 +19,8 @@ const resumoNumeros = document.getElementById('resumo-numeros');
 let numerosSelecionados = [];
 const modalPix = document.getElementById('modal-pix');
 const fecharModalPix = document.getElementById('fechar-modal-pix');
-let imgQrcode = document.getElementById('img-qrcode');
-let inputCopiaCola = document.getElementById('input-copiacola');
-const btnCopiar = document.getElementById('btn-copiar');
-let spanTempoRestante = document.getElementById('tempo-restante');
 
-// --- INÍCIO DA INSERÇÃO: Sincronização em Tempo Real ---
+// --- Sincronização em Tempo Real ---
 db.channel('mudancas_config')
   .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
     console.log("Mudança detectada, atualizando informações...");
@@ -26,7 +28,6 @@ db.channel('mudancas_config')
     location.reload(); 
   })
   .subscribe();
-// --- FIM DA INSERÇÃO ---
 
 let intervaloTimerPix; 
 let TEMPO_LIMITE_PIX = 10; 
@@ -124,13 +125,11 @@ window.addEventListener('click', function (event) {
 });
 
 // ==========================================
-// 5. ENVIANDO DADOS PARA O BANCO E GERANDO PIX
+// 5. ENVIANDO DADOS PARA O BANCO E GERANDO PREFERÊNCIA DO PIX
 // ==========================================
 
-const zap = document.getElementById('whatsapp').value.replace(/\D/g, ''); 
 let numerosEmPagamento = []; 
 
-// --- FUNÇÃO DE APOIO PARA LIBERAR NÚMEROS (BLINDADA) ---
 async function liberarNumerosNoBanco(ids) {
     if (ids.length > 0) {
         await db
@@ -144,16 +143,19 @@ async function liberarNumerosNoBanco(ids) {
                 reservado_em: null
             })
             .in('id', ids)
-            .eq('status', 'reservado'); // SEGURANÇA: Só libera se ainda for 'reservado'. Impede soltar número já pago!
+            .eq('status', 'reservado');
     }
 }
 
 function iniciarCronometroPix() {
     let tempo = TEMPO_LIMITE_PIX * 60;
 
-    const minInicial = String(Math.floor(tempo / 60)).padStart(2, '0');
-    const segInicial = String(tempo % 60).padStart(2, '0');
-    spanTempoRestante.textContent = `${minInicial}:${segInicial}`;
+    const spanTempoRestante = document.getElementById('tempo-restante');
+    if (spanTempoRestante) {
+        const minInicial = String(Math.floor(tempo / 60)).padStart(2, '0');
+        const segInicial = String(tempo % 60).padStart(2, '0');
+        spanTempoRestante.textContent = `${minInicial}:${segInicial}`;
+    }
 
     clearInterval(intervaloTimerPix);
 
@@ -161,11 +163,18 @@ function iniciarCronometroPix() {
         tempo--;
         const minutos = String(Math.floor(tempo / 60)).padStart(2, '0');
         const segundos = String(tempo % 60).padStart(2, '0');
-        spanTempoRestante.textContent = `${minutos}:${segundos}`;
+        
+        if (spanTempoRestante) {
+            spanTempoRestante.textContent = `${minutos}:${segundos}`;
+        }
 
         if (tempo <= 0) {
             clearInterval(intervaloTimerPix);
             modalPix.classList.add('escondido');
+            if (paymentBrickController) {
+                paymentBrickController.unmount();
+                paymentBrickController = null;
+            }
 
             await liberarNumerosNoBanco(numerosEmPagamento);
 
@@ -179,21 +188,23 @@ function iniciarCronometroPix() {
 const campoMensagem = document.getElementById('mensagem');
 const contadorMsg = document.getElementById('contador-msg');
 
-campoMensagem.addEventListener('input', function () {
-    const limite = 200;
-    const digitado = campoMensagem.value.length;
-    const restante = limite - digitado;
+if (campoMensagem && contadorMsg) {
+    campoMensagem.addEventListener('input', function () {
+        const limite = 200;
+        const digitado = campoMensagem.value.length;
+        const restante = limite - digitado;
 
-    contadorMsg.textContent = `${restante} caracteres restantes`;
+        contadorMsg.textContent = `${restante} caracteres restantes`;
 
-    if (restante <= 20) {
-        contadorMsg.style.color = '#ff4d4d'; 
-    } else {
-        contadorMsg.style.color = '#888'; 
-    }
-});
+        if (restante <= 20) {
+            contadorMsg.style.color = '#ff4d4d'; 
+        } else {
+            contadorMsg.style.color = '#888'; 
+        }
+    });
+}
 
-// --- SUBMISSÃO DO FORMULÁRIO (TRAVA ATÔMICA) ---
+// --- SUBMISSÃO DO FORMULÁRIO ---
 document.getElementById('form-checkout').addEventListener('submit', async function (e) {
     e.preventDefault();
     console.log("O botão de confirmar foi clicado e o form disparou!");
@@ -225,14 +236,10 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const totalCompra = numerosSelecionados.length * VALOR_POR_NUMERO;
     const valorFormatado = parseFloat(totalCompra.toFixed(2)); 
 
-    console.log("Enviando valor para API:", valorFormatado);
-
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("1. Verificando disponibilidade dos números ANTES de gerar o PIX...");
-
-        // 1. CHECAGEM PRÉVIA: Só olha, não altera. 
+        console.log("1. Verificando disponibilidade dos números...");
         const { data: checagem, error: erroChecagem } = await db
             .from('sorteio')
             .select('id, status')
@@ -240,26 +247,19 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         if (erroChecagem) throw erroChecagem;
 
-        // Filtra para ver se algum dos números não está mais disponível
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
         
         if (numerosRoubados.length > 0) {
-            // Mapeia os IDs roubados para o formato bonitinho (ex: 001, 015)
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
-            
-            // Mensagem transparente pro usuário
-            alert(`⚠️ Ops! O(s) número(s) ${nomesRoubados} já foi(ram) escolhido(s) por outra pessoa. Por favor, escolha outro(s).`);
-            
-            carregarGrade(); // Atualiza a tela na hora para ele ver os números vermelhos
+            alert(`⚠️ Ops! O(s) número(s) ${nomesRoubados} já foi(ram) escolhido(s). Escolha outro(s).`);
+            carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
-            return; // PARA A COMPRA AQUI: Nenhum PIX é gerado!
+            return;
         }
 
-        console.log("Números livres! 2. Chamando API do PIX...");
-
-        // 2. CHAMA A API DO PIX (Usando a invoke oficial do Supabase)
+        console.log("2. Criando preferência de pagamento no servidor...");
         const { data: dadosPix, error: erroFuncao } = await db.functions.invoke('gerar-pix', {
             body: {
                 valor: valorFormatado,
@@ -270,14 +270,11 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             }
         });
 
-        if (erroFuncao) {
-            throw new Error(`Erro na geração do PIX: ${erroFuncao.message || JSON.stringify(erroFuncao)}`);
+        if (erroFuncao || !dadosPix?.preference_id) {
+            throw new Error(`Erro na criação da preferência: ${erroFuncao?.message || 'preference_id não retornado'}`);
         }
 
-        console.log("PIX Gerado! 3. Travando os números no banco...");
-
-        // 3. ATUALIZAÇÃO ATÔMICA (A Trava Final de segurança)
-        // Isso protege caso alguém clique EXATAMENTE no mesmo milissegundo que a API do PIX estava carregando
+        console.log("3. Travando os números no banco como 'reservado'...");
         const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
             .update({
@@ -295,7 +292,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroBanco) throw erroBanco;
 
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
-            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra de um dos seus números milissegundos antes de você. Por segurança, cancele este PIX e tente novamente.`);
+            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra milissegundos antes.`);
             carregarGrade(); 
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
@@ -303,9 +300,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             return; 
         }
 
-        console.log("Você ganhou a corrida! Exibindo QR Code...");
-
-        // --- FORÇAR ATUALIZAÇÃO VISUAL IMEDIATA ---
+        // Atualização visual imediata da grade
         idsParaAtualizar.forEach(id => {
             const idFormatado = String(id).padStart(3, '0');
             const botoes = document.querySelectorAll('.numero');
@@ -318,21 +313,44 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             });
         });
 
-        // 4. MOSTRA O PIX NA TELA
-        imgQrcode.src = `data:image/jpeg;base64,${dadosPix.qr_code_base64}`;
-        imgQrcode.style.display = 'inline-block';
-        inputCopiaCola.value = dadosPix.qr_code;
-
-        const statusTxt = document.getElementById('status-pagamento');
-        statusTxt.textContent = "⏳ Aguardando pagamento...";
-        statusTxt.style.color = "#e1a000";
-
         modalCheckout.classList.add('escondido');
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
 
-        iniciarCronometroPix(); 
+        // Renderiza o Pix Brick dentro do modal
+        const container = document.getElementById('pix-brick-container');
+        container.innerHTML = ''; // Limpa anterior
 
+        const bricksBuilder = mp.bricks();
+        paymentBrickController = await bricksBuilder.create('payment', 'pix-brick-container', {
+            initialization: {
+                preferenceId: dadosPix.preference_id,
+            },
+            customization: {
+                paymentMethods: {
+                    creditCard: 'off',
+                    ticket: 'off',
+                    bankTransfer: 'off',
+                    atm: 'off',
+                    pix: 'all',
+                }
+            },
+            callbacks: {
+                onReady: () => {
+                    console.log('Brick do Pix carregado com sucesso!');
+                },
+                onSubmit: ({ selectedPaymentMethod, formData }) => {
+                    return new Promise((resolve, reject) => {
+                        resolve();
+                    });
+                },
+                onError: (error) => {
+                    console.error('Erro no Brick do Mercado Pago:', error);
+                },
+            },
+        });
+
+        iniciarCronometroPix(); 
         numerosSelecionados = [];
         atualizarBotaoCompra();
 
@@ -357,10 +375,7 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
         email_destino: emailComprador
     };
 
-    const SERVICE_ID = 'service_b7krsmk';
-    const TEMPLATE_ID = 'template_glemw92';
-
-    emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+    emailjs.send('service_b7krsmk', 'template_glemw92', templateParams)
         .then(function (response) {
             console.log('E-MAIL ENVIADO COM SUCESSO!', response.status, response.text);
         }, function (error) {
@@ -375,6 +390,11 @@ function enviarEmailComprovante(nomeComprador, emailComprador, numerosComprados)
 async function fecharModalPixELimparEstado() {
     modalPix.classList.add('escondido');
 
+    if (paymentBrickController) {
+        paymentBrickController.unmount();
+        paymentBrickController = null;
+    }
+
     clearInterval(intervaloTimerPix);
 
     if (numerosEmPagamento.length > 0) {
@@ -386,59 +406,26 @@ async function fecharModalPixELimparEstado() {
 
     nomeCompradorAtual = ''; 
 
-    // --- RECONSTRÓI O HTML DO MODAL ---
+    // Restaura o HTML original do modal
     const modalContent = modalPix.querySelector('.modal-content');
     modalContent.innerHTML = `
         <span id="fechar-modal-pix" class="fechar">&times;</span>
         <h2>Pagamento via Pix</h2>
         <p style="color: #a8a8b3; margin-bottom: 1rem;">Escaneie o QR Code ou copie o código abaixo.</p>
 
-        <div class="qr-code-container">
-            <img id="img-qrcode" src="" alt="QR Code Pix"
-                style="max-width: 250px; border-radius: 8px; margin: 15px 0; border: 4px solid #fff; display: none;">
-        </div>
-
-        <div class="form-group" style="text-align: left;">
-            <label>Pix Copia e Cola:</label>
-            <input type="text" id="input-copiacola" readonly>
-            <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código Pix</button>
-        </div>
-
-        <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span id="tempo-restante">02:00</span></p>
+        <div id="pix-brick-container"></div>
 
         <p id="status-pagamento"
-            style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando pagamento...</p>
+            style="color: #e1a000; margin-top: 15px; font-weight: bold;">⏳ Aguardando pagamento...</p>
     `;
 
-    // --- ATUALIZA AS VARIÁVEIS GLOBAIS PARA OS NOVOS ELEMENTOS ---
-    imgQrcode = document.getElementById('img-qrcode');
-    inputCopiaCola = document.getElementById('input-copiacola');
-    spanTempoRestante = document.getElementById('tempo-restante');
-
-    // --- RE-VINCULA OS EVENTOS ---
     document.getElementById('fechar-modal-pix').addEventListener('click', fecharModalPixELimparEstado);
-
-    const btnCopiarNovo = document.getElementById('btn-copiar');
-    btnCopiarNovo.addEventListener('click', () => {
-        inputCopiaCola.select();
-        document.execCommand('copy');
-        const textoAntigo = btnCopiarNovo.textContent;
-        btnCopiarNovo.textContent = 'Copiado!';
-        btnCopiarNovo.style.backgroundColor = '#00875f';
-        setTimeout(() => {
-            btnCopiarNovo.textContent = textoAntigo;
-            btnCopiarNovo.style.backgroundColor = '#8257e5';
-        }, 2000);
-    });
 
     const camposParaLimpar = ['nome', 'email', 'cpf', 'mensagem'];
     camposParaLimpar.forEach(id => {
         const elemento = document.getElementById(id);
         if (elemento) elemento.value = '';
     });
-    
-    const selectVoz = document.getElementById('voz-bot');
-    if (selectVoz) selectVoz.selectedIndex = 0;
 }
 
 fecharModalPix.addEventListener('click', fecharModalPixELimparEstado);
@@ -447,18 +434,6 @@ window.addEventListener('click', function (event) {
     if (event.target === modalPix) {
         fecharModalPixELimparEstado();
     }
-});
-
-btnCopiar.addEventListener('click', () => {
-    inputCopiaCola.select();
-    document.execCommand('copy');
-    const textoAntigo = btnCopiar.textContent;
-    btnCopiar.textContent = 'Copiado!';
-    btnCopiar.style.backgroundColor = '#00875f';
-    setTimeout(() => {
-        btnCopiar.textContent = textoAntigo;
-        btnCopiar.style.backgroundColor = '#8257e5';
-    }, 2000);
 });
 
 // --- REALTIME ---
@@ -472,26 +447,32 @@ db.channel('mudancas_sorteio')
             if (numerosEmPagamento.includes(numeroMudou.id) && numeroMudou.status === 'pago') {
                 const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
 
+                if (paymentBrickController) {
+                    paymentBrickController.unmount();
+                    paymentBrickController = null;
+                }
+
                 modalPix.querySelector('.modal-content').innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
-            <p>Seus números da sorte são:</p>
-            <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488a;">
-                ${numerosComprados}
-            </div>
-            <p style="font-size: 0.9rem; color: #ccc;">
-                Print esta tela para guardar seus números ou baixe o comprovante oficial clicando no botão abaixo:
-            </p>
-            <button onclick="baixarComprovante()" 
-                    style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
-                    📥 Baixar Comprovante
-            </button>
-            <button onclick="fecharModalPixELimparEstado()" 
-                    style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
-                    Fechar
-            </button>
-        </div>
-    `;
+                    <div style="text-align: center; padding: 20px;">
+                        <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
+                        <p>Seus números da sorte são:</p>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488;">
+                            ${numerosComprados}
+                        </div>
+                        <p style="font-size: 0.9rem; color: #ccc;">
+                            Baixe o comprovante oficial clicando no botão abaixo:
+                        </p>
+                        <button onclick="baixarComprovante()" 
+                                style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
+                                📥 Baixar Comprovante
+                        </button>
+                        <button onclick="fecharModalPixELimparEstado()" 
+                                style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
+                                Fechar
+                        </button>
+                    </div>
+                `;
+
                 if (intervaloTimerPix !== null) {
                     enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
                     clearInterval(intervaloTimerPix);
