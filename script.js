@@ -326,9 +326,8 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 paymentMethods: {
                     creditCard: 'off',
                     ticket: 'off',
-                    bankTransfer: 'off',
                     atm: 'off',
-                    pix: 'all',
+                    bankTransfer: 'all' // <--- Habilita o Pix (que faz parte das transferências bancárias)
                 }
             },
             callbacks: {
