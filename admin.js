@@ -182,19 +182,20 @@ carregarVendas();
 async function gerarNovoSorteio() {
     if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
 
-    // 1. Captura com segurança os valores do formulário
+    // 1. Captura com segurança absoluta os valores do formulário HTML
+    const nome = document.getElementById('novo-nome').value.trim() || "Sorteio Oficial";
+    
     const rawValor = document.getElementById('novo-valor').value || "1";
     let valorInput = parseFloat(rawValor.replace(/\./g, '').replace(',', '.'));
     if (isNaN(valorInput)) valorInput = 1.00;
 
     const qtd = parseInt(document.getElementById('nova-qtd').value) || 100;
-    const tempo = parseInt(document.getElementById('novo-tempo').value) || 10;
-    const nome = document.getElementById('novo-nome').value || "Sorteio Atual";
     const novoEstado = document.getElementById('novo-estado').value || "Novo";
+    const tempo = parseInt(document.getElementById('novo-tempo').value) || 10;
 
-    console.log("Salvando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Tempo:", tempo, "| Estado:", novoEstado);
+    console.log("Gerando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Estado:", novoEstado, "| Tempo:", tempo);
 
-    // 2. Limpa a tabela de sorteios
+    // 2. Limpa a tabela de sorteios antigos
     const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0);
     if (erroDelete) return alert("Erro ao limpar números: " + erroDelete.message);
 
@@ -207,21 +208,22 @@ async function gerarNovoSorteio() {
     const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
     if (erroInsert) return alert("Erro ao gerar números: " + erroInsert.message);
 
-    // CORREÇÃO DA DATA: Gera a data baseada no dia local exato (evita bug de fuso horário UTC)
+    // 4. Gera a data local exata de hoje (Fuso horário do Brasil)
     const hojeLocal = new Date();
     const ano = hojeLocal.getFullYear();
     const mes = String(hojeLocal.getMonth() + 1).padStart(2, '0');
     const dia = String(hojeLocal.getDate()).padStart(2, '0');
     const dataLocalFormatada = `${ano}-${mes}-${dia}T00:00:00.000Z`;
 
-    // 4. Atualiza as configurações globais do sorteio
-    const { error: erroConfig } = await db.from('configuracoes').update({
+    // 5. Salva/Atualiza as configurações globais (Usando UPSERT para garantir que grava mesmo se a linha 1 não existir)
+    const { error: erroConfig } = await db.from('configuracoes').upsert({
+        id: 1, // Força a linha 1
         nome_sorteio: nome,
         valor_numero: valorInput,
         tempo_pix_minutos: tempo,
         estado_produto: novoEstado,
         criado_em: dataLocalFormatada
-    }).eq('id', 1);
+    });
 
     if (erroConfig) return alert("Erro ao salvar config: " + erroConfig.message);
 
