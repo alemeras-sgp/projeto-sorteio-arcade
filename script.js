@@ -5,7 +5,7 @@
 let nomeCompradorAtual = "";
 
 // Inicializa o SDK do Mercado Pago no Front-end (Substitua pela sua Public Key real)
-const mp = new MercadoPago('APP_USR-6798932299132419-060915-9776d9db6de338df368eda815a958288-3461390721', {
+const mp = new MercadoPago('APP_USR-5314e123-0754-4d5c-a3f8-f2eea7d8b387', {
     locale: 'pt-BR'
 });
 let paymentBrickController = null;
