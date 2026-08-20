@@ -244,7 +244,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             return;
         }
 
-        console.log("2. Criando preferência de pagamento no servidor...");
+        console.log("Gerando PIX direto no servidor...");
         const { data: dadosPix, error: erroFuncao } = await db.functions.invoke('gerar-pix', {
             body: {
                 valor: valorFormatado,
@@ -255,11 +255,12 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             }
         });
 
-        if (erroFuncao || !dadosPix?.preference_id) {
-            throw new Error(`Erro na criação da preferência: ${erroFuncao?.message || 'preference_id não retornado'}`);
+        // 1. MUDANÇA AQUI: Agora validamos se o QR Code chegou, e não mais a preferência
+        if (erroFuncao || !dadosPix?.qr_code_base64) {
+            throw new Error(`Erro na geração do PIX: ${erroFuncao?.message || 'QR Code não retornado. Verifique o CPF.'}`);
         }
 
-        console.log("3. Travando os números no banco como 'reservado'...");
+        console.log("Travando os números no banco como 'reservado'...");
         const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
             .update({
@@ -298,40 +299,16 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             });
         });
 
+        // 2. MUDANÇA AQUI: Renderiza o QR Code direto na imagem, sem Brick!
+        if (imgQrcode && inputCopiaCola) {
+            imgQrcode.src = `data:image/jpeg;base64,${dadosPix.qr_code_base64}`;
+            imgQrcode.style.display = 'inline-block';
+            inputCopiaCola.value = dadosPix.qr_code;
+        }
+
         modalCheckout.classList.add('escondido');
         document.getElementById('form-checkout').reset();
         modalPix.classList.remove('escondido');
-
-        // Renderiza o Pix Brick dentro do modal
-        const container = document.getElementById('pix-brick-container');
-        container.innerHTML = ''; // Limpa anterior
-
-        const bricksBuilder = mp.bricks();
-        paymentBrickController = await bricksBuilder.create('payment', 'pix-brick-container', {
-            initialization: {
-                preferenceId: dadosPix.preference_id,
-                amount: valorFormatado,
-
-            },
-            customization: {
-                paymentMethods: {
-                    bankTransfer: 'all' // Isso habilita o Pix e esconde automaticamente os cartões e boletos
-                }
-            },
-            callbacks: {
-                onReady: () => {
-                    console.log('Brick do Pix carregado com sucesso!');
-                },
-                onSubmit: ({ selectedPaymentMethod, formData }) => {
-                    return new Promise((resolve, reject) => {
-                        resolve();
-                    });
-                },
-                onError: (error) => {
-                    console.error('Erro no Brick do Mercado Pago:', error);
-                },
-            },
-        });
 
         iniciarCronometroPix();
         numerosSelecionados = [];
