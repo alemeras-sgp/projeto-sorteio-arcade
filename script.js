@@ -21,14 +21,7 @@ let numerosSelecionados = [];
 const modalPix = document.getElementById('modal-pix');
 const fecharModalPix = document.getElementById('fechar-modal-pix');
 
-// --- Sincronização em Tempo Real ---
-db.channel('mudancas_config')
-  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
-    console.log("Mudança detectada, atualizando informações...");
-    carregarInfoSorteioPublico(); 
-    location.reload(); 
-  })
-  .subscribe();
+
 
 let intervaloTimerPix; 
 let TEMPO_LIMITE_PIX = 10; 
@@ -439,70 +432,7 @@ window.addEventListener('click', function (event) {
     }
 });
 
-// --- REALTIME ---
-db.channel('mudancas_sorteio')
-    .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'sorteio' },
-        (payload) => {
-            const numeroMudou = payload.new;
-            const idFormatado = String(numeroMudou.id).padStart(3, '0');
 
-            if (numerosEmPagamento.includes(numeroMudou.id) && numeroMudou.status === 'pago') {
-                const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
-
-                if (paymentBrickController) {
-                    paymentBrickController.unmount();
-                    paymentBrickController = null;
-                }
-
-                modalPix.querySelector('.modal-content').innerHTML = `
-                    <div style="text-align: center; padding: 20px;">
-                        <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
-                        <p>Seus números da sorte são:</p>
-                        <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488;">
-                            ${numerosComprados}
-                        </div>
-                        <p style="font-size: 0.9rem; color: #ccc;">
-                            Baixe o comprovante oficial clicando no botão abaixo:
-                        </p>
-                        <button onclick="baixarComprovante()" 
-                                style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
-                                📥 Baixar Comprovante
-                        </button>
-                        <button onclick="fecharModalPixELimparEstado()" 
-                                style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
-                                Fechar
-                        </button>
-                    </div>
-                `;
-
-                if (intervaloTimerPix !== null) {
-                    enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
-                    clearInterval(intervaloTimerPix);
-                    intervaloTimerPix = null;
-                }
-            }
-
-            const botoes = document.querySelectorAll('.numero');
-            botoes.forEach(botao => {
-                if (botao.textContent === idFormatado) {
-                    botao.classList.remove('disponivel', 'selecionado', 'reservado', 'pago');
-                    botao.classList.add(numeroMudou.status);
-
-                    if (numeroMudou.status === 'reservado' || numeroMudou.status === 'pago') {
-                        botao.disabled = true;
-                        if (numerosSelecionados.includes(idFormatado)) {
-                            numerosSelecionados = numerosSelecionados.filter(num => num !== idFormatado);
-                            atualizarBotaoCompra();
-                        }
-                    } else {
-                        botao.disabled = false;
-                    }
-                }
-            });
-        }
-    )
-    .subscribe();
 
 function baixarComprovante() {
     const nome = nomeCompradorAtual || "Participante"; 
@@ -549,6 +479,88 @@ async function carregarInfoSorteioPublico() {
     }
 }
 
+
+// ==========================================
+// REALTIME SEGURO (Iniciado após o carregamento)
+// ==========================================
+function iniciarRealtime() {
+    // Sincronização de Configurações
+    db.channel('mudancas_config')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
+        console.log("Mudança detectada, atualizando informações...");
+        carregarInfoSorteioPublico(); 
+        location.reload(); 
+      })
+      .subscribe();
+
+    // Sincronização do Sorteio
+    db.channel('mudancas_sorteio')
+        .on('postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'sorteio' },
+            (payload) => {
+                const numeroMudou = payload.new;
+                const idFormatado = String(numeroMudou.id).padStart(3, '0');
+
+                if (numerosEmPagamento.includes(numeroMudou.id) && numeroMudou.status === 'pago') {
+                    const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
+
+                    if (paymentBrickController) {
+                        paymentBrickController.unmount();
+                        paymentBrickController = null;
+                    }
+
+                    modalPix.querySelector('.modal-content').innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
+                            <p>Seus números da sorte são:</p>
+                            <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488;">
+                                ${numerosComprados}
+                            </div>
+                            <p style="font-size: 0.9rem; color: #ccc;">
+                                Baixe o comprovante oficial clicando no botão abaixo:
+                            </p>
+                            <button onclick="baixarComprovante()" 
+                                    style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
+                                    📥 Baixar Comprovante
+                            </button>
+                            <button onclick="fecharModalPixELimparEstado()" 
+                                    style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
+                                    Fechar
+                            </button>
+                        </div>
+                    `;
+
+                    if (intervaloTimerPix !== null) {
+                        enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
+                        clearInterval(intervaloTimerPix);
+                        intervaloTimerPix = null;
+                    }
+                }
+
+                const botoes = document.querySelectorAll('.numero');
+                botoes.forEach(botao => {
+                    if (botao.textContent === idFormatado) {
+                        botao.classList.remove('disponivel', 'selecionado', 'reservado', 'pago');
+                        botao.classList.add(numeroMudou.status);
+
+                        if (numeroMudou.status === 'reservado' || numeroMudou.status === 'pago') {
+                            botao.disabled = true;
+                            if (numerosSelecionados.includes(idFormatado)) {
+                                numerosSelecionados = numerosSelecionados.filter(num => num !== idFormatado);
+                                atualizarBotaoCompra();
+                            }
+                        } else {
+                            botao.disabled = false;
+                        }
+                    }
+                });
+            }
+        )
+        .subscribe();
+}
+
+
+
 // ==========================================
 // 7. INICIALIZAÇÃO SEGURA (Window Onload)
 // ==========================================
@@ -559,6 +571,7 @@ window.onload = async () => {
         await buscarConfiguracoes();
         await carregarInfoSorteioPublico();
         await carregarGrade();
+        iniciarRealtime();
         console.log("Sistema pronto para uso!");
     } catch (erro) {
         console.error("ERRO CRÍTICO NA INICIALIZAÇÃO:", erro);
