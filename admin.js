@@ -335,6 +335,56 @@ async function alternarStatusSorteio() {
 }
 
 
+// --- CARREGA OS DADOS ATUAIS NOS INPUTS DE EDIÇÃO ---
+async function carregarDadosParaEdicao() {
+    const { data, error } = await db.from('configuracoes').select('*').eq('id', 1).single();
+    if (error) return console.error("Erro ao carregar dados para edição:", error);
+
+    if (data) {
+        const inputNome = document.getElementById('edit-nome');
+        const inputValor = document.getElementById('edit-valor');
+        const inputEstado = document.getElementById('edit-estado');
+        const inputTempo = document.getElementById('edit-tempo');
+
+        if (inputNome) inputNome.value = data.nome_sorteio || '';
+        if (inputValor) inputValor.value = data.valor_numero ? String(data.valor_numero).replace('.', ',') : '';
+        if (inputEstado) inputEstado.value = data.estado_produto || 'Novo';
+        if (inputTempo) inputTempo.value = data.tempo_pix_minutos || 10;
+    }
+}
+
+// --- SALVA AS ALTERAÇÕES DO SORTEIO ATUAL SEM ZERAR ---
+async function salvarEdicaoSorteio() {
+    if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
+
+    const nome = document.getElementById('edit-nome').value.trim() || "Sorteio Oficial";
+    
+    const rawValor = document.getElementById('edit-valor').value || "1";
+    let valorInput = parseFloat(rawValor.replace(/\./g, '').replace(',', '.'));
+    if (isNaN(valorInput)) valorInput = 1.00;
+
+    const estado = document.getElementById('edit-estado').value || "Novo";
+    const tempo = parseInt(document.getElementById('edit-tempo').value) || 10;
+
+    const { error } = await db.from('configuracoes')
+        .update({
+            nome_sorteio: nome,
+            valor_numero: valorInput,
+            estado_produto: estado,
+            tempo_pix_minutos: tempo
+        })
+        .eq('id', 1);
+
+    if (error) {
+        alert("Erro ao atualizar: " + error.message);
+        return;
+    }
+
+    alert("✅ Sorteio atualizado com sucesso!");
+    location.reload();
+}
+
+
 function aplicarMascaraMoeda(input) {
     let valor = input.value.replace(/\D/g, ''); // Remove tudo que não é número
     valor = (valor / 100).toFixed(2) + '';
