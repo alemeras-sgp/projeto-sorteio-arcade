@@ -262,17 +262,17 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
         if (numerosRoubados.length > 0) {
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
-            
+
             document.getElementById('numeros-conflito').textContent = nomesRoubados;
             modalErroCompra.classList.remove('escondido');
-            
+
             // Limpeza total de memória e carrinho
-            numerosSelecionados = []; 
-            numerosEmPagamento = []; 
+            numerosSelecionados = [];
+            numerosEmPagamento = [];
             atualizarBotaoCompra();
-            
+
             await carregarGrade(); // Espera a grade atualizar 100%
-            
+
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
@@ -293,7 +293,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroFuncao || !dadosPix?.qr_code_base64) {
             throw new Error(`Erro na geração do PIX: ${erroFuncao?.message || 'QR Code não retornado. Verifique o CPF.'}`);
         }
-        
+
         console.log("Travando os números no banco como 'reservado'...");
         const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
@@ -314,7 +314,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
-            
+
             // Descobre exatamente quais IDs nós conseguimos salvar e quais não conseguimos
             const idsSalvos = updateData ? updateData.map(u => u.id) : [];
             const idsPerdidos = idsParaAtualizar.filter(id => !idsSalvos.includes(id));
@@ -341,9 +341,9 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             numerosSelecionados = [];
             numerosEmPagamento = [];
             atualizarBotaoCompra();
-            
+
             await carregarGrade(); // Espera o banco devolver para desenhar a grade limpa
-            
+
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
@@ -534,7 +534,10 @@ async function carregarInfoSorteioPublico() {
         if (config.ativo === false) {
             document.body.innerHTML = `
                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #121214; color: #fff; font-family: sans-serif; text-align: center; padding: 20px;">
-                    <h1 style="color: #ff4747; font-size: 2.5rem; margin-bottom: 10px;">🛑 Sorteio Encerrado / Pausado</h1>
+                <div class="container-imagem logo">
+            <img src="images/logo.png" alt="Logo do Canal">
+        </div>    
+                <h1 style="color: #ff4747; font-size: 2.5rem; margin-bottom: 10px;">🛑 Sorteio Encerrado / Pausado</h1>
                     <p style="color: #a8a8b3; font-size: 1.2rem; max-width: 500px;">Não há nenhum sorteio ativo no momento. Fique atento às lives no canal <a href="https://youtube.com/@alemeras" style="color: #8257e5; text-decoration: none; font-weight: bold;">Alemeras</a> para novidades!</p>
                 </div>
             `;
@@ -553,7 +556,7 @@ async function carregarInfoSorteioPublico() {
 
         const elEstado = document.getElementById('publico-estado');
         if (elEstado) elEstado.textContent = config.estado_produto || "Não definido";
-        
+
         // --- INSERÇÃO DO BANNER DINÂMICO ---
         const imgBanner = document.getElementById('img-banner-dinamico');
         // Se houver um link no banco, troca a imagem. Se não houver, deixa a padrão do HTML.
