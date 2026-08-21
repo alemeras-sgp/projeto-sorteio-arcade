@@ -3,7 +3,7 @@ document.addEventListener('click', async (event) => {
 
     // Verifica se o elemento clicado é o nosso botão de login
     if (event.target && event.target.id === 'btn-login-admin') {
-        console.log("Clique capturado no botão de login!");
+        //console.log("Clique capturado no botão de login!");
 
         const inputEmail = document.getElementById('email-admin').value;
         const inputSenha = document.getElementById('senha-admin').value;
@@ -33,7 +33,7 @@ document.addEventListener('click', async (event) => {
                 event.target.textContent = "Entrar no Painel";
                 event.target.disabled = false;
             } else {
-                console.log("Sucesso!");
+                //console.log("Sucesso!");
                 telaLogin.style.display = 'none';
                 painelAdmin.style.display = 'block';
             }
@@ -232,7 +232,7 @@ async function gerarNovoSorteio() {
     // ------------------------------------
 
     if (btnGerar) btnGerar.textContent = "Limpando e Gerando números...";
-    console.log("Gerando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Estado:", novoEstado, "| Tempo:", tempo);
+    //console.log("Gerando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Estado:", novoEstado, "| Tempo:", tempo);
 
     // 2. Limpa a tabela de sorteios antigos
     const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0);

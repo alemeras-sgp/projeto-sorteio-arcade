@@ -37,7 +37,7 @@ async function buscarConfiguracoes() {
     if (data) {
         VALOR_POR_NUMERO = parseFloat(data.valor_numero);
         TEMPO_LIMITE_PIX = parseInt(data.tempo_pix_minutos);
-        console.log("Configurações carregadas: Valor R$", VALOR_POR_NUMERO, "| Tempo:", TEMPO_LIMITE_PIX, "min");
+        //console.log("Configurações carregadas: Valor R$", VALOR_POR_NUMERO, "| Tempo:", TEMPO_LIMITE_PIX, "min");
     }
 }
 
@@ -204,7 +204,7 @@ if (campoMensagem && contadorMsg) {
 // --- SUBMISSÃO DO FORMULÁRIO ---
 document.getElementById('form-checkout').addEventListener('submit', async function (e) {
     e.preventDefault();
-    console.log("O botão de confirmar foi clicado e o form disparou!");
+    //console.log("O botão de confirmar foi clicado e o form disparou!");
     // Esconde qualquer erro antigo antes de tentar de novo
     const msgErroCheckout = document.getElementById('msg-erro-checkout');
     if (msgErroCheckout) msgErroCheckout.style.display = 'none';
@@ -249,7 +249,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     numerosEmPagamento = [...idsParaAtualizar];
 
     try {
-        console.log("1. Verificando disponibilidade dos números...");
+        //console.log("1. Verificando disponibilidade dos números...");
         const { data: checagem, error: erroChecagem } = await db
             .from('sorteio')
             .select('id, status')
@@ -279,7 +279,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             return;
         }
 
-        console.log("Gerando PIX direto no servidor...");
+        //console.log("Gerando PIX direto no servidor...");
         const { data: dadosPix, error: erroFuncao } = await db.functions.invoke('gerar-pix', {
             body: {
                 valor: valorFormatado,
@@ -294,7 +294,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             throw new Error(`Erro na geração do PIX: ${erroFuncao?.message || 'QR Code não retornado. Verifique o CPF.'}`);
         }
 
-        console.log("Travando os números no banco como 'reservado'...");
+        //console.log("Travando os números no banco como 'reservado'...");
         const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
             .update({
@@ -578,7 +578,7 @@ function iniciarRealtime() {
     // Sincronização de Configurações
     db.channel('mudancas_config')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'configuracoes' }, payload => {
-            console.log("Mudança detectada, atualizando informações...");
+            //console.log("Mudança detectada, atualizando informações...");
             carregarInfoSorteioPublico();
             location.reload();
         })
@@ -651,14 +651,14 @@ function iniciarRealtime() {
 // 7. INICIALIZAÇÃO SEGURA (Window Onload)
 // ==========================================
 window.onload = async () => {
-    console.log("Página carregada, inicializando...");
+    //console.log("Página carregada, inicializando...");
 
     try {
         await buscarConfiguracoes();
         await carregarInfoSorteioPublico();
         await carregarGrade();
         iniciarRealtime();
-        console.log("Sistema pronto para uso!");
+        //console.log("Sistema pronto para uso!");
     } catch (erro) {
         console.error("ERRO CRÍTICO NA INICIALIZAÇÃO:", erro);
         alert("Erro ao carregar o sistema. Verifique o console (F12).");
