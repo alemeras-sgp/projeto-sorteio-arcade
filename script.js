@@ -459,6 +459,18 @@ async function carregarInfoSorteioPublico() {
     }
 
     if (config) {
+        // --- VERIFICAÇÃO DO KILL SWITCH ---
+        if (config.ativo === false) {
+            document.body.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #121214; color: #fff; font-family: sans-serif; text-align: center; padding: 20px;">
+                    <h1 style="color: #ff4747; font-size: 2.5rem; margin-bottom: 10px;">🛑 Sorteio Encerrado / Pausado</h1>
+                    <p style="color: #a8a8b3; font-size: 1.2rem; max-width: 500px;">Não há nenhum sorteio ativo no momento. Fique atento às redes sociais para novidades!</p>
+                </div>
+            `;
+            return; // Interrompe o carregamento da página
+        }
+        // ----------------------------------
+
         const elNome = document.getElementById('publico-nome');
         if (elNome) elNome.textContent = config.nome_sorteio || "Sorteio Atual";
 

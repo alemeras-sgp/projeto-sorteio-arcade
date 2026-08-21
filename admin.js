@@ -272,6 +272,27 @@ async function carregarStatusSorteio() {
 // Chamar ao carregar o painel
 carregarStatusSorteio();
 
+
+// --- FUNÇÃO KILL SWITCH (LIGA/DESLIGA SORTEIO) ---
+async function alternarStatusSorteio() {
+    // 1. Busca o status atual no banco
+    const { data, error } = await db.from('configuracoes').select('ativo').eq('id', 1).single();
+    if (error) return alert("Erro ao verificar status do sorteio.");
+
+    const novoStatus = !data.ativo; // Inverte o valor (se tá true vira false, e vice-versa)
+
+    // 2. Atualiza no banco
+    const { error: erroUpdate } = await db.from('configuracoes')
+        .update({ ativo: novoStatus })
+        .eq('id', 1);
+
+    if (erroUpdate) return alert("Erro ao alterar status: " + erroUpdate.message);
+
+    alert(novoStatus ? "✅ Sorteio LIGADO com sucesso!" : "🛑 Sorteio PAUSADO (Desligado do ar)!");
+    location.reload();
+}
+
+
 function aplicarMascaraMoeda(input) {
     let valor = input.value.replace(/\D/g, ''); // Remove tudo que não é número
     valor = (valor / 100).toFixed(2) + '';
