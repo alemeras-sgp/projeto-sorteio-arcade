@@ -194,7 +194,6 @@ async function carregarVendas() {
 }
 
 carregarVendas();
-verificarStatusKillSwitch();
 
 
 async function gerarNovoSorteio() {
@@ -338,6 +337,9 @@ async function alternarStatusSorteio() {
 // --- CARREGA OS DADOS ATUAIS NOS INPUTS DE EDIÇÃO ---
 async function carregarDadosParaEdicao() {
     const { data, error } = await db.from('configuracoes').select('*').eq('id', 1).single();
+    // Busca a quantidade atual de números no banco
+    const { count: totalNumeros } = await db.from('sorteio').select('*', { count: 'exact', head: true });
+
     if (error) return console.error("Erro ao carregar dados para edição:", error);
 
     if (data) {
@@ -345,11 +347,13 @@ async function carregarDadosParaEdicao() {
         const inputValor = document.getElementById('edit-valor');
         const inputEstado = document.getElementById('edit-estado');
         const inputTempo = document.getElementById('edit-tempo');
+        const inputQtd = document.getElementById('edit-qtd');
 
         if (inputNome) inputNome.value = data.nome_sorteio || '';
         if (inputValor) inputValor.value = data.valor_numero ? String(data.valor_numero).replace('.', ',') : '';
         if (inputEstado) inputEstado.value = data.estado_produto || 'Novo';
         if (inputTempo) inputTempo.value = data.tempo_pix_minutos || 10;
+        if (inputQtd) inputQtd.value = totalNumeros || 100;
     }
 }
 
@@ -365,7 +369,9 @@ async function salvarEdicaoSorteio() {
 
     const estado = document.getElementById('edit-estado').value || "Novo";
     const tempo = parseInt(document.getElementById('edit-tempo').value) || 10;
+    const qtdNova = parseInt(document.getElementById('edit-qtd').value);
 
+    // 1. Atualiza as configurações
     const { error } = await db.from('configuracoes')
         .update({
             nome_sorteio: nome,
@@ -376,8 +382,25 @@ async function salvarEdicaoSorteio() {
         .eq('id', 1);
 
     if (error) {
-        alert("Erro ao atualizar: " + error.message);
+        alert("Erro ao atualizar configurações: " + error.message);
         return;
+    }
+
+    // 2. Adiciona novos números se a quantidade foi aumentada
+    if (qtdNova) {
+        const { count: qtdAtual } = await db.from('sorteio').select('*', { count: 'exact', head: true });
+        
+        if (qtdNova > qtdAtual) {
+            const novosNumeros = [];
+            for (let i = qtdAtual + 1; i <= qtdNova; i++) {
+                novosNumeros.push({ id: i, status: 'disponivel' });
+            }
+            
+            const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
+            if (erroInsert) return alert("Erro ao criar novos números: " + erroInsert.message);
+        } else if (qtdNova < qtdAtual) {
+            alert("Aviso: A quantidade só pode ser aumentada. A diminuição foi ignorada para evitar que números já vendidos sejam apagados.");
+        }
     }
 
     alert("✅ Sorteio atualizado com sucesso!");
