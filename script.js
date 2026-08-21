@@ -260,19 +260,19 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
 
         // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
-        // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
         if (numerosRoubados.length > 0) {
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
             
             document.getElementById('numeros-conflito').textContent = nomesRoubados;
             modalErroCompra.classList.remove('escondido');
             
-            // --- INSERÇÃO: LIMPAR CARRINHO ---
+            // Limpeza total de memória e carrinho
             numerosSelecionados = []; 
+            numerosEmPagamento = []; 
             atualizarBotaoCompra();
-            // ---------------------------------
-
-            carregarGrade();
+            
+            await carregarGrade(); // Espera a grade atualizar 100%
+            
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
@@ -313,28 +313,37 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroBanco) throw erroBanco;
 
         // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
-        // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
             
+            // Descobre exatamente quais IDs nós conseguimos salvar e quais não conseguimos
             const idsSalvos = updateData ? updateData.map(u => u.id) : [];
             const idsPerdidos = idsParaAtualizar.filter(id => !idsSalvos.includes(id));
             const nomesPerdidos = idsPerdidos.map(n => String(n).padStart(3, '0')).join(', ');
 
-            // --- INSERÇÃO: O ROLLBACK (DEVOLVE OS QUE CONSEGUIU SALVAR) ---
+            // DEVOLUÇÃO FORÇADA (Rollback à prova de falhas)
             if (idsSalvos.length > 0) {
-                await liberarNumerosNoBanco(idsSalvos);
+                await db.from('sorteio').update({
+                    status: 'disponivel',
+                    nome_comprador: null,
+                    whatsapp: null,
+                    email: null,
+                    cpf: null,
+                    mensagem_live: null,
+                    reservado_em: null
+                }).in('id', idsSalvos); // Devolve só os que ele tinha conseguido pegar
             }
-            // -------------------------------------------------------------
 
+            // Exibe a mensagem de erro
             document.getElementById('numeros-conflito').textContent = nomesPerdidos;
             modalErroCompra.classList.remove('escondido');
 
-            // --- INSERÇÃO: LIMPAR CARRINHO ---
-            numerosSelecionados = []; 
+            // Limpeza total de memória e carrinho
+            numerosSelecionados = [];
+            numerosEmPagamento = [];
             atualizarBotaoCompra();
-            // ---------------------------------
-
-            carregarGrade();
+            
+            await carregarGrade(); // Espera o banco devolver para desenhar a grade limpa
+            
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
             btnConfirmar.disabled = false;
