@@ -139,6 +139,7 @@ async function liberarNumerosNoBanco(ids) {
                 nome_comprador: null,
                 whatsapp: null,
                 email: null,
+                cpf: null, // <--- ADICIONE ESTA LINHA PARA LIMPAR O CPF TAMBÉM
                 mensagem_live: null,
                 reservado_em: null
             })
@@ -259,12 +260,18 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
 
         // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
+        // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
         if (numerosRoubados.length > 0) {
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
             
             document.getElementById('numeros-conflito').textContent = nomesRoubados;
             modalErroCompra.classList.remove('escondido');
             
+            // --- INSERÇÃO: LIMPAR CARRINHO ---
+            numerosSelecionados = []; 
+            atualizarBotaoCompra();
+            // ---------------------------------
+
             carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
@@ -306,15 +313,26 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
         if (erroBanco) throw erroBanco;
 
         // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
+        // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
             
-            // Descobre exatamente quais IDs o Supabase NÃO conseguiu salvar
             const idsSalvos = updateData ? updateData.map(u => u.id) : [];
             const idsPerdidos = idsParaAtualizar.filter(id => !idsSalvos.includes(id));
             const nomesPerdidos = idsPerdidos.map(n => String(n).padStart(3, '0')).join(', ');
 
+            // --- INSERÇÃO: O ROLLBACK (DEVOLVE OS QUE CONSEGUIU SALVAR) ---
+            if (idsSalvos.length > 0) {
+                await liberarNumerosNoBanco(idsSalvos);
+            }
+            // -------------------------------------------------------------
+
             document.getElementById('numeros-conflito').textContent = nomesPerdidos;
             modalErroCompra.classList.remove('escondido');
+
+            // --- INSERÇÃO: LIMPAR CARRINHO ---
+            numerosSelecionados = []; 
+            atualizarBotaoCompra();
+            // ---------------------------------
 
             carregarGrade();
             modalCheckout.classList.add('escondido');
