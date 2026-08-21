@@ -553,6 +553,13 @@ async function carregarInfoSorteioPublico() {
 
         const elEstado = document.getElementById('publico-estado');
         if (elEstado) elEstado.textContent = config.estado_produto || "Não definido";
+        
+        // --- INSERÇÃO DO BANNER DINÂMICO ---
+        const imgBanner = document.getElementById('img-banner-dinamico');
+        // Se houver um link no banco, troca a imagem. Se não houver, deixa a padrão do HTML.
+        if (imgBanner && config.banner_url) {
+            imgBanner.src = config.banner_url;
+        }
     }
 }
 

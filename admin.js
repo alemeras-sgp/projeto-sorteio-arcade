@@ -211,6 +211,20 @@ async function gerarNovoSorteio() {
     const novoEstado = document.getElementById('novo-estado').value || "Novo";
     const tempo = parseInt(document.getElementById('novo-tempo').value) || 10;
 
+    // --- LÓGICA DE UPLOAD NOVO BANNER ---
+    const inputBanner = document.getElementById('novo-banner');
+    let urlBannerFinal = null;
+    
+    if (inputBanner.files.length > 0) {
+        event.target.textContent = "Fazendo upload da imagem..."; // Avisa visualmente
+        try {
+            urlBannerFinal = await uploadBannerSupabase(inputBanner.files[0]);
+        } catch (err) {
+            return alert(err.message);
+        }
+    }
+    // ------------------------------------
+
     console.log("Gerando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Estado:", novoEstado, "| Tempo:", tempo);
 
     // 2. Limpa a tabela de sorteios antigos
@@ -240,6 +254,7 @@ async function gerarNovoSorteio() {
         valor_numero: valorInput,
         tempo_pix_minutos: tempo,
         estado_produto: novoEstado,
+        banner_url: bannerUrl,
         criado_em: dataLocalFormatada
     });
 
@@ -355,9 +370,14 @@ async function carregarDadosParaEdicao() {
         if (inputEstado) inputEstado.value = data.estado_produto || 'Novo';
         if (inputTempo) inputTempo.value = data.tempo_pix_minutos || 10;
         if (inputQtd) inputQtd.value = totalNumeros || 100;
+        // --- INSERÇÃO ---
+        const inputBanner = document.getElementById('edit-banner');
+        if (inputBanner) inputBanner.value = data.banner_url || '';
+        // ----------------
     }
 }
 
+// --- SALVA AS ALTERAÇÕES DO SORTEIO ATUAL SEM ZERAR ---
 // --- SALVA AS ALTERAÇÕES DO SORTEIO ATUAL SEM ZERAR ---
 async function salvarEdicaoSorteio() {
     if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
@@ -372,14 +392,34 @@ async function salvarEdicaoSorteio() {
     const tempo = parseInt(document.getElementById('edit-tempo').value) || 10;
     const qtdNova = parseInt(document.getElementById('edit-qtd').value);
 
-    // 1. Atualiza as configurações
+    // --- INÍCIO DA INSERÇÃO: LÓGICA DE UPLOAD EDIÇÃO BANNER ---
+    const inputBannerEdit = document.getElementById('edit-banner');
+    
+    const objAtualizacao = {
+        nome_sorteio: nome,
+        valor_numero: valorInput,
+        estado_produto: estado,
+        tempo_pix_minutos: tempo
+    };
+
+    if (inputBannerEdit && inputBannerEdit.files.length > 0) {
+        // Pega o botão para mostrar que está carregando
+        const btnSalvar = event ? event.target : document.querySelector('button[onclick="salvarEdicaoSorteio()"]');
+        if (btnSalvar) btnSalvar.textContent = "Fazendo upload...";
+        
+        try {
+            // Usa a função de upload que você colocou no admin.js e anexa a URL no objeto
+            objAtualizacao.banner_url = await uploadBannerSupabase(inputBannerEdit.files[0]);
+        } catch (err) {
+            if (btnSalvar) btnSalvar.textContent = "SALVAR ALTERAÇÕES";
+            return alert(err.message);
+        }
+    }
+    // --- FIM DA INSERÇÃO ---
+
+    // 1. Atualiza as configurações no banco usando o objeto modificado
     const { error } = await db.from('configuracoes')
-        .update({
-            nome_sorteio: nome,
-            valor_numero: valorInput,
-            estado_produto: estado,
-            tempo_pix_minutos: tempo
-        })
+        .update(objAtualizacao)
         .eq('id', 1);
 
     if (error) {
@@ -400,12 +440,26 @@ async function salvarEdicaoSorteio() {
             const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
             if (erroInsert) return alert("Erro ao criar novos números: " + erroInsert.message);
         } else if (qtdNova < qtdAtual) {
-            alert("Aviso: A quantidade só pode ser aumentada. A diminuição foi ignorada para evitar que números já vendidos sejam apagados.");
+            alert("Aviso: A quantidade só pode ser aumentada. A diminuição foi ignorada para evitar exclusão de vendas.");
         }
     }
 
     alert("✅ Sorteio atualizado com sucesso!");
     location.reload();
+}
+
+// --- FUNÇÃO PARA UPAR IMAGEM NO SUPABASE STORAGE ---
+async function uploadBannerSupabase(file) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `banner_${Date.now()}.${fileExt}`; // Cria um nome único com a data atual
+
+    // 1. Faz o upload para o bucket 'banners'
+    const { data, error } = await db.storage.from('banners').upload(fileName, file);
+    if (error) throw new Error("Erro ao fazer upload da imagem: " + error.message);
+
+    // 2. Pega o link público da imagem que acabou de subir
+    const { data: publicUrlData } = db.storage.from('banners').getPublicUrl(fileName);
+    return publicUrlData.publicUrl;
 }
 
 

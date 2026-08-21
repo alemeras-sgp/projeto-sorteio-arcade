@@ -170,6 +170,13 @@
                     <input type="number" id="novo-tempo" value="10"
                         style="padding: 8px; background: #121214; color: white; border: 1px solid #444;">
                 </div>
+                <!-- INÍCIO DA INSERÇÃO: BANNER NOVO SORTEIO -->
+                <div style="flex-grow: 1; min-width: 250px;">
+                    <label>Upload do Banner (Recomendado: 1004x204):</label><br>
+                    <input type="file" id="novo-banner" accept="image/*"
+                        style="width: 100%; padding: 6px; background: #121214; color: white; border: 1px solid #444; box-sizing: border-box;">
+                </div>
+                <!-- FIM DA INSERÇÃO -->
                 <button onclick="gerarNovoSorteio()"
                     style="background: #8257e5; color: white; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold;">
                     GERAR NOVO SORTEIO
@@ -212,6 +219,13 @@
                     <input type="number" id="edit-tempo"
                         style="padding: 8px; background: #121214; color: white; border: 1px solid #444;">
                 </div>
+                <!-- INÍCIO DA INSERÇÃO: BANNER EDIÇÃO -->
+                <div style="flex-grow: 1; min-width: 250px;">
+                    <label>Trocar Banner (Deixe vazio para manter atual):</label><br>
+                    <input type="file" id="edit-banner" accept="image/*"
+                        style="width: 100%; padding: 6px; background: #121214; color: white; border: 1px solid #444; box-sizing: border-box;">
+                </div>
+                <!-- FIM DA INSERÇÃO -->
                 <button onclick="salvarEdicaoSorteio()"
                     style="background: #00875f; color: white; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold;">
                     SALVAR ALTERAÇÕES

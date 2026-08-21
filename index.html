@@ -14,10 +14,11 @@
         <div class="container-imagem logo">
             <img src="images/logo.png" alt="Logo do Canal">
         </div>
-
-        <!-- Espaço para a Imagem do Prêmio (1000x300) -->
+        <!-- Espaço para a Imagem do Prêmio -->
         <div class="container-imagem premio">
-            <img src="images/banner.png" alt="Prêmio do Sorteio">
+            <!-- Coloquei o id="img-banner-dinamico" e estilos de responsividade -->
+            <img id="img-banner-dinamico" src="images/banner.png" alt="Prêmio do Sorteio"
+                style="max-width: 100%; height: auto; object-fit: cover; border-radius: 8px;">
         </div>
     </header>
 
@@ -119,13 +120,15 @@
             <p style="color: #a8a8b3; font-size: 1.1rem; line-height: 1.5;">
                 Outra pessoa finalizou a compra do(s) número(s) abaixo milissegundos antes que você:
             </p>
-            <div id="numeros-conflito" style="font-size: 2rem; font-weight: bold; color: #ff4747; margin: 20px 0; letter-spacing: 2px;">
+            <div id="numeros-conflito"
+                style="font-size: 2rem; font-weight: bold; color: #ff4747; margin: 20px 0; letter-spacing: 2px;">
                 <!-- Os números entrarão aqui via JS -->
             </div>
             <p style="color: #a8a8b3; font-size: 1.1rem; margin-bottom: 20px;">
                 Por favor, volte e escolha outros números disponíveis.
             </p>
-            <button type="button" id="btn-voltar-erro" class="btn-confirmar" style="background: #ff4747;">Voltar e Escolher Outros</button>
+            <button type="button" id="btn-voltar-erro" class="btn-confirmar" style="background: #ff4747;">Voltar e
+                Escolher Outros</button>
         </div>
     </div>
     <!-- FIM DA INSERÇÃO -->
