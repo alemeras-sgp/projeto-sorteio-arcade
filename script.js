@@ -213,7 +213,17 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const nome = document.getElementById('nome').value;
     nomeCompradorAtual = nome;
     const email = document.getElementById('email').value;
+    
+    // --- INSERÇÃO DA TRAVA DE CPF ---
     const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+    if (cpf.length < 11) {
+        alert("Por favor, preencha um CPF válido (11 dígitos).");
+        btnConfirmar.textContent = textoOriginalBotao; // Volta o texto original do botão
+        btnConfirmar.disabled = false; // Reabilita o botão
+        return; // Interrompe o processo aqui
+    }
+    // ---------------------------------
+
     const msgTexto = document.getElementById('mensagem').value;
     const msg = `${msgTexto}`;
 

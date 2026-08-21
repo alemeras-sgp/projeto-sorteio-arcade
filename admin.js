@@ -148,16 +148,28 @@ async function carregarVendas() {
 
     // Lógica para agrupar números do mesmo comprador
     const vendasAgrupadas = data.reduce((acc, item) => {
-        const chave = item.nome_comprador + item.whatsapp; // Identificador único
+        const chave = item.nome_comprador + item.whatsapp;
+        
         if (!acc[chave]) {
             acc[chave] = { ...item, numeros: [item.id] };
         } else {
             acc[chave].numeros.push(item.id);
+            // Se o item atual tem CPF e o grupo ainda não tem, atualizamos o CPF do grupo
+            if (item.cpf && !acc[chave].cpf) {
+                acc[chave].cpf = item.cpf;
+            }
         }
         return acc;
     }, {});
 
     const listaFinal = Object.values(vendasAgrupadas);
+
+    // Ordenação alfabética (que fizemos antes)
+    listaFinal.sort((a, b) => {
+        const nomeA = (a.nome_comprador || '').toLowerCase();
+        const nomeB = (b.nome_comprador || '').toLowerCase();
+        return nomeA.localeCompare(nomeB, 'pt-BR');
+    });
 
     const tbody = document.getElementById('tabela-admin');
     tbody.innerHTML = listaFinal.map(item => `
@@ -166,12 +178,13 @@ async function carregarVendas() {
             <td>${item.nome_comprador}</td>
             <td>${item.whatsapp}</td>
             <td>${item.email}</td>
-            <td>${item.cpf}</td>
+            <!-- Tratamento do CPF para não mostrar undefined -->
+            <td>${item.cpf || 'Não informado'}</td>
             <td>${item.mensagem_live || ''}<button 
-        onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')" 
-        style="margin-left: 10px; cursor: pointer; background: #8257e5; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">
-        🔄 Replay
-    </button></td>
+            onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')" 
+            style="margin-left: 10px; cursor: pointer; background: #8257e5; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">
+            🔄 Replay
+        </button></td>
         </tr>
     `).join('');
 }
