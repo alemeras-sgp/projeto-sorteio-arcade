@@ -533,7 +533,8 @@ async function carregarInfoSorteioPublico() {
         // --- VERIFICAÇÃO DO KILL SWITCH ---
         if (config.ativo === false) {
             document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #121214; color: #fff; font-family: sans-serif; text-align: center; padding: 20px;">
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: url(images/bg.png) no-repeat 0 0 fixed;
+} color: #fff; font-family: sans-serif; text-align: center; padding: 20px;">
                 <div class="container-imagem logo">
             <img src="images/logo.png" alt="Logo do Canal">
         </div>    
