@@ -21,6 +21,17 @@ let btnCopiar = document.getElementById('btn-copiar');
 let intervaloTimerPix;
 let TEMPO_LIMITE_PIX = 10;
 
+// --- NOVO MODAL DE ERRO DE COMPRA ---
+const modalErroCompra = document.getElementById('modal-erro-compra');
+const btnVoltarErro = document.getElementById('btn-voltar-erro');
+
+if (btnVoltarErro) {
+    btnVoltarErro.addEventListener('click', () => {
+        modalErroCompra.classList.add('escondido');
+    });
+}
+// ------------------------------------
+
 async function buscarConfiguracoes() {
     const { data } = await db.from('configuracoes').select('valor_numero, tempo_pix_minutos').eq('id', 1).single();
     if (data) {
@@ -247,9 +258,13 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         const numerosRoubados = checagem.filter(num => num.status !== 'disponivel');
 
+        // --- PRIMEIRA CHECAGEM (Antes do Pix) ---
         if (numerosRoubados.length > 0) {
             const nomesRoubados = numerosRoubados.map(n => String(n.id).padStart(3, '0')).join(', ');
-            alert(`⚠️ Ops! O(s) número(s) ${nomesRoubados} já foi(ram) escolhido(s). Escolha outro(s).`);
+            
+            document.getElementById('numeros-conflito').textContent = nomesRoubados;
+            modalErroCompra.classList.remove('escondido');
+            
             carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;
@@ -268,11 +283,10 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
             }
         });
 
-        // 1. MUDANÇA AQUI: Agora validamos se o QR Code chegou, e não mais a preferência
         if (erroFuncao || !dadosPix?.qr_code_base64) {
             throw new Error(`Erro na geração do PIX: ${erroFuncao?.message || 'QR Code não retornado. Verifique o CPF.'}`);
         }
-
+        
         console.log("Travando os números no banco como 'reservado'...");
         const { data: updateData, error: erroBanco } = await db
             .from('sorteio')
@@ -281,7 +295,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 nome_comprador: nome,
                 whatsapp: zap,
                 email: email,
-                cpf: cpf, // <--- ADICIONE ESTA LINHA AQUI PARA SALVAR O CPF NO BANCO
+                cpf: cpf,
                 mensagem_live: msg,
                 reservado_em: new Date().toISOString()
             })
@@ -291,8 +305,17 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
         if (erroBanco) throw erroBanco;
 
+        // --- SEGUNDA CHECAGEM (Conflito de milissegundos) ---
         if (!updateData || updateData.length !== idsParaAtualizar.length) {
-            alert(`⚠️ Que azar terrível! Outra pessoa finalizou a compra de um número que você escolheu milissegundos antes, volte e escolha outros números`);
+            
+            // Descobre exatamente quais IDs o Supabase NÃO conseguiu salvar
+            const idsSalvos = updateData ? updateData.map(u => u.id) : [];
+            const idsPerdidos = idsParaAtualizar.filter(id => !idsSalvos.includes(id));
+            const nomesPerdidos = idsPerdidos.map(n => String(n).padStart(3, '0')).join(', ');
+
+            document.getElementById('numeros-conflito').textContent = nomesPerdidos;
+            modalErroCompra.classList.remove('escondido');
+
             carregarGrade();
             modalCheckout.classList.add('escondido');
             btnConfirmar.textContent = textoOriginalBotao;

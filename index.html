@@ -111,6 +111,24 @@
                 pagamento...</p>
         </div>
     </div>
+
+    <!-- INÍCIO DA INSERÇÃO: Modal de Conflito de Números -->
+    <div id="modal-erro-compra" class="modal escondido">
+        <div class="modal-content" style="text-align: center; border: 2px solid #ff4747;">
+            <h2 style="color: #ff4747; font-size: 1.8rem; margin-bottom: 10px;">⚠️ Que azar terrível!</h2>
+            <p style="color: #a8a8b3; font-size: 1.1rem; line-height: 1.5;">
+                Outra pessoa finalizou a compra do(s) número(s) abaixo milissegundos antes que você:
+            </p>
+            <div id="numeros-conflito" style="font-size: 2rem; font-weight: bold; color: #ff4747; margin: 20px 0; letter-spacing: 2px;">
+                <!-- Os números entrarão aqui via JS -->
+            </div>
+            <p style="color: #a8a8b3; font-size: 1.1rem; margin-bottom: 20px;">
+                Por favor, volte e escolha outros números disponíveis.
+            </p>
+            <button type="button" id="btn-voltar-erro" class="btn-confirmar" style="background: #ff4747;">Voltar e Escolher Outros</button>
+        </div>
+    </div>
+    <!-- FIM DA INSERÇÃO -->
     <footer style="text-align: center; padding: 10px 0px 20px 0px; font-size: 0.8rem;">
         <p>&copy; Eu mesmo quem fiz. Tmj! Todos os direitos reservados.</p>
     </footer>
