@@ -194,6 +194,7 @@ async function carregarVendas() {
 }
 
 carregarVendas();
+verificarStatusKillSwitch();
 
 
 async function gerarNovoSorteio() {
