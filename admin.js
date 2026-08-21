@@ -137,6 +137,14 @@ window.dispararReplayNaLive = function (nomeComprador, mensagemLive) {
 // --- FIM DA INSERÇÃO ---
 
 
+// --- FUNÇÃO PARA OCULTAR DADOS SENSÍVEIS (MÁSCARA DE CPF) ---
+function mascararCPF(cpf) {
+    if (!cpf || cpf === '000.000.000-00' || cpf === 'Não informado') return 'Não informado';
+    const limpo = cpf.replace(/\D/g, '');
+    if (limpo.length !== 11) return cpf; // Se vier fora do padrão, exibe original
+    return `${limpo.substring(0, 3)}.***.***-${limpo.substring(9, 11)}`;
+}
+
 
 async function carregarVendas() {
     const { data, error } = await db
@@ -146,15 +154,12 @@ async function carregarVendas() {
 
     if (error) return console.error(error);
 
-    // Lógica para agrupar números do mesmo comprador
     const vendasAgrupadas = data.reduce((acc, item) => {
         const chave = item.nome_comprador + item.whatsapp;
-        
         if (!acc[chave]) {
             acc[chave] = { ...item, numeros: [item.id] };
         } else {
             acc[chave].numeros.push(item.id);
-            // Se o item atual tem CPF e o grupo ainda não tem, atualizamos o CPF do grupo
             if (item.cpf && !acc[chave].cpf) {
                 acc[chave].cpf = item.cpf;
             }
@@ -164,7 +169,6 @@ async function carregarVendas() {
 
     const listaFinal = Object.values(vendasAgrupadas);
 
-    // Ordenação alfabética (que fizemos antes)
     listaFinal.sort((a, b) => {
         const nomeA = (a.nome_comprador || '').toLowerCase();
         const nomeB = (b.nome_comprador || '').toLowerCase();
@@ -178,8 +182,8 @@ async function carregarVendas() {
             <td>${item.nome_comprador}</td>
             <td>${item.whatsapp}</td>
             <td>${item.email}</td>
-            <!-- Tratamento do CPF para não mostrar undefined -->
-            <td>${item.cpf || 'Não informado'}</td>
+            <!-- CPF MASCARADO PARA MAIS SEGURANÇA -->
+            <td>${mascararCPF(item.cpf)}</td>
             <td>${item.mensagem_live || ''}<button 
             onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')" 
             style="margin-left: 10px; cursor: pointer; background: #8257e5; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">
