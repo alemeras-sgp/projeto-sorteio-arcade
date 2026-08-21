@@ -197,8 +197,13 @@ carregarVendas();
 verificarStatusKillSwitch();
 
 
+// --- FUNÇÃO PARA CRIAR UM NOVO SORTEIO DO ZERO ---
 async function gerarNovoSorteio() {
     if (!confirm("TEM CERTEZA? Isso deletará todo o histórico e criará um novo sorteio.")) return;
+
+    // Captura o botão para animar o texto
+    const btnGerar = event ? event.target : document.querySelector('button[onclick="gerarNovoSorteio()"]');
+    const textoOriginal = btnGerar ? btnGerar.textContent : "GERAR NOVO SORTEIO";
 
     // 1. Captura com segurança absoluta os valores do formulário HTML
     const nome = document.getElementById('novo-nome').value.trim() || "Sorteio Oficial";
@@ -215,21 +220,26 @@ async function gerarNovoSorteio() {
     const inputBanner = document.getElementById('novo-banner');
     let urlBannerFinal = null;
     
-    if (inputBanner.files.length > 0) {
-        event.target.textContent = "Fazendo upload da imagem..."; // Avisa visualmente
+    if (inputBanner && inputBanner.files.length > 0) {
+        if (btnGerar) btnGerar.textContent = "Fazendo upload da imagem...";
         try {
             urlBannerFinal = await uploadBannerSupabase(inputBanner.files[0]);
         } catch (err) {
+            if (btnGerar) btnGerar.textContent = textoOriginal;
             return alert(err.message);
         }
     }
     // ------------------------------------
 
+    if (btnGerar) btnGerar.textContent = "Limpando e Gerando números...";
     console.log("Gerando Sorteio -> Nome:", nome, "| Valor:", valorInput, "| Qtd:", qtd, "| Estado:", novoEstado, "| Tempo:", tempo);
 
     // 2. Limpa a tabela de sorteios antigos
     const { error: erroDelete } = await db.from('sorteio').delete().neq('id', 0);
-    if (erroDelete) return alert("Erro ao limpar números: " + erroDelete.message);
+    if (erroDelete) {
+        if (btnGerar) btnGerar.textContent = textoOriginal;
+        return alert("Erro ao limpar números: " + erroDelete.message);
+    }
 
     // 3. Prepara e insere os novos números em lote
     const novosNumeros = [];
@@ -238,7 +248,10 @@ async function gerarNovoSorteio() {
     }
 
     const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
-    if (erroInsert) return alert("Erro ao gerar números: " + erroInsert.message);
+    if (erroInsert) {
+        if (btnGerar) btnGerar.textContent = textoOriginal;
+        return alert("Erro ao gerar números: " + erroInsert.message);
+    }
 
     // 4. Gera a data local exata de hoje (Fuso horário do Brasil)
     const hojeLocal = new Date();
@@ -247,21 +260,31 @@ async function gerarNovoSorteio() {
     const dia = String(hojeLocal.getDate()).padStart(2, '0');
     const dataLocalFormatada = `${ano}-${mes}-${dia}T00:00:00.000Z`;
 
-    // 5. Salva/Atualiza as configurações globais (Usando UPSERT para garantir que grava mesmo se a linha 1 não existir)
-    const { error: erroConfig } = await db.from('configuracoes').upsert({
+    // 5. Prepara os dados para salvar na tabela configuracoes
+    const objNovoSorteio = {
         id: 1, // Força a linha 1
         nome_sorteio: nome,
         valor_numero: valorInput,
         tempo_pix_minutos: tempo,
         estado_produto: novoEstado,
-        banner_url: bannerUrl,
         criado_em: dataLocalFormatada
-    });
+    };
 
-    if (erroConfig) return alert("Erro ao salvar config: " + erroConfig.message);
+    // Só adiciona a coluna banner_url se a imagem tiver subido com sucesso (CORREÇÃO AQUI)
+    if (urlBannerFinal) {
+        objNovoSorteio.banner_url = urlBannerFinal;
+    }
 
-    alert("Sorteio '" + nome + "' reiniciado com sucesso! " + qtd + " números disponíveis.");
-    window.location.href = window.location.href;
+    // 6. Salva/Atualiza as configurações globais
+    const { error: erroConfig } = await db.from('configuracoes').upsert(objNovoSorteio);
+
+    if (erroConfig) {
+        if (btnGerar) btnGerar.textContent = textoOriginal;
+        return alert("Erro ao salvar config: " + erroConfig.message);
+    }
+
+    alert(`Sorteio '${nome}' reiniciado com sucesso! ${qtd} números disponíveis.`);
+    window.location.reload();
 }
 
 async function carregarStatusSorteio() {
