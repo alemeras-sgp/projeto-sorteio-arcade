@@ -193,6 +193,9 @@ if (campoMensagem && contadorMsg) {
 document.getElementById('form-checkout').addEventListener('submit', async function (e) {
     e.preventDefault();
     console.log("O botão de confirmar foi clicado e o form disparou!");
+    // Esconde qualquer erro antigo antes de tentar de novo
+    const msgErroCheckout = document.getElementById('msg-erro-checkout');
+    if (msgErroCheckout) msgErroCheckout.style.display = 'none';
 
     const zapBruto = document.getElementById('whatsapp').value;
     const zap = zapBruto.replace(/\D/g, '');
@@ -213,7 +216,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const nome = document.getElementById('nome').value;
     nomeCompradorAtual = nome;
     const email = document.getElementById('email').value;
-    
+
     // --- INSERÇÃO DA TRAVA DE CPF ---
     const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
     if (cpf.length < 11) {
@@ -327,7 +330,25 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
 
     } catch (err) {
         console.error("DETALHE DO ERRO:", err);
-        alert("Erro ao processar: " + (err.message || "Verifique o console (F12)"));
+
+        // --- INÍCIO DA INSERÇÃO: Tratamento visual de erro ---
+        const msgErroCheckout = document.getElementById('msg-erro-checkout');
+        if (msgErroCheckout) {
+            msgErroCheckout.style.display = 'block';
+
+            // Se o erro vier da Edge Function, 99% das vezes é o Mercado Pago recusando os dados (como CPF inválido)
+            if (err.message.includes('Edge Function') || err.message.includes('non-2xx')) {
+                msgErroCheckout.textContent = "⚠️ CPF inválido ou não autorizado pelo Mercado Pago. Verifique o número digitado.";
+            } else {
+                // Para outros tipos de erro, mostra uma mensagem mais genérica
+                msgErroCheckout.textContent = "⚠️ Erro ao gerar PIX: " + (err.message || "Tente novamente.");
+            }
+        } else {
+            // Fallback caso você esqueça de colocar o <p> no HTML
+            alert("⚠️ CPF inválido ou erro no pagamento. Verifique seus dados.");
+        }
+        // --- FIM DA INSERÇÃO ---
+
     } finally {
         btnConfirmar.textContent = textoOriginalBotao;
         btnConfirmar.disabled = false;
@@ -381,7 +402,7 @@ async function fecharModalPixELimparEstado() {
     imgQrcode = document.getElementById('img-qrcode');
     inputCopiaCola = document.getElementById('input-copiacola');
     btnCopiar = document.getElementById('btn-copiar');
-    
+
     document.getElementById('fechar-modal-pix').addEventListener('click', fecharModalPixELimparEstado);
 
     btnCopiar.addEventListener('click', () => {

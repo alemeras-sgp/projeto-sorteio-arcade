@@ -50,20 +50,21 @@
             <form id="form-checkout">
                 <div class="form-group">
                     <label for="nome">*Nome Completo</label>
-                    <input type="text" id="nome" placeholder="Iori Yagami da Silva" required>
+                    <input type="text" id="nome" placeholder="ex: Iori Yagami da Silva" required>
                 </div>
                 <div class="form-group">
                     <label for="whatsapp">*WhatsApp (Com DDD)</label>
-                    <input type="text" id="whatsapp" placeholder="(00) 00000-0000" required>
-                    <small style="color: #888; font-size: 0.8rem;">*Verifique se o número está correto, pois iremos entrar em contato caso seja premiado.</small>
+                    <input type="text" id="whatsapp" placeholder="ex: (00) 00000-0000" required>
+                    <small style="color: #888; font-size: 0.8rem;">*Verifique se o número está correto, pois iremos
+                        entrar em contato caso seja premiado.</small>
                 </div>
                 <div class="form-group">
                     <label for="email">*E-mail</label>
-                    <input type="email" id="email" placeholder="kofeiroburro@email.com"required>
+                    <input type="email" id="email" placeholder="ex: kofeiroburro@email.com" required>
                 </div>
                 <div class="form-group">
                     <label for="cpf">*CPF (Exigido pelo Mercado Pago)</label>
-                    <input type="text" id="cpf" placeholder="000.000.000-00" required>
+                    <input type="text" id="cpf" placeholder="ex: 000.000.000-00" required>
                     <small style="color: #888; font-size: 0.8rem;">*Usado exclusivamente para validação e emissão
                         segura do Pix.</small>
                 </div>
@@ -72,6 +73,11 @@
                     <textarea id="mensagem" maxlength="200" placeholder="Mande um salve na live!"></textarea>
 
                     <small id="contador-msg" style="color: #888; font-weight: bold;">200 caracteres restantes</small>
+                    <!-- INÍCIO DA INSERÇÃO: Mensagem de erro do checkout -->
+                    <p id="msg-erro-checkout"
+                        style="color: #ff4747; font-size: 0.9rem; text-align: center; margin-bottom: 10px; display: none; font-weight: bold;">
+                    </p>
+                    <!-- FIM DA INSERÇÃO -->
                 </div>
                 <button type="submit" class="btn-confirmar">Gerar Pix</button>
             </form>
@@ -93,13 +99,16 @@
             <div class="form-group" style="text-align: left;">
                 <label>Pix Copia e Cola:</label>
                 <input type="text" id="input-copiacola" readonly>
-                <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código Pix</button>
+                <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código
+                    Pix</button>
             </div>
 
-            <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span id="tempo-restante">10:00</span></p>
+            <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span
+                    id="tempo-restante">10:00</span></p>
 
             <p id="status-pagamento"
-                style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando pagamento...</p>
+                style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando
+                pagamento...</p>
         </div>
     </div>
     <footer style="text-align: center; padding: 10px 0px 20px 0px; font-size: 0.8rem;">
