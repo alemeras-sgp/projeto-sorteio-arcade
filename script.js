@@ -278,6 +278,7 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 nome_comprador: nome,
                 whatsapp: zap,
                 email: email,
+                cpf: cpf, // <--- ADICIONE ESTA LINHA AQUI PARA SALVAR O CPF NO BANCO
                 mensagem_live: msg,
                 reservado_em: new Date().toISOString()
             })
