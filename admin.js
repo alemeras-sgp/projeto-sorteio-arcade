@@ -273,6 +273,47 @@ async function carregarStatusSorteio() {
 carregarStatusSorteio();
 
 
+
+// --- ATUALIZA A COR E O TEXTO DO BOTÃO KILL SWITCH ---
+async function verificarStatusKillSwitch() {
+    const { data, error } = await db.from('configuracoes').select('ativo').eq('id', 1).single();
+    const btn = document.getElementById('btn-kill-switch');
+    if (!btn) return;
+
+    if (error) {
+        console.error("Erro ao buscar status:", error);
+        return;
+    }
+
+    if (data.ativo) {
+        btn.textContent = "🟢 Sorteio ATIVO (Clique para Pausar)";
+        btn.style.backgroundColor = "#00875f"; // Verde profissional
+        btn.style.color = "#ffffff";
+    } else {
+        btn.textContent = "🔴 Sorteio PAUSADO (Clique para Ativar)";
+        btn.style.backgroundColor = "#ff4747"; // Vermelho de alerta
+        btn.style.color = "#ffffff";
+    }
+}
+
+// --- FUNÇÃO KILL SWITCH (LIGA/DESLIGA SORTEIO) ---
+async function alternarStatusSorteio() {
+    const { data, error } = await db.from('configuracoes').select('ativo').eq('id', 1).single();
+    if (error) return alert("Erro ao verificar status do sorteio.");
+
+    const novoStatus = !data.ativo;
+
+    const { error: erroUpdate } = await db.from('configuracoes')
+        .update({ ativo: novoStatus })
+        .eq('id', 1);
+
+    if (erroUpdate) return alert("Erro ao alterar status: " + erroUpdate.message);
+
+    // Atualiza o botão na hora e avisa
+    verificarStatusKillSwitch();
+    alert(novoStatus ? "✅ Sorteio LIGADO com sucesso!" : "🛑 Sorteio PAUSADO (Desligado do ar)!");
+}
+
 // --- FUNÇÃO KILL SWITCH (LIGA/DESLIGA SORTEIO) ---
 async function alternarStatusSorteio() {
     // 1. Busca o status atual no banco
