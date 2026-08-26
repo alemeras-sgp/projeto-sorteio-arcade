@@ -13,8 +13,8 @@
         }
 
         body {
-            background-color: #0d0d0f; /* Fundo ainda mais escuro, combinando com o banner */
-            color: #e1e1e6;
+            background-color: #0f1015; /* Fundo escuro muito suave e confortável para os olhos */
+            color: #d1d5db;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -28,27 +28,27 @@
             text-align: center;
         }
 
-        /* Perfil / Foto com contorno em Vermelho Laser */
+        /* Perfil / Foto com borda neutra e elegante */
         .profile-img {
             width: 110px;
             height: 110px;
             border-radius: 50%;
-            border: 3px solid #cc1111;
+            border: 2px solid #3f3f46;
             object-fit: cover;
             margin: 0 auto 15px auto;
-            box-shadow: 0 0 20px rgba(204, 17, 17, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         h1 {
             font-size: 1.6rem;
-            color: #fff;
+            color: #f3f4f6;
             margin-bottom: 5px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         p {
             font-size: 0.95rem;
-            color: #a8a8b3;
+            color: #9ca3af;
             margin-bottom: 30px;
         }
 
@@ -56,7 +56,7 @@
         .links-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 14px;
         }
 
         .btn-link {
@@ -64,46 +64,50 @@
             align-items: center;
             justify-content: center;
             background: #18181b;
-            color: #fff;
+            color: #e5e7eb;
             padding: 14px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
+            font-weight: 500;
+            font-size: 0.98rem;
             border: 1px solid #27272a;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .btn-link:hover {
             background: #27272a;
-            border-color: #cc1111;
-            transform: translateY(-2px);
+            border-color: #52525b;
+            color: #ffffff;
+            transform: translateY(-1px);
         }
 
-        /* Botão em Destaque (Sorteio) com o Vermelho do Banner */
+        /* Botão em Destaque (Sorteio) - Suave, elegante e sem agressão visual */
         .btn-destaque {
-            background: linear-gradient(135deg, #cc1111 0%, #8b0000 100%);
-            border: none;
-            animation: pulse-glow 2s infinite;
+            background: #27272a;
+            border: 1px solid #52525b;
+            color: #ffffff;
+            font-weight: 600;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.03);
+            animation: pulse-suave 3s infinite;
         }
 
         .btn-destaque:hover {
-            background: linear-gradient(135deg, #e61919 0%, #a30000 100%);
-            border-color: transparent;
+            background: #3f3f46;
+            border-color: #71717a;
         }
 
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(204, 17, 17, 0.5); }
-            70% { box-shadow: 0 0 0 12px rgba(204, 17, 17, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(204, 17, 17, 0); }
+        @keyframes pulse-suave {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.05); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
 
         /* Rodapé */
         footer {
             margin-top: 40px;
             font-size: 0.8rem;
-            color: #71717a;
+            color: #6b7280;
         }
     </style>
 </head>
