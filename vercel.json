@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/arcade",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/arcade/al3m3r45",
+      "destination": "/admin.html"
+    }
+  ]
+}
