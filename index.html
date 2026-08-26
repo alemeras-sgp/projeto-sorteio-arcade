@@ -1,153 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio Arcade Stick</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Alemeras | Links e Comunidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121214;
+            color: #e1e1e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        /* Perfil / Foto */
+        .profile-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid #8257e5;
+            object-fit: cover;
+            margin: 0 auto 15px auto;
+            box-shadow: 0 0 15px rgba(130, 87, 229, 0.4);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: #a8a8b3;
+            margin-bottom: 30px;
+        }
+
+        /* Links / Botões */
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #202024;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid #29292e;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-link:hover {
+            background: #29292e;
+            border-color: #8257e5;
+            transform: translateY(-2px);
+        }
+
+        /* Botão em Destaque (Sorteio) */
+        .btn-destaque {
+            background: linear-gradient(135deg, #8257e5 0%, #6835db 100%);
+            border: none;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .btn-destaque:hover {
+            background: linear-gradient(135deg, #9466ff 0%, #7540e8 100%);
+            border-color: transparent;
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(130, 87, 229, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(130, 87, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(130, 87, 229, 0); }
+        }
+
+        /* Rodapé */
+        footer {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #737380;
+        }
+    </style>
 </head>
-
 <body>
-    <header id="header-customizado">
-        <!-- Espaço para o seu Logo -->
-        <div class="container-imagem logo">
-            <img src="images/logo.png" alt="Logo do Canal">
-        </div>
-        <!-- Espaço para a Imagem do Prêmio -->
-        <div class="container-imagem premio">
-            <!-- Coloquei o id="img-banner-dinamico" e estilos de responsividade -->
-            <img id="img-banner-dinamico" src="images/banner.png" alt="Prêmio do Sorteio"
-                style="max-width: 100%; height: auto; object-fit: cover; border-radius: 8px;">
-        </div>
-    </header>
 
-    <main class="container">
-        <div class="info-sorteio-publico">
-            <h2 id="publico-nome">Carregando Sorteio...</h2>
-            <div class="info-badges">
-                <span class="badge">Criado em: <span id="publico-data">--/--/----</span></span>
-                <span class="badge">Valor do número: <span id="publico-valor">R$ 0,00</span></span>
-                <span class="badge">Estado do produto sorteado: <span id="publico-estado">--</span></span>
-            </div>
-        </div>
-        <div id="grid-numeros" class="grid-numeros">
-        </div>
-    </main>
+    <div class="container">
+        <!-- Sua Logo ou Foto (substitua o link da imagem se quiser) -->
+        <img src="images/banner.png" alt="Alemeras" class="profile-img">
+        
+        <h1>Canal Alemeras</h1>
 
-    <!-- INSERIR LOGO APÓS A DIV DO GRID (<div id="grid-numeros">...</div>) -->
-    <div class="checkout-bar">
-        <button id="btn-comprar" class="btn-comprar" disabled>Comprar <span id="qtd-selecionados">0</span>
-            números</button>
+        <div class="links-list">
+            <!-- BOTÃO DE DESTAQUE PARA O SORTEIO -->
+            <a href="/arcade" class="btn-link btn-destaque">
+                🎟️ Participe do Sorteio Atual!
+            </a>
+
+            <!-- Suas Redes Sociais (Substitua os links # pelos seus links reais) -->
+            <a href="https://youtube.com/@alemeras" target="_blank" class="btn-link">
+               Canal no YouTube
+            </a>
+
+            <a href="https://twitch.tv/seu_canal" target="_blank" class="btn-link">
+                 Canal na Twitch
+            </a>
+
+            <a href="https://instagram.com/seu_instagram" target="_blank" class="btn-link">
+                 Instagram Oficial
+            </a>
+
+            <a href="https://twitter.com/seu_twitter" target="_blank" class="btn-link">
+                X (Twitter)
+            </a>
+
+        </div>
+
+        <footer>
+            &copy; 2026 Alemeras. Todos os direitos reservados.
+        </footer>
     </div>
 
-    <!-- INSERIR LOGO ACIMA DA TAG <script src="script.js"></script> -->
-    <div id="modal-checkout" class="modal escondido">
-        <div class="modal-content">
-            <span id="fechar-modal" class="fechar">&times;</span>
-            <h2>Finalizar Reserva</h2>
-            <p id="resumo-numeros">Números selecionados: </p>
-
-            <form id="form-checkout">
-                <div class="form-group">
-                    <label for="nome">*Nome Completo</label>
-                    <input type="text" id="nome" placeholder="ex: Iori Yagami da Silva" required>
-                </div>
-                <div class="form-group">
-                    <label for="whatsapp">*WhatsApp (Com DDD)</label>
-                    <input type="text" id="whatsapp" placeholder="ex: (00) 00000-0000" required>
-                    <small style="color: #888; font-size: 0.8rem;">*Verifique se o número está correto, pois iremos
-                        entrar em contato caso seja premiado.</small>
-                </div>
-                <div class="form-group">
-                    <label for="email">*E-mail</label>
-                    <input type="email" id="email" placeholder="ex: kofeiroburro@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="cpf">*CPF (Exigido pelo Mercado Pago)</label>
-                    <input type="text" id="cpf" placeholder="ex: 000.000.000-00" required>
-                    <small style="color: #888; font-size: 0.8rem;">*Usado exclusivamente para validação e emissão
-                        segura do Pix.</small>
-                </div>
-                <div class="form-group">
-                    <label for="mensagem">Mensagem na Live:</label>
-                    <textarea id="mensagem" maxlength="200" placeholder="Mande um salve na live!"></textarea>
-
-                    <small id="contador-msg" style="color: #888; font-weight: bold;">200 caracteres restantes</small>
-                    <!-- INÍCIO DA INSERÇÃO: Mensagem de erro do checkout -->
-                    <p id="msg-erro-checkout"
-                        style="color: #ff4747; font-size: 0.9rem; text-align: center; margin-bottom: 10px; display: none; font-weight: bold;">
-                    </p>
-                    <!-- FIM DA INSERÇÃO -->
-                </div>
-                <button type="submit" class="btn-confirmar">Gerar Pix</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-pix" class="modal escondido">
-        <div class="modal-content" style="text-align: center;">
-            <span id="fechar-modal-pix" class="fechar">&times;</span>
-            <h2>Pagamento via Pix</h2>
-            <p style="color: #a8a8b3; margin-bottom: 1rem;">Escaneie o QR Code ou copie o código abaixo.</p>
-
-            <!-- VOLTAMOS COM A IMAGEM DIRETA -->
-            <div class="qr-code-container">
-                <img id="img-qrcode" src="" alt="QR Code Pix"
-                    style="max-width: 250px; border-radius: 8px; margin: 15px 0; border: 4px solid #fff; display: none;">
-            </div>
-
-            <div class="form-group" style="text-align: left;">
-                <label>Pix Copia e Cola:</label>
-                <input type="text" id="input-copiacola" readonly>
-                <button type="button" id="btn-copiar" class="btn-confirmar" style="margin-top: 10px;">Copiar Código
-                    Pix</button>
-            </div>
-
-            <p style="font-size: 1.5rem; font-weight: bold; color: #ff4747; margin-top: 15px;">Tempo restante: <span
-                    id="tempo-restante">10:00</span></p>
-
-            <p id="status-pagamento"
-                style="color: #e1a000; margin-top: 15px; font-weight: bold; animation: pulse 2s infinite;">⏳ Aguardando
-                pagamento...</p>
-        </div>
-    </div>
-
-    <!-- INÍCIO DA INSERÇÃO: Modal de Conflito de Números -->
-    <div id="modal-erro-compra" class="modal escondido">
-        <div class="modal-content" style="text-align: center; border: 2px solid #ff4747;">
-            <h2 style="color: #ff4747; font-size: 1.8rem; margin-bottom: 10px;">⚠️ Que azar terrível!</h2>
-            <p style="color: #a8a8b3; font-size: 1.1rem; line-height: 1.5;">
-                Outra pessoa finalizou a compra do(s) número(s) abaixo milissegundos antes que você:
-            </p>
-            <div id="numeros-conflito"
-                style="font-size: 2rem; font-weight: bold; color: #ff4747; margin: 20px 0; letter-spacing: 2px;">
-                <!-- Os números entrarão aqui via JS -->
-            </div>
-            <p style="color: #a8a8b3; font-size: 1.1rem; margin-bottom: 20px;">
-                Por favor, volte e escolha outros números disponíveis.
-            </p>
-            <button type="button" id="btn-voltar-erro" class="btn-confirmar" style="background: #ff4747;">Voltar e
-                Escolher Outros</button>
-        </div>
-    </div>
-    <!-- FIM DA INSERÇÃO -->
-    <footer style="text-align: center; padding: 10px 0px 20px 0px; font-size: 0.8rem;">
-        <p>&copy; Eu mesmo quem fiz. Tmj! Todos os direitos reservados.</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="db-config.js"></script>
-    <script src="script.js"></script>
-    <!-- INÍCIO DA INSERÇÃO: EmailJS SDK -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function () {
-            // Inicializa o EmailJS com a sua Public Key
-            emailjs.init("cB6dPZB7aeFuZzDQr");
-        })();
-    </script>
-    <!-- FIM DA INSERÇÃO -->
 </body>
-
 </html>

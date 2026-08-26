@@ -1,11 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/arcade",
+      "source": "/",
       "destination": "/index.html"
     },
     {
-      "source": "/arcade/al3m3r45",
+      "source": "/arcade",
+      "destination": "/arcade.html"
+    },
+    {
+      "source": "/arcade/admin",
       "destination": "/admin.html"
     }
   ]
