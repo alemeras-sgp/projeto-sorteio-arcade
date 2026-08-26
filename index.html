@@ -13,7 +13,7 @@
         }
 
         body {
-            background-color: #121214;
+            background-color: #0d0d0f; /* Fundo ainda mais escuro, combinando com o banner */
             color: #e1e1e6;
             display: flex;
             justify-content: center;
@@ -28,21 +28,22 @@
             text-align: center;
         }
 
-        /* Perfil / Foto */
+        /* Perfil / Foto com contorno em Vermelho Laser */
         .profile-img {
             width: 110px;
             height: 110px;
             border-radius: 50%;
-            border: 3px solid #8257e5;
+            border: 3px solid #cc1111;
             object-fit: cover;
             margin: 0 auto 15px auto;
-            box-shadow: 0 0 15px rgba(130, 87, 229, 0.4);
+            box-shadow: 0 0 20px rgba(204, 17, 17, 0.5);
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: #fff;
             margin-bottom: 5px;
+            letter-spacing: 1px;
         }
 
         p {
@@ -62,57 +63,58 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #202024;
+            background: #18181b;
             color: #fff;
             padding: 14px 20px;
             border-radius: 8px;
             text-decoration: none;
             font-weight: bold;
             font-size: 1rem;
-            border: 1px solid #29292e;
+            border: 1px solid #27272a;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
         .btn-link:hover {
-            background: #29292e;
-            border-color: #8257e5;
+            background: #27272a;
+            border-color: #cc1111;
             transform: translateY(-2px);
         }
 
-        /* Botão em Destaque (Sorteio) */
+        /* Botão em Destaque (Sorteio) com o Vermelho do Banner */
         .btn-destaque {
-            background: linear-gradient(135deg, #8257e5 0%, #6835db 100%);
+            background: linear-gradient(135deg, #cc1111 0%, #8b0000 100%);
             border: none;
             animation: pulse-glow 2s infinite;
         }
 
         .btn-destaque:hover {
-            background: linear-gradient(135deg, #9466ff 0%, #7540e8 100%);
+            background: linear-gradient(135deg, #e61919 0%, #a30000 100%);
             border-color: transparent;
         }
 
         @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(130, 87, 229, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(130, 87, 229, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(130, 87, 229, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(204, 17, 17, 0.5); }
+            70% { box-shadow: 0 0 0 12px rgba(204, 17, 17, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(204, 17, 17, 0); }
         }
 
         /* Rodapé */
         footer {
             margin-top: 40px;
             font-size: 0.8rem;
-            color: #737380;
+            color: #71717a;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Sua Logo ou Foto (substitua o link da imagem se quiser) -->
+        <!-- Sua Logo ou Foto -->
         <img src="images/banner.png" alt="Alemeras" class="profile-img">
         
         <h1>Canal Alemeras</h1>
+        <p>Conteúdos, Torneios, Eventos e Sorteios oficiais!</p>
 
         <div class="links-list">
             <!-- BOTÃO DE DESTAQUE PARA O SORTEIO -->
@@ -120,23 +122,26 @@
                 🎟️ Participe do Sorteio Atual!
             </a>
 
-            <!-- Suas Redes Sociais (Substitua os links # pelos seus links reais) -->
+            <!-- Suas Redes Sociais -->
             <a href="https://youtube.com/@alemeras" target="_blank" class="btn-link">
-               Canal no YouTube
+                📺 Canal no YouTube
             </a>
 
             <a href="https://twitch.tv/seu_canal" target="_blank" class="btn-link">
-                 Canal na Twitch
+                💜 Canal na Twitch
             </a>
 
             <a href="https://instagram.com/seu_instagram" target="_blank" class="btn-link">
-                 Instagram Oficial
+                📸 Instagram Oficial
             </a>
 
             <a href="https://twitter.com/seu_twitter" target="_blank" class="btn-link">
-                X (Twitter)
+                🐦 X (Twitter)
             </a>
 
+            <a href="https://chat.whatsapp.com/seu_grupo" target="_blank" class="btn-link">
+                💬 Grupo da Comunidade (WhatsApp)
+            </a>
         </div>
 
         <footer>
