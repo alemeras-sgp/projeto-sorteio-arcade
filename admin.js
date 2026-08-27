@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Se não tem a chave, manda embora
         window.location.href = "/arcade"; // Volta pro sorteio
         // OU
-        window.location.href = "/"; // Volta pra sua página de links principal
+        // window.location.href = "/"; // Volta pra sua página de links principal
         return; // Para o código aqui
     }
 
