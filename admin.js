@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // MAS vamos dar uma chance para quem já está logado (opcional)
     if (chave !== 'al3m3r45') {
         // Se não tem a chave, manda embora
-        window.location.href = "/arcade"; // Volta pro sorteio
+        //window.location.href = "/arcade"; // Volta pro sorteio
         // OU
         // window.location.href = "/"; // Volta pra sua página de links principal
         return; // Para o código aqui
