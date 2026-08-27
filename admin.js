@@ -286,7 +286,7 @@ async function gerarNovoSorteio() {
     }
 
     alert(`Sorteio '${nome}' reiniciado com sucesso! ${qtd} números disponíveis.`);
-    window.location.reload();
+    // window.location.reload();  <-- BASTA COLOCAR AS DUAS BARRAS AQUI
 }
 
 async function carregarStatusSorteio() {
@@ -371,9 +371,8 @@ async function alternarStatusSorteio() {
     if (erroUpdate) return alert("Erro ao alterar status: " + erroUpdate.message);
 
     alert(novoStatus ? "✅ Sorteio LIGADO com sucesso!" : "🛑 Sorteio PAUSADO (Desligado do ar)!");
-    location.reload();
+    // location.reload(); <-- BASTA COLOCAR AS DUAS BARRAS AQUI
 }
-
 
 // --- CARREGA OS DADOS ATUAIS NOS INPUTS DE EDIÇÃO ---
 async function carregarDadosParaEdicao() {
@@ -470,7 +469,7 @@ async function salvarEdicaoSorteio() {
     }
 
     alert("✅ Sorteio atualizado com sucesso!");
-    location.reload();
+    // location.reload(); <-- BASTA COLOCAR AS DUAS BARRAS AQUI
 }
 
 // --- FUNÇÃO PARA UPAR IMAGEM NO SUPABASE STORAGE ---
