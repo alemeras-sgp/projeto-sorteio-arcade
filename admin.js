@@ -52,7 +52,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // MAS vamos dar uma chance para quem já está logado (opcional)
     if (chave !== 'al3m3r45') {
         // Se não tem a chave, manda embora
-        window.location.href = 'index.html';
+        window.location.href = "/arcade"; // Volta pro sorteio
+        // OU
+        window.location.href = "/"; // Volta pra sua página de links principal
         return; // Para o código aqui
     }
 
@@ -207,7 +209,7 @@ async function gerarNovoSorteio() {
 
     // 1. Captura com segurança absoluta os valores do formulário HTML
     const nome = document.getElementById('novo-nome').value.trim() || "Sorteio Oficial";
-    
+
     const rawValor = document.getElementById('novo-valor').value || "1";
     let valorInput = parseFloat(rawValor.replace(/\./g, '').replace(',', '.'));
     if (isNaN(valorInput)) valorInput = 1.00;
@@ -219,7 +221,7 @@ async function gerarNovoSorteio() {
     // --- LÓGICA DE UPLOAD NOVO BANNER ---
     const inputBanner = document.getElementById('novo-banner');
     let urlBannerFinal = null;
-    
+
     if (inputBanner && inputBanner.files.length > 0) {
         if (btnGerar) btnGerar.textContent = "Fazendo upload da imagem...";
         try {
@@ -406,7 +408,7 @@ async function salvarEdicaoSorteio() {
     if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
 
     const nome = document.getElementById('edit-nome').value.trim() || "Sorteio Oficial";
-    
+
     const rawValor = document.getElementById('edit-valor').value || "1";
     let valorInput = parseFloat(rawValor.replace(/\./g, '').replace(',', '.'));
     if (isNaN(valorInput)) valorInput = 1.00;
@@ -417,7 +419,7 @@ async function salvarEdicaoSorteio() {
 
     // --- INÍCIO DA INSERÇÃO: LÓGICA DE UPLOAD EDIÇÃO BANNER ---
     const inputBannerEdit = document.getElementById('edit-banner');
-    
+
     const objAtualizacao = {
         nome_sorteio: nome,
         valor_numero: valorInput,
@@ -429,7 +431,7 @@ async function salvarEdicaoSorteio() {
         // Pega o botão para mostrar que está carregando
         const btnSalvar = event ? event.target : document.querySelector('button[onclick="salvarEdicaoSorteio()"]');
         if (btnSalvar) btnSalvar.textContent = "Fazendo upload...";
-        
+
         try {
             // Usa a função de upload que você colocou no admin.js e anexa a URL no objeto
             objAtualizacao.banner_url = await uploadBannerSupabase(inputBannerEdit.files[0]);
@@ -453,13 +455,13 @@ async function salvarEdicaoSorteio() {
     // 2. Adiciona novos números se a quantidade foi aumentada
     if (qtdNova) {
         const { count: qtdAtual } = await db.from('sorteio').select('*', { count: 'exact', head: true });
-        
+
         if (qtdNova > qtdAtual) {
             const novosNumeros = [];
             for (let i = qtdAtual + 1; i <= qtdNova; i++) {
                 novosNumeros.push({ id: i, status: 'disponivel' });
             }
-            
+
             const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
             if (erroInsert) return alert("Erro ao criar novos números: " + erroInsert.message);
         } else if (qtdNova < qtdAtual) {
