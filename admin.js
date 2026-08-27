@@ -286,7 +286,10 @@ async function gerarNovoSorteio() {
     }
 
     alert(`Sorteio '${nome}' reiniciado com sucesso! ${qtd} números disponíveis.`);
-    // window.location.reload();  <-- BASTA COLOCAR AS DUAS BARRAS AQUI
+    // --- INSERIR AQUI PARA ATUALIZAR A TELA SEM PISCAR ---
+    carregarStatusSorteio();
+    carregarDadosParaEdicao();
+    carregarVendas();
 }
 
 async function carregarStatusSorteio() {
@@ -371,7 +374,10 @@ async function alternarStatusSorteio() {
     if (erroUpdate) return alert("Erro ao alterar status: " + erroUpdate.message);
 
     alert(novoStatus ? "✅ Sorteio LIGADO com sucesso!" : "🛑 Sorteio PAUSADO (Desligado do ar)!");
-    // location.reload(); <-- BASTA COLOCAR AS DUAS BARRAS AQUI
+    
+    // --- INSERIR AQUI PARA ATUALIZAR A TELA SEM PISCAR ---
+    verificarStatusKillSwitch();
+    carregarStatusSorteio();
 }
 
 // --- CARREGA OS DADOS ATUAIS NOS INPUTS DE EDIÇÃO ---
@@ -401,7 +407,6 @@ async function carregarDadosParaEdicao() {
     }
 }
 
-// --- SALVA AS ALTERAÇÕES DO SORTEIO ATUAL SEM ZERAR ---
 // --- SALVA AS ALTERAÇÕES DO SORTEIO ATUAL SEM ZERAR ---
 async function salvarEdicaoSorteio() {
     if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
@@ -469,7 +474,9 @@ async function salvarEdicaoSorteio() {
     }
 
     alert("✅ Sorteio atualizado com sucesso!");
-    // location.reload(); <-- BASTA COLOCAR AS DUAS BARRAS AQUI
+    // --- INSERIR AQUI PARA ATUALIZAR A TELA SEM PISCAR ---
+    carregarStatusSorteio();
+    carregarDadosParaEdicao();
 }
 
 // --- FUNÇÃO PARA UPAR IMAGEM NO SUPABASE STORAGE ---

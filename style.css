@@ -384,7 +384,7 @@ body {
    PAINEL DE INFORMAÇÕES (INDEX) - CLEAN
    ========================================= */
 .info-sorteio-publico {
-    background: #000000;
+    background: rgba(0, 0, 0, 0.8);
     /* Fundo preto absoluto e limpo */
     margin: 0px auto 10px auto;
     max-width: 1000px;
