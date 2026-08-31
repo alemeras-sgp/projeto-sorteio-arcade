@@ -664,3 +664,60 @@ window.onload = async () => {
         alert("Erro ao carregar o sistema. Verifique o console (F12).");
     }
 };
+
+// ==========================================
+// 8. CORREÇÃO MOBILE (VOLTA DO APP DO BANCO)
+// ==========================================
+document.addEventListener('visibilitychange', async () => {
+    // Se a aba voltou a ficar visível, o modal do PIX não está escondido e temos números pendentes
+    if (document.visibilityState === 'visible' && 
+        !modalPix.classList.contains('escondido') && 
+        numerosEmPagamento.length > 0) {
+        
+        // Faz uma checagem manual e silenciosa no banco
+        const { data: checagemPix } = await db
+            .from('sorteio')
+            .select('status, email')
+            .in('id', numerosEmPagamento);
+
+        // Se o status de algum deles já constar como 'pago'
+        if (checagemPix && checagemPix.some(num => num.status === 'pago')) {
+            const numerosComprados = numerosEmPagamento.map(n => String(n).padStart(3, '0')).join(', ');
+            const emailComprador = checagemPix[0].email;
+
+            // Transforma o modal do PIX na tela de sucesso (exatamente igual ao Realtime)
+            modalPix.querySelector('.modal-content').innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <h2 style="color: #00875f;">✅ Pagamento realizado com sucesso!</h2>
+                    <p>Seus números da sorte são:</p>
+                    <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: #015488;">
+                        ${numerosComprados}
+                    </div>
+                    <p style="font-size: 0.9rem; color: #ccc;">
+                        Baixe o comprovante oficial clicando no botão abaixo:
+                    </p>
+                    <button onclick="baixarComprovante()" 
+                            style="width: 100%; background:#015488; color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; margin-top: 10px;">
+                            📥 Baixar Comprovante
+                    </button>
+                    <button onclick="fecharModalPixELimparEstado()" 
+                            style="width: 100%; background:transparent; color:#888; padding:10px; border:1px solid #444; border-radius:8px; cursor:pointer; margin-top: 10px;">
+                            Fechar
+                    </button>
+                </div>
+            `;
+
+            // Garante que o cronômetro pare e que a função de email dispare caso o Realtime tenha falhado
+            if (intervaloTimerPix !== null) {
+                if (typeof enviarEmailComprovante === 'function') {
+                    enviarEmailComprovante(nomeCompradorAtual, emailComprador, numerosEmPagamento);
+                }
+                clearInterval(intervaloTimerPix);
+                intervaloTimerPix = null;
+            }
+
+            // Atualiza a grade de números no fundo para refletir a venda
+            carregarGrade();
+        }
+    }
+});
