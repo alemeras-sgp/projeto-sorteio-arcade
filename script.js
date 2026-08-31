@@ -617,7 +617,8 @@ function iniciarRealtime() {
                     `;
 
                     if (intervaloTimerPix !== null) {
-                        enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosEmPagamento);
+                        // Trocamos 'numerosEmPagamento' (cru) por 'numerosComprados' (formatado com zeros)
+                        enviarEmailComprovante(nomeCompradorAtual, numeroMudou.email, numerosComprados);
                         clearInterval(intervaloTimerPix);
                         intervaloTimerPix = null;
                     }
@@ -670,10 +671,10 @@ window.onload = async () => {
 // ==========================================
 document.addEventListener('visibilitychange', async () => {
     // Se a aba voltou a ficar visível, o modal do PIX não está escondido e temos números pendentes
-    if (document.visibilityState === 'visible' && 
-        !modalPix.classList.contains('escondido') && 
+    if (document.visibilityState === 'visible' &&
+        !modalPix.classList.contains('escondido') &&
         numerosEmPagamento.length > 0) {
-        
+
         // Faz uma checagem manual e silenciosa no banco
         const { data: checagemPix } = await db
             .from('sorteio')
@@ -710,7 +711,8 @@ document.addEventListener('visibilitychange', async () => {
             // Garante que o cronômetro pare e que a função de email dispare caso o Realtime tenha falhado
             if (intervaloTimerPix !== null) {
                 if (typeof enviarEmailComprovante === 'function') {
-                    enviarEmailComprovante(nomeCompradorAtual, emailComprador, numerosEmPagamento);
+                    // Novamente, trocamos pelo 'numerosComprados'
+                    enviarEmailComprovante(nomeCompradorAtual, emailComprador, numerosComprados);
                 }
                 clearInterval(intervaloTimerPix);
                 intervaloTimerPix = null;
