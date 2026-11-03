@@ -115,8 +115,8 @@ async function exportarCSV() {
 }
 
 // --- INÍCIO DA INSERÇÃO: Motor de Replay ---
-// const canalReplay = db.channel('canal_replay_alertas');
-// canalReplay.subscribe();
+const canalReplay = db.channel('canal_replay_alertas');
+canalReplay.subscribe();
 
 // Adicionamos no 'window' para garantir que o botão no HTML consiga achar a função
 window.dispararReplayNaLive = async function (nomeComprador, mensagemLive, vozEscolhida) {
@@ -136,12 +136,12 @@ window.dispararReplayNaLive = async function (nomeComprador, mensagemLive, vozEs
             .eq('nome_comprador', nomeComprador)
             .limit(1)
             .single();
-            
+
         vozFinal = data?.voz_escolhida || 'default';
     }
 
     const canalReplayAdmin = db.channel('canal_replay_alertas');
-    
+
     canalReplayAdmin.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
             await canalReplayAdmin.send({
@@ -395,7 +395,7 @@ async function alternarStatusSorteio() {
     if (erroUpdate) return alert("Erro ao alterar status: " + erroUpdate.message);
 
     alert(novoStatus ? "✅ Sorteio LIGADO com sucesso!" : "🛑 Sorteio PAUSADO (Desligado do ar)!");
-    
+
     // --- INSERIR AQUI PARA ATUALIZAR A TELA SEM PISCAR ---
     verificarStatusKillSwitch();
     carregarStatusSorteio();
