@@ -23,18 +23,18 @@
         }
 
         #container-alerta {
-            /* Efeito de Vidro Embaçado (Glassmorphism) limpo, sem neon */
-            background: rgba(18, 18, 20, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* Efeito de Vidro Embaçado (Glassmorphism) forte e translúcido */
+            background: rgba(20, 20, 25, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             
             color: white;
-            padding: 50px 35px 25px 35px; /* Espaço superior para o banner encaixar perfeitamente */
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            padding: 65px 35px 30px 35px; /* Espaço superior espaçoso para o banner grande */
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
             width: 450px;
             text-align: center;
-            border: none; /* Removidas todas as bordas */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda de vidro sutil */
             position: relative;
 
             /* Estado inicial escondido */
@@ -49,38 +49,38 @@
             transform: translateY(0) scale(1);
         }
 
-        /* Estilo do Banner Flutuante no Topo (Sem bordas berrantes) */
+        /* Estilo do Banner Flutuante Grande e Encaixado no Topo */
         #banner-alerta {
             position: absolute;
-            top: -35px; /* Joga a metade superior para fora, flutuando no topo */
+            top: -45px; /* Joga a metade para fora, flutuando perfeitamente */
             left: 50%;
             transform: translateX(-50%);
-            width: 210px; /* Tamanho proporcional elegante */
-            height: 75px; /* Altura ideal para o banner completo */
-            object-fit: contain; /* Garante que a imagem inteira apareça sem cortes */
-            border-radius: 10px;
-            border: none; /* Removida a borda do banner */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            width: 340px; /* Bem maior, visível e destacado como na referência */
+            height: 95px; /* Altura proporcional */
+            object-fit: cover; /* Preenche todo o espaço sem bordas pretas ou vazias */
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
             background: #121214;
             display: none; /* Só aparece quando o link for carregado com sucesso */
         }
 
         #nome-usuario {
             margin: 10px 0 10px 0;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #00e676;
             text-transform: uppercase;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
             font-weight: 800;
         }
 
         #msg-usuario {
             margin: 0;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 600;
             line-height: 1.4;
-            color: #e1e1e6;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            color: #f1f1f6;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
             word-break: break-word;
         }
     </style>
