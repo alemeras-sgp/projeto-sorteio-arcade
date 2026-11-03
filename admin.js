@@ -119,15 +119,27 @@ async function exportarCSV() {
 // canalReplay.subscribe();
 
 // Adicionamos no 'window' para garantir que o botão no HTML consiga achar a função
-window.dispararReplayNaLive = function (nomeComprador, mensagemLive, vozEscolhida) {
+window.dispararReplayNaLive = async function (nomeComprador, mensagemLive, vozEscolhida) {
 
-    // Limpa a tag de voz caso ela ainda exista no texto do banco
     let textoReal = mensagemLive || "Comprou e já garantiu a participação no sorteio!";
     if (textoReal.includes('|')) {
         textoReal = textoReal.split('|')[1].trim();
     }
 
-    // Abre o canal de broadcast com segurança na hora do clique
+    let vozFinal = vozEscolhida;
+
+    // Se o botão não passou a voz, vai buscá-la diretamente ao Supabase com base no nome
+    if (!vozFinal) {
+        const { data } = await db
+            .from('sorteio')
+            .select('voz_escolhida')
+            .eq('nome_comprador', nomeComprador)
+            .limit(1)
+            .single();
+            
+        vozFinal = data?.voz_escolhida || 'default';
+    }
+
     const canalReplayAdmin = db.channel('canal_replay_alertas');
     
     canalReplayAdmin.subscribe(async (status) => {
@@ -138,10 +150,10 @@ window.dispararReplayNaLive = function (nomeComprador, mensagemLive, vozEscolhid
                 payload: {
                     nome: nomeComprador,
                     mensagem: textoReal,
-                    voz_escolhida: vozEscolhida || 'default'
+                    voz_escolhida: vozFinal
                 }
             });
-            console.log("Replay disparado com sucesso!");
+            console.log("Replay disparado com a voz:", vozFinal);
         }
     });
 }
