@@ -24,19 +24,18 @@
 
         #container-alerta {
             /* Efeito de Vidro Embaçado (Glassmorphism) */
-            background: rgba(255, 255, 255, 0.39);
+            background: rgba(20, 20, 25, 0.55);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             
             color: white;
-            padding: 55px 0 25px 0; /* Removido padding lateral para a tarja preta colar nas bordas */
+            padding: 55px 35px 25px 35px; /* Espaço superior ideal para o banner menor */
             border-radius: 20px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
-            width: 420px;
+            width: 420px; /* Caixa ligeiramente mais compacta */
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.12); /* Borda de vidro sutil */
             position: relative;
-            overflow: hidden; /* Garante que a tarja respeite o arredondamento do vidro */
 
             /* Estado inicial escondido */
             opacity: 0;
@@ -53,35 +52,30 @@
         /* Estilo do Banner Flutuante Compacto com Respiro nas Laterais */
         #banner-alerta {
             position: absolute;
-            top: -28px;
+            top: -28px; /* Encaixe perfeito no topo */
             left: 50%;
             transform: translateX(-50%);
-            width: 290px;
-            height: 60px;
-            object-fit: contain;
+            width: 290px; /* Largura menor, garantindo o "respiro" nas laterais igualzinho ao print */
+            height: 60px; /* Altura proporcional compacta */
+            object-fit: contain; /* Mostra o banner inteiro sem cortes */
             border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
             background: #121214;
-            display: none;
+            display: none; /* Só aparece quando o link for carregado com sucesso */
         }
 
-        /* Tarja preta sólida horizontal para o nome do comprador */
         #nome-usuario {
-            margin: 15px 0 15px 0;
-            padding: 10px 0;
-            background-color: #0b0b0d; /* Fundo preto sólido igual à referência */
-            width: 100%;
-            font-size: 1.8rem;
-            color: #ffffff; /* Texto em branco destacado */
-            letter-spacing: 1px;
+            margin: 10px 0 8px 0;
+            font-size: 2rem;
+            color: #00e676;
             text-transform: uppercase;
-            font-weight: 900;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+            font-weight: 800;
         }
 
         #msg-usuario {
-            margin: 0 25px; /* Margem lateral para a mensagem não colar nas bordas */
+            margin: 0;
             font-size: 1.3rem;
             font-weight: 600;
             line-height: 1.4;
