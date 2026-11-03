@@ -132,7 +132,8 @@
 
                             filaAlertas.push({
                                 nome: nomeComprador,
-                                mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!"
+                                mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!",
+                                voz: numeroMudou.voz_escolhida || "default" // <--- PEGA A VOZ DO BANCO
                             });
                             processarFila();
                         }
@@ -159,13 +160,42 @@
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // --- CORREÇÃO DO ÁUDIO PARA O OBS ---
-            // Usamos a tag fixa do seu HTML para o OBS não matar o som da memória
+            // --- INTEGRAÇÃO COM VOICESTUDIO ---
             const playerAudio = document.getElementById('player-voz');
-            playerAudio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
-            playerAudio.volume = 0.5;
+            playerAudio.volume = 0.8; // Ajuste o volume se achar que ficou baixo na live
 
-            playerAudio.play().catch(e => console.error("Erro no áudio do OBS:", e));
+            try {
+                // Bate no servidor local do VoiceStudio rodando no seu PC
+                const resposta = await fetch('http://127.0.0.1:3900/v1/audio/speech', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'tts-1',
+                        voice: alertaAtual.voz, // Envia a voz que a pessoa escolheu (ex: 'iori')
+                        input: textoReal,       // O texto da mensagem que será lido
+                        response_format: 'wav'
+                    })
+                });
+
+                if (!resposta.ok) throw new Error('VoiceStudio desligado ou falha na voz');
+
+                // Transforma a resposta no áudio e dá o Play
+                const blobAudio = await resposta.blob();
+                const urlAudio = URL.createObjectURL(blobAudio);
+                
+                playerAudio.src = urlAudio;
+                await playerAudio.play();
+
+                // Limpa a URL temporária quando o áudio terminar
+                playerAudio.onended = () => URL.revokeObjectURL(urlAudio);
+
+            } catch (erro) {
+                console.error("Fallback ativado:", erro);
+                // PLANO B: Toca o bipe antigo se o VoiceStudio estiver fechado
+                playerAudio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+                playerAudio.play().catch(e => console.error("Erro no fallback:", e));
+            }
+            // --- FIM DA INTEGRAÇÃO ---
 
             // Tempo na tela: 8000 milissegundos (8 segundos)
             setTimeout(() => {
@@ -176,19 +206,20 @@
                 }, 600); // Tempo para a animação de saída terminar
             }, 8000);
         }
-        
+
         // --- INÍCIO DA INSERÇÃO: Ouvinte do Botão de Replay do Admin ---
         db.channel('canal_replay_alertas')
             .on('broadcast', { event: 'forcar_alerta' }, (mensagem) => {
                 const dados = mensagem.payload;
                 console.log("Comando de replay recebido do Admin:", dados);
-                
+
                 // Coloca o alerta na fila ignorando o filtro de tempo, pois foi manual
                 filaAlertas.push({
-                    nome: dados.nome,
-                    mensagem: dados.mensagem
+                    nome: nomeComprador,
+                    mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!",
+                    voz: numeroMudou.voz_escolhida || "default" // <--- PEGA A VOZ DO BANCO
                 });
-                
+
                 processarFila();
             })
             .subscribe();

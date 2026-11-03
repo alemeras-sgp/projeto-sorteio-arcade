@@ -119,7 +119,7 @@ async function exportarCSV() {
 // canalReplay.subscribe();
 
 // Adicionamos no 'window' para garantir que o botão no HTML consiga achar a função
-window.dispararReplayNaLive = function (nomeComprador, mensagemLive) {
+window.dispararReplayNaLive = function (nomeComprador, mensagemLive, vozEscolhida) {
 
     // Limpa a tag de voz caso ela ainda exista no texto do banco
     let textoReal = mensagemLive || "Comprou e já garantiu a participação no sorteio!";
@@ -127,12 +127,21 @@ window.dispararReplayNaLive = function (nomeComprador, mensagemLive) {
         textoReal = textoReal.split('|')[1].trim();
     }
 
-    canalReplay.send({
-        type: 'broadcast',
-        event: 'forcar_alerta',
-        payload: {
-            nome: nomeComprador,
-            mensagem: textoReal
+    // Abre o canal de broadcast com segurança na hora do clique
+    const canalReplayAdmin = db.channel('canal_replay_alertas');
+    
+    canalReplayAdmin.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+            await canalReplayAdmin.send({
+                type: 'broadcast',
+                event: 'forcar_alerta',
+                payload: {
+                    nome: nomeComprador,
+                    mensagem: textoReal,
+                    voz_escolhida: vozEscolhida || 'default'
+                }
+            });
+            console.log("Replay disparado com sucesso!");
         }
     });
 }
