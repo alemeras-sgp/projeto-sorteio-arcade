@@ -23,18 +23,18 @@
         }
 
         #container-alerta {
-            /* Efeito de Vidro Embaçado (Glassmorphism) forte e translúcido */
-            background: rgba(254, 254, 255, 0.55);
+            /* Efeito de Vidro Embaçado (Glassmorphism) */
+            background: rgba(20, 20, 25, 0.55);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             
             color: white;
-            padding: 65px 35px 30px 35px; /* Espaço superior espaçoso para o banner grande */
+            padding: 55px 35px 25px 35px; /* Espaço superior ideal para o banner menor */
             border-radius: 20px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
-            width: 450px;
+            width: 420px; /* Caixa ligeiramente mais compacta */
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Borda de vidro sutil */
+            border: 1px solid rgba(255, 255, 255, 0.12); /* Borda de vidro sutil */
             position: relative;
 
             /* Estado inicial escondido */
@@ -49,25 +49,25 @@
             transform: translateY(0) scale(1);
         }
 
-        /* Estilo do Banner Flutuante Grande e Encaixado no Topo */
+        /* Estilo do Banner Flutuante Compacto com Respiro nas Laterais */
         #banner-alerta {
             position: absolute;
-            top: -45px; /* Joga a metade para fora, flutuando perfeitamente */
+            top: -28px; /* Encaixe perfeito no topo */
             left: 50%;
             transform: translateX(-50%);
-            width: 480px; /* Bem maior, visível e destacado como na referência */
-            height: 95px; /* Altura proporcional */
-            object-fit: cover; /* Preenche todo o espaço sem bordas pretas ou vazias */
-            border-radius: 12px;
+            width: 230px; /* Largura menor, garantindo o "respiro" nas laterais igualzinho ao print */
+            height: 65px; /* Altura proporcional compacta */
+            object-fit: contain; /* Mostra o banner inteiro sem cortes */
+            border-radius: 10px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
             background: #121214;
             display: none; /* Só aparece quando o link for carregado com sucesso */
         }
 
         #nome-usuario {
-            margin: 10px 0 10px 0;
-            font-size: 2.2rem;
+            margin: 10px 0 8px 0;
+            font-size: 2rem;
             color: #00e676;
             text-transform: uppercase;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
@@ -76,7 +76,7 @@
 
         #msg-usuario {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 600;
             line-height: 1.4;
             color: #f1f1f6;
