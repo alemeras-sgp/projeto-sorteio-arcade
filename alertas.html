@@ -7,7 +7,7 @@
     <title>Alerta OBS - Sorteio</title>
 
     <style>
-        /* Fundo transparente essencial para o OBS */
+       /* Fundo transparente essencial para o OBS */
         body {
             margin: 0;
             padding: 0;
@@ -23,18 +23,18 @@
         }
 
         #container-alerta {
-            /* Efeito de Vidro Embaçado (Glassmorphism) */
-            background: rgba(18, 18, 20, 0.8);
+            /* Efeito de Vidro Embaçado (Glassmorphism) limpo, sem neon */
+            background: rgba(18, 18, 20, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             
             color: white;
-            padding: 40px 35px 25px 35px; /* Mais espaçamento em cima para acomodar o banner flutuante */
+            padding: 50px 35px 25px 35px; /* Espaço superior para o banner encaixar perfeitamente */
             border-radius: 16px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
             width: 450px;
             text-align: center;
-            border: 1px solid rgba(130, 87, 229, 0.5); /* Borda roxa neon sutil */
+            border: none; /* Removidas todas as bordas */
             position: relative;
 
             /* Estado inicial escondido */
@@ -49,17 +49,17 @@
             transform: translateY(0) scale(1);
         }
 
-        /* Estilo do Banner Flutuante no Topo */
+        /* Estilo do Banner Flutuante no Topo (Sem bordas berrantes) */
         #banner-alerta {
             position: absolute;
-            top: -32px; /* Joga parte do banner para fora, por cima da caixa de vidro */
+            top: -35px; /* Joga a metade superior para fora, flutuando no topo */
             left: 50%;
             transform: translateX(-50%);
-            width: 480px;
-            height: 98px;
-            object-fit: cover;
+            width: 210px; /* Tamanho proporcional elegante */
+            height: 75px; /* Altura ideal para o banner completo */
+            object-fit: contain; /* Garante que a imagem inteira apareça sem cortes */
             border-radius: 10px;
-            border: 2px solid #8257e5;
+            border: none; /* Removida a borda do banner */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
             background: #121214;
             display: none; /* Só aparece quando o link for carregado com sucesso */
