@@ -140,11 +140,11 @@ window.dispararReplayNaLive = async function (nomeComprador, mensagemLive, vozEs
         vozFinal = data?.voz_escolhida || 'default';
     }
 
-    const canalReplayAdmin = db.channel('canal_replay_alertas');
+    const canalReplay = db.channel('canal_replay_alertas');
 
-    canalReplayAdmin.subscribe(async (status) => {
+    canalReplay.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-            await canalReplayAdmin.send({
+            await canalReplay.send({
                 type: 'broadcast',
                 event: 'forcar_alerta',
                 payload: {
