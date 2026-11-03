@@ -14,60 +14,74 @@
             background-color: transparent;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            /* Evita barra de rolagem no OBS */
 
             /* CENTRALIZAÇÃO TOTAL */
             display: flex;
             justify-content: center;
-            /* Centraliza horizontalmente */
             align-items: center;
-            /* Centraliza verticalmente */
             height: 100vh;
-            /* Usa toda a altura da tela */
         }
 
         #container-alerta {
-            background: linear-gradient(135deg, #8257e5 0%, #4a23a4 100%);
+            /* Efeito de Vidro Embaçado (Glassmorphism) */
+            background: rgba(18, 18, 20, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            
             color: white;
-            padding: 25px 35px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            padding: 40px 35px 25px 35px; /* Mais espaçamento em cima para acomodar o banner flutuante */
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
             width: 450px;
-            /* Aumentei um pouquinho pra dar mais destaque no centro */
             text-align: center;
-            border: 3px solid #9f75ff;
+            border: 1px solid rgba(130, 87, 229, 0.5); /* Borda roxa neon sutil */
+            position: relative;
 
-            /* Estado inicial escondido (agora ele sobe pro centro) */
+            /* Estado inicial escondido */
             opacity: 0;
             transform: translateY(150px) scale(0.8);
-            /* Começa mais baixo e menor */
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* Efeito de mola mais suave */
         }
 
         /* Classe que fará o alerta pular na tela */
         #container-alerta.mostrar {
             opacity: 1;
             transform: translateY(0) scale(1);
-            /* Volta pro tamanho e posição original (centro) */
+        }
+
+        /* Estilo do Banner Flutuante no Topo */
+        #banner-alerta {
+            position: absolute;
+            top: -32px; /* Joga parte do banner para fora, por cima da caixa de vidro */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 55px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #8257e5;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            background: #121214;
+            display: none; /* Só aparece quando o link for carregado com sucesso */
         }
 
         #nome-usuario {
-            margin: 0 0 12px 0;
+            margin: 10px 0 10px 0;
             font-size: 2rem;
             color: #00e676;
-            /* Verde chamativo pro nome */
             text-transform: uppercase;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
             font-weight: 800;
         }
 
         #msg-usuario {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 600;
             line-height: 1.4;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            color: #e1e1e6;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            word-break: break-word;
         }
     </style>
 </head>
@@ -77,7 +91,11 @@
         style="position: absolute; top: 20px; left: 20px; z-index: 9999; padding: 20px; background-color: #ff0000; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">
         🔴 CLIQUE AQUI NO OBS (INTERAGIR) PARA LIBERAR ÁUDIO
     </button>
+    
     <div id="container-alerta">
+        <!-- Banner flutuante do sorteio puxado do banco -->
+        <img id="banner-alerta" src="" alt="Banner Sorteio">
+        
         <h2 id="nome-usuario">Nome de Teste</h2>
         <p id="msg-usuario">Bora Alemeras! Rumo a esse Arcade Stick brabo demais!</p>
     </div>
@@ -90,25 +108,44 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmbmltdW5jYnl2ZmdsaGJxanRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MTkwMzIsImV4cCI6MjA5NjE5NTAzMn0.Q9GD87K1hQ0IYzN0sXuKOUWBvbXT9-K0DhWorIJwDdw';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // INÍCIO DA INSERÇÃO: Lógica de destrave
+        // Função para carregar dinamicamente o banner oficial do sorteio atual
+        async function carregarBannerAlerta() {
+            try {
+                const { data, error } = await db
+                    .from('configuracoes')
+                    .select('banner_url')
+                    .eq('id', 1)
+                    .single();
+
+                if (data && data.banner_url) {
+                    const imgBanner = document.getElementById('banner-alerta');
+                    imgBanner.src = data.banner_url;
+                    imgBanner.style.display = 'block';
+                }
+            } catch (e) {
+                console.error("Erro ao carregar banner para o alerta:", e);
+            }
+        }
+
+        // Executa a busca do banner assim que carrega
+        carregarBannerAlerta();
+
+        // Lógica de destrave do áudio
         document.getElementById('btn-desbloqueio').addEventListener('click', () => {
-            // URL de um efeito sonoro de 'bip' oficial do Google. 100% a prova de falhas de rede.
             const somTeste = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
 
             somTeste.play().then(() => {
                 console.log("OBS destravou o áudio com sucesso!");
-                // Esconde o botão após destravar
                 document.getElementById('btn-desbloqueio').style.display = 'none';
             }).catch(err => {
                 console.error("Erro no destrave:", err);
             });
         });
 
-        // FIM DA INSERÇÃO
         // 2. Sistema de Fila (Queue) e Memória de Tempo
         const filaAlertas = [];
         let exibindoAlerta = false;
-        const alertasRecentes = new Map(); // Guarda quem comprou e a que horas
+        const alertasRecentes = new Map();
 
         // 3. O Ouvinte do Banco de Dados (Realtime)
         db.channel('mudancas_obs')
@@ -124,16 +161,13 @@
                         const agora = Date.now();
                         const tempoUltimoAlerta = alertasRecentes.get(nomeComprador) || 0;
 
-                        // Se faz menos de 15 segundos que esse nome gerou um alerta, ele ignora
                         if (agora - tempoUltimoAlerta > 15000) {
-
-                            // Registra o momento exato desse alerta para bloquear os próximos
                             alertasRecentes.set(nomeComprador, agora);
 
                             filaAlertas.push({
                                 nome: nomeComprador,
                                 mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!",
-                                voz: numeroMudou.voz_escolhida || "default" // <--- PEGA A VOZ DO BANCO
+                                voz: numeroMudou.voz_escolhida || "default"
                             });
                             processarFila();
                         }
@@ -148,7 +182,6 @@
             exibindoAlerta = true;
             const alertaAtual = filaAlertas.shift();
 
-            // Limpa a tag da voz invisível se ela ainda vier do sistema
             let textoReal = alertaAtual.mensagem || "";
             if (textoReal.includes('|')) {
                 textoReal = textoReal.split('|')[1].trim();
@@ -160,42 +193,12 @@
             const container = document.getElementById('container-alerta');
             container.classList.add('mostrar');
 
-            // --- INTEGRAÇÃO COM VOICESTUDIO ---
+            // --- ÁUDIO DE ALERTA (BIP PADRÃO) ---
             const playerAudio = document.getElementById('player-voz');
-            playerAudio.volume = 0.8; // Ajuste o volume se achar que ficou baixo na live
+            playerAudio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
+            playerAudio.volume = 0.5;
 
-            try {
-                // Bate no servidor local do VoiceStudio rodando no seu PC
-                const resposta = await fetch('http://127.0.0.1:3900/v1/audio/speech', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: 'tts-1',
-                        voice: alertaAtual.voz, // Envia a voz que a pessoa escolheu (ex: 'iori')
-                        input: textoReal,       // O texto da mensagem que será lido
-                        response_format: 'wav'
-                    })
-                });
-
-                if (!resposta.ok) throw new Error('VoiceStudio desligado ou falha na voz');
-
-                // Transforma a resposta no áudio e dá o Play
-                const blobAudio = await resposta.blob();
-                const urlAudio = URL.createObjectURL(blobAudio);
-                
-                playerAudio.src = urlAudio;
-                await playerAudio.play();
-
-                // Limpa a URL temporária quando o áudio terminar
-                playerAudio.onended = () => URL.revokeObjectURL(urlAudio);
-
-            } catch (erro) {
-                console.error("Fallback ativado:", erro);
-                // PLANO B: Toca o bipe antigo se o VoiceStudio estiver fechado
-                playerAudio.src = "https://actions.google.com/sounds/v1/alarms/beep_short.ogg";
-                playerAudio.play().catch(e => console.error("Erro no fallback:", e));
-            }
-            // --- FIM DA INTEGRAÇÃO ---
+            playerAudio.play().catch(e => console.error("Erro no áudio do OBS:", e));
 
             // Tempo na tela: 8000 milissegundos (8 segundos)
             setTimeout(() => {
@@ -203,27 +206,25 @@
                 setTimeout(() => {
                     exibindoAlerta = false;
                     processarFila();
-                }, 600); // Tempo para a animação de saída terminar
+                }, 600);
             }, 8000);
         }
 
-        // --- INÍCIO DA INSERÇÃO: Ouvinte do Botão de Replay do Admin ---
+        // --- Ouvinte do Botão de Replay do Admin ---
         db.channel('canal_replay_alertas')
             .on('broadcast', { event: 'forcar_alerta' }, (mensagem) => {
                 const dados = mensagem.payload;
                 console.log("Comando de replay recebido do Admin:", dados);
 
-                // Coloca o alerta na fila ignorando o filtro de tempo, pois foi manual
                 filaAlertas.push({
-                    nome: nomeComprador,
-                    mensagem: numeroMudou.mensagem_live || "Comprou e já garantiu a participação no sorteio!",
-                    voz: numeroMudou.voz_escolhida || "default" // <--- PEGA A VOZ DO BANCO
+                    nome: dados.nome,
+                    mensagem: dados.mensagem,
+                    voz: dados.voz_escolhida || "default"
                 });
 
                 processarFila();
             })
             .subscribe();
-        // --- FIM DA INSERÇÃO ---
     </script>
 </body>
 
