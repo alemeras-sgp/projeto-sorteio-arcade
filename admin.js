@@ -114,48 +114,29 @@ async function exportarCSV() {
     a.click();
 }
 
-// --- INÍCIO DA INSERÇÃO: Motor de Replay ---
+// --- MOTOR DE REPLAY ESTÁVEL ---
 const canalReplay = db.channel('canal_replay_alertas');
 canalReplay.subscribe();
 
 // Adicionamos no 'window' para garantir que o botão no HTML consiga achar a função
-window.dispararReplayNaLive = async function (nomeComprador, mensagemLive, vozEscolhida) {
+window.dispararReplayNaLive = async function (nomeComprador, mensagemLive) {
 
     let textoReal = mensagemLive || "Comprou e já garantiu a participação no sorteio!";
     if (textoReal.includes('|')) {
         textoReal = textoReal.split('|')[1].trim();
     }
 
-    let vozFinal = vozEscolhida;
-
-    // Se o botão não passou a voz, vai buscá-la diretamente ao Supabase com base no nome
-    if (!vozFinal) {
-        const { data } = await db
-            .from('sorteio')
-            .select('voz_escolhida')
-            .eq('nome_comprador', nomeComprador)
-            .limit(1)
-            .single();
-
-        vozFinal = data?.voz_escolhida || 'default';
-    }
-
-    const canalReplay = db.channel('canal_replay_alertas');
-
-    canalReplay.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-            await canalReplay.send({
-                type: 'broadcast',
-                event: 'forcar_alerta',
-                payload: {
-                    nome: nomeComprador,
-                    mensagem: textoReal,
-                    voz_escolhida: vozFinal
-                }
-            });
-            console.log("Replay disparado com a voz:", vozFinal);
+    // Envia diretamente o alerta para o OBS sem consultas extras ao banco
+    await canalReplay.send({
+        type: 'broadcast',
+        event: 'forcar_alerta',
+        payload: {
+            nome: nomeComprador,
+            mensagem: textoReal
         }
     });
+
+    console.log("Replay disparado com sucesso para:", nomeComprador);
 }
 // --- FIM DA INSERÇÃO ---
 
