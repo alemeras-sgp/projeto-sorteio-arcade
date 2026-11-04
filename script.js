@@ -141,7 +141,6 @@ async function liberarNumerosNoBanco(ids) {
                 email: null,
                 cpf: null, // <--- ADICIONE ESTA LINHA PARA LIMPAR O CPF TAMBÉM
                 mensagem_live: null,
-                voz_escolhida: null, // <--- LIMPA A VOZ SE O PIX EXPIRAR
                 reservado_em: null
             })
             .in('id', ids)
@@ -244,8 +243,8 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
     const msg = `${msgTexto}`;
 
     // --- INSERÇÃO: Captura a voz selecionada ---
-    const selectVoz = document.getElementById('escolha-voz');
-    const voz = selectVoz ? selectVoz.value : 'default';
+    //const selectVoz = document.getElementById('escolha-voz');
+   //const voz = selectVoz ? selectVoz.value : 'default';
     // ------------------------------------------
 
     const idsParaAtualizar = numerosSelecionados.map(num => parseInt(num, 10));
@@ -309,7 +308,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                 whatsapp: zap,
                 email: email,
                 cpf: cpf,
-                voz_escolhida: voz, // <--- SALVA A VOZ AQUI
                 mensagem_live: msg,
                 reservado_em: new Date().toISOString()
             })
@@ -336,7 +334,6 @@ document.getElementById('form-checkout').addEventListener('submit', async functi
                     email: null,
                     cpf: null,
                     mensagem_live: null,
-                    voz_escolhida: null, // <--- LIMPA SE DER CONFLITO DE COMPRA
                     reservado_em: null
                 }).in('id', idsSalvos); // Devolve só os que ele tinha conseguido pegar
             }
