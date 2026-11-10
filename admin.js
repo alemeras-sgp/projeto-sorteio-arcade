@@ -406,30 +406,51 @@ async function carregarDadosVencedorParaEdicao() {
 carregarDadosVencedorParaEdicao();
 
 
-// --- SALVAR O VENCEDOR NO BANCO ---
+// --- SALVAR OU LIMPAR O VENCEDOR NO BANCO ---
 async function salvarVencedor() {
-    const nomeVencedor = document.getElementById('input-nome-vencedor').value.trim();
-    const numeroVencedor = document.getElementById('input-numero-vencedor').value.trim();
+    const inputNome = document.getElementById('input-nome-vencedor');
+    const inputNumero = document.getElementById('input-numero-vencedor');
 
-    if (!nomeVencedor || !numeroVencedor) {
-        return alert("Preencha o nome do ganhador e o número sorteado!");
+    const nomeVencedor = inputNome ? inputNome.value.trim() : "";
+    const numeroVencedor = inputNumero ? inputNumero.value.trim() : "";
+
+    // Se ambos estiverem vazios, entendemos que o usuário quer REMOVER o vencedor
+    const apagandoDados = (!nomeVencedor && !numeroVencedor);
+
+    if (!apagandoDados && (!nomeVencedor || !numeroVencedor)) {
+        return alert("Preencha ambos os campos (Nome e Número) ou deixe os dois totalmente vazios para remover o vencedor.");
     }
 
-    if (!confirm(`Confirmar que o vencedor é ${nomeVencedor} com o número ${numeroVencedor}?`)) return;
+    const mensagemConfirmacao = apagandoDados 
+        ? "Deseja remover/limpar o vencedor atual do site?" 
+        : `Confirmar que o vencedor é ${nomeVencedor} com o número ${numeroVencedor}?`;
 
-    mostrarLoading("⏳ Salvando dados do vencedor...");
+    if (!confirm(mensagemConfirmacao)) return;
+
+    mostrarLoading(apagandoDados ? "⏳ Removendo vencedor..." : "⏳ Salvando dados do vencedor...");
 
     try {
+        // Se estiver apagando, enviamos null para o Supabase limpar de verdade a linha
+        const dadosParaSalvar = apagandoDados ? {
+            nome_vencedor: null,
+            numero_vencedor: null
+        } : {
+            nome_vencedor: nomeVencedor,
+            numero_vencedor: numeroVencedor
+        };
+
         const { error } = await db.from('configuracoes')
-            .update({
-                nome_vencedor: nomeVencedor,
-                numero_vencedor: numeroVencedor
-            })
+            .update(dadosParaSalvar)
             .eq('id', 1);
 
         if (error) throw new Error(error.message);
 
-        alert("🏆 Vencedor salvo com sucesso! O site principal já está exibindo o resultado.");
+        alert(apagandoDados ? "🧹 Vencedor removido com sucesso do site!" : "🏆 Vencedor salvo com sucesso!");
+        
+        // Limpa a memória de sessão para o modal aparecer de novo se cadastrar outro
+        sessionStorage.removeItem('modal_vencedor_fechado');
+        
+        carregarDadosVencedorParaEdicao();
     } catch (err) {
         alert("Erro ao salvar vencedor: " + err.message);
     } finally {
