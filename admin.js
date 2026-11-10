@@ -24,22 +24,38 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('click', async (event) => {
     // Login
     if (event.target && event.target.id === 'btn-login-admin') {
-        const inputEmail = document.getElementById('email-admin').value;
+        const inputEmail = document.getElementById('email-admin').value.trim();
         const inputSenha = document.getElementById('senha-admin').value;
         const msgErro = document.getElementById('erro-login');
+        const btnLogin = event.target;
 
         if (!inputEmail || !inputSenha) return alert("Preencha e-mail e senha!");
 
-        event.target.textContent = "Autenticando...";
-        event.target.disabled = true;
+        // Guarda o texto original do botão e trava
+        const textoOriginal = btnLogin.textContent;
+        btnLogin.textContent = "Autenticando...";
+        btnLogin.disabled = true;
 
-        const { error } = await db.auth.signInWithPassword({ email: inputEmail, password: inputSenha });
+        try {
+            const { data, error } = await db.auth.signInWithPassword({ 
+                email: inputEmail, 
+                password: inputSenha 
+            });
 
-        if (error) {
-            msgErro.style.display = 'block';
-            msgErro.textContent = "Erro: " + error.message;
-            event.target.textContent = "Entrar no Painel";
-            event.target.disabled = false;
+            if (error) throw error;
+
+            // Se deu certo, o onAuthStateChange vai cuidar de esconder a tela de login
+        } catch (error) {
+            console.error("Erro no login:", error.message);
+            if (msgErro) {
+                msgErro.style.display = 'block';
+                msgErro.textContent = "Erro: " + error.message;
+            } else {
+                alert("Erro ao entrar: " + error.message);
+            }
+            // Restaura o botão se der erro
+            btnLogin.textContent = textoOriginal;
+            btnLogin.disabled = false;
         }
     }
 
