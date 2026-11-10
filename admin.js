@@ -230,11 +230,13 @@ async function alternarStatusSorteio() {
     carregarStatusSorteio();
 }
 
+// --- CARREGA OS DADOS APENAS COMO PLACEHOLDER (DEIXA OS INPUTS VAZIOS) ---
 async function carregarDadosParaEdicao() {
     const { data, error } = await db.from('configuracoes').select('*').eq('id', 1).single();
     const { count: totalNumeros } = await db.from('sorteio').select('*', { count: 'exact', head: true });
 
-    if (error) return console.error(error);
+    if (error) return console.error("Erro ao carregar dados para edição:", error);
+
     if (data) {
         const inputNome = document.getElementById('edit-nome');
         const inputValor = document.getElementById('edit-valor');
@@ -243,12 +245,29 @@ async function carregarDadosParaEdicao() {
         const inputQtd = document.getElementById('edit-qtd');
         const inputBanner = document.getElementById('edit-banner');
 
-        if (inputNome) inputNome.value = data.nome_sorteio || '';
-        if (inputValor) inputValor.value = data.valor_numero ? String(data.valor_numero).replace('.', ',') : '';
-        if (inputEstado) inputEstado.value = data.estado_produto || 'Novo';
-        if (inputTempo) inputTempo.value = data.tempo_pix_minutos || 10;
-        if (inputQtd) inputQtd.value = totalNumeros || 100;
-        if (inputBanner) inputBanner.value = ''; // Limpa o input de arquivo
+        // Deixa os campos de texto VAZIOS, usando placeholders para orientar
+        if (inputNome) {
+            inputNome.value = '';
+            inputNome.placeholder = data.nome_sorteio || 'Digite para alterar o nome';
+        }
+        if (inputValor) {
+            inputValor.value = '';
+            inputValor.placeholder = data.valor_numero ? String(data.valor_numero).replace('.', ',') : 'Ex: 5,00';
+        }
+        if (inputEstado) {
+            inputEstado.value = data.estado_produto || 'Novo';
+        }
+        if (inputTempo) {
+            inputTempo.value = '';
+            inputTempo.placeholder = data.tempo_pix_minutos || '10';
+        }
+        if (inputQtd) {
+            inputQtd.value = '';
+            inputQtd.placeholder = `Atual: ${totalNumeros || 100} (Digite para somar)`;
+        }
+        if (inputBanner) {
+            inputBanner.value = '';
+        }
     }
 }
 
@@ -317,18 +336,12 @@ async function gerarNovoSorteio() {
     }
 }
 
-// --- SALVAR APENAS O QUE FOI ALTERADO ---
 async function salvarEdicaoSorteio() {
     if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
     
     mostrarLoading("⏳ Verificando alterações...");
 
     try {
-        // 1. Pega os dados atuais que já estão salvos no banco para comparar
-        const { data: dadosAtuais, error: erroBusca } = await db.from('configuracoes').select('*').eq('id', 1).single();
-        if (erroBusca) throw new Error("Erro ao buscar dados atuais: " + erroBusca.message);
-
-        // 2. Captura o que o usuário digitou nos inputs
         const inputNome = document.getElementById('edit-nome').value.trim();
         const inputValor = document.getElementById('edit-valor').value.trim();
         const inputEstado = document.getElementById('edit-estado').value;
@@ -336,49 +349,44 @@ async function salvarEdicaoSorteio() {
         const inputQtdNova = document.getElementById('edit-qtd').value.trim();
         const inputBannerEdit = document.getElementById('edit-banner');
 
-        // 3. Monta o objeto de atualização apenas com o que foi modificado
         const objAtualizacao = {};
 
-        // Só altera o nome se o usuário digitou algo e for diferente do atual
-        if (inputNome && inputNome !== dadosAtuais.nome_sorteio) {
+        // SÓ ATUALIZA SE O USUÁRIO DIGITOU ALGO NO CAMPO
+        if (inputNome) {
             objAtualizacao.nome_sorteio = inputNome;
         }
 
-        // Só altera o valor se o campo foi preenchido e é diferente
         if (inputValor) {
             let valorInput = parseFloat(inputValor.replace(/\./g, '').replace(',', '.'));
-            if (!isNaN(valorInput) && valorInput !== dadosAtuais.valor_numero) {
+            if (!isNaN(valorInput)) {
                 objAtualizacao.valor_numero = valorInput;
             }
         }
 
-        // Só altera o estado se for diferente
-        if (inputEstado && inputEstado !== dadosAtuais.estado_produto) {
+        if (inputEstado) {
             objAtualizacao.estado_produto = inputEstado;
         }
 
-        // Só altera o tempo se foi preenchido e é diferente
         if (inputTempo) {
             let tempoInput = parseInt(inputTempo);
-            if (!isNaN(tempoInput) && tempoInput !== dadosAtuais.tempo_pix_minutos) {
+            if (!isNaN(tempoInput)) {
                 objAtualizacao.tempo_pix_minutos = tempoInput;
             }
         }
 
-        // Se o usuário selecionou uma nova imagem de banner
         if (inputBannerEdit && inputBannerEdit.files.length > 0) {
             mostrarLoading("⏳ Fazendo upload do novo banner...");
             objAtualizacao.banner_url = await uploadBannerSupabase(inputBannerEdit.files[0]);
         }
 
-        // 4. Se houver alguma alteração de texto/configuração, manda pro banco
+        // Manda pro banco apenas o que foi preenchido
         if (Object.keys(objAtualizacao).length > 0) {
             mostrarLoading("⏳ Salvando alterações no banco...");
             const { error: erroUpdate } = await db.from('configuracoes').update(objAtualizacao).eq('id', 1);
             if (erroUpdate) throw new Error("Erro ao atualizar configurações: " + erroUpdate.message);
         }
 
-        // 5. Se o usuário preencheu o campo de adicionar mais números
+        // Se preencheu nova quantidade para expandir os números
         if (inputQtdNova) {
             const qtdDesejada = parseInt(inputQtdNova);
             if (!isNaN(qtdDesejada) && qtdDesejada > 0) {
@@ -396,7 +404,7 @@ async function salvarEdicaoSorteio() {
             }
         }
 
-        alert("✅ Sorteio atualizado com sucesso! (Apenas os campos modificados foram alterados).");
+        alert("✅ Sorteio atualizado com sucesso!");
         carregarStatusSorteio();
         carregarDadosParaEdicao();
 
