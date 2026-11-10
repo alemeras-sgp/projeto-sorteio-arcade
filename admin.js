@@ -2,21 +2,19 @@
 // 1. AUTENTICAÇÃO E SESSÃO (Resolve o bug do F5)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const chave = urlParams.get('chave');
-
-    if (chave !== 'al3m3r45') return;
-
+    // Ouvinte reativo do Supabase (Mantém a sessão ativa após o F5)
     db.auth.onAuthStateChange((event, session) => {
         const telaLogin = document.getElementById('tela-login');
         const painelAdmin = document.getElementById('conteudo-admin');
 
         if (session) {
-            telaLogin.style.display = 'none';
-            painelAdmin.style.display = 'block';
+            // Se encontrou a sessão na memória, libera o painel imediatamente
+            if (telaLogin) telaLogin.style.display = 'none';
+            if (painelAdmin) painelAdmin.style.display = 'block';
         } else {
-            telaLogin.style.display = 'flex';
-            painelAdmin.style.display = 'none';
+            // Só mostra o login se realmente não houver sessão válida
+            if (telaLogin) telaLogin.style.display = 'flex';
+            if (painelAdmin) painelAdmin.style.display = 'none';
         }
     });
 });
