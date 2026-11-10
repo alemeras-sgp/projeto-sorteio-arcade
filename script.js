@@ -729,28 +729,49 @@ document.addEventListener('visibilitychange', async () => {
     }
 });
 
-// --- VERIFICAR E EXIBIR VENCEDOR NA TELA PÚBLICA ---
+// --- CONTROLADOR DO VENCEDOR (MODAL + FAIXA) ---
 async function carregarVencedorPublico() {
     const { data, error } = await db.from('configuracoes').select('nome_vencedor, numero_vencedor').eq('id', 1).single();
     
-    if (error || !data) return;
+    if (error || !data || !data.nome_vencedor || !data.numero_vencedor) {
+        return; // Se não tiver vencedor cadastrado, não faz nada
+    }
 
-    const containerVencedor = document.getElementById('banner-vencedor-container');
-    const txtNome = document.getElementById('exibir-nome-vencedor');
-    const txtNumero = document.getElementById('exibir-numero-vencedor');
+    const nomeFormatado = data.nome_vencedor;
+    const numFormatado = String(data.numero_vencedor).padStart(3, '0');
 
-    // Se o admin preencheu o nome e o número do vencedor no painel
-    if (data.nome_vencedor && data.numero_vencedor) {
-        txtNome.textContent = data.nome_vencedor;
-        txtNumero.textContent = `Nº ${String(data.numero_vencedor).padStart(3, '0')}`;
-        
-        // Exibe o banner lindamente na tela
-        if (containerVencedor) containerVencedor.style.display = 'block';
+    // Preenche os dados tanto no modal quanto na faixa
+    document.getElementById('modal-nome-ganhador').textContent = nomeFormatado;
+    document.getElementById('modal-num-ganhador').textContent = `Nº ${numFormatado}`;
+    document.getElementById('faixa-nome-ganhador').textContent = nomeFormatado;
+    document.getElementById('faixa-num-ganhador').textContent = numFormatado;
+
+    // Verifica se o usuário já fechou o modal nesta sessão de navegação
+    const modalFechadoNestaSessao = sessionStorage.getItem('modal_vencedor_fechado');
+
+    if (!modalFechadoNestaSessao) {
+        // Se ainda não fechou, exibe o modal de tela cheia
+        document.getElementById('modal-vencedor-overlay').style.display = 'flex';
     } else {
-        // Se estiver em aberto, mantém escondido
-        if (containerVencedor) containerVencedor.style.display = 'none';
+        // Se já fechou, exibe diretamente a faixa compacta no topo
+        document.getElementById('faixa-topo-vencedor').style.display = 'block';
     }
 }
 
-// Chame essa função assim que a página pública carregar
+function fecharModalVencedor() {
+    // Esconde o modal de tela cheia
+    document.getElementById('modal-vencedor-overlay').style.display = 'none';
+    // Mostra a faixa compacta no topo (igual ao print)
+    document.getElementById('faixa-topo-vencedor').style.display = 'block';
+    
+    // Salva na memória do navegador para não reabrir o modal toda vez que trocar de página
+    sessionStorage.setItem('modal_vencedor_fechado', 'true');
+}
+
+function reabrirModalVencedor() {
+    // Permite que o usuário clique na faixa e abra o modal grande de novo se quiser rever
+    document.getElementById('modal-vencedor-overlay').style.display = 'flex';
+}
+
+// Chame essa função ao carregar a página pública
 carregarVencedorPublico();
