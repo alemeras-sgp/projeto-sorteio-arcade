@@ -32,79 +32,83 @@
         </div>
     </header>
 
-    <!-- === MODAL DE TELA CHEIA (VENCEDOR) === -->
-    <div id="modal-vencedor-overlay"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 13, 0.85); backdrop-filter: blur(12px); z-index: 999999; justify-content: center; align-items: center; padding: 20px;">
 
-        <div
-            style="background: linear-gradient(145deg, #18181b, #121214); border: 1px solid rgba(130, 87, 229, 0.4); border-radius: 20px; padding: 40px 30px; max-width: 550px; width: 100%; text-align: center; position: relative; box-shadow: 0 25px 60px rgba(0,0,0,0.9); color: white; animation: modalEntrada 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-
-            <!-- Botão de Fechar (X) -->
-            <button onclick="fecharModalVencedor()"
-                style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s;"
-                onmouseover="this.style.background='#ff4747'"
-                onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
-
-            <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
-            <h2
-                style="margin: 0 0 5px 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; color: #fff;">
-                Sorteio Finalizado</h2>
-            <p style="color: #a1a1aa; font-size: 0.95rem; margin-bottom: 25px;">Auditoria e resultado oficial garantidos
-                externamente.</p>
-
-            <div
-                style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;">
-                <span
-                    style="font-size: 0.85rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Ganhador(a):</span>
-                <span id="modal-nome-ganhador"
-                    style="font-size: 2rem; font-weight: 900; color: #00e676; text-shadow: 0 2px 10px rgba(0,230,118,0.3); display: block; word-break: break-word;">-</span>
-
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <span
-                        style="font-size: 0.85rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Número
-                        Sorteado:</span>
-                    <span id="modal-num-ganhador"
-                        style="background: #8257e5; color: white; padding: 6px 20px; border-radius: 20px; font-size: 1.5rem; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(130,87,229,0.4);">-</span>
-                </div>
-            </div>
-
-            <button onclick="fecharModalVencedor()"
-                style="background: #00875f; color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0,135,95,0.4); transition: 0.2s;"
-                onmouseover="this.style.background='#00a36c'" onmouseout="this.style.background='#00875f'">
-                Ver Página do Sorteio
-            </button>
-        </div>
-    </div>
-
-    <!-- === FAIXA COMPACTA NO TOPO (Aparece após fechar o modal, baseada no seu print) === -->
-    <div id="faixa-topo-vencedor"
-        style="display: none; background: #0f0f12; border-bottom: 2px solid #8257e5; color: white; padding: 12px 20px; text-align: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.7);">
-        <div
-            style="max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 0.95rem;">
-            <span style="font-weight: 800; color: #00e676; text-transform: uppercase; letter-spacing: 0.5px;">🏆
-                VENCEDOR: <span id="faixa-nome-ganhador" style="color: #fff;">-</span> (Nº <span
-                    id="faixa-num-ganhador">-</span>)</span>
-            <button onclick="reabrirModalVencedor()"
-                style="background: rgba(130, 87, 229, 0.2); border: 1px solid #8257e5; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Ver
-                Detalhes</button>
-        </div>
-    </div>
-
-    <style>
-        @keyframes modalEntrada {
-            from {
-                opacity: 0;
-                transform: scale(0.8) translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-    </style>
 
     <main class="container">
+
+        <!-- === MODAL DE TELA CHEIA (VENCEDOR) === -->
+        <div id="modal-vencedor-overlay"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 10, 13, 0.85); backdrop-filter: blur(12px); z-index: 999999; justify-content: center; align-items: center; padding: 20px;">
+
+            <div
+                style="background: linear-gradient(145deg, #18181b, #121214); border: 1px solid rgba(130, 87, 229, 0.4); border-radius: 20px; padding: 40px 30px; max-width: 550px; width: 100%; text-align: center; position: relative; box-shadow: 0 25px 60px rgba(0,0,0,0.9); color: white; animation: modalEntrada 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+
+                <!-- Botão de Fechar (X) -->
+                <button onclick="fecharModalVencedor()"
+                    style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s;"
+                    onmouseover="this.style.background='#ff4747'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+
+                <div style="font-size: 3rem; margin-bottom: 10px;">🏆</div>
+                <h2
+                    style="margin: 0 0 5px 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px; color: #fff;">
+                    Sorteio Finalizado</h2>
+                <p style="color: #a1a1aa; font-size: 0.95rem; margin-bottom: 25px;">Auditoria e resultado oficial
+                    garantidos
+                    externamente.</p>
+
+                <div
+                    style="background: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 25px;">
+                    <span
+                        style="font-size: 0.85rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Ganhador(a):</span>
+                    <span id="modal-nome-ganhador"
+                        style="font-size: 2rem; font-weight: 900; color: #00e676; text-shadow: 0 2px 10px rgba(0,230,118,0.3); display: block; word-break: break-word;">-</span>
+
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                        <span
+                            style="font-size: 0.85rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px;">Número
+                            Sorteado:</span>
+                        <span id="modal-num-ganhador"
+                            style="background: #8257e5; color: white; padding: 6px 20px; border-radius: 20px; font-size: 1.5rem; font-weight: bold; display: inline-block; box-shadow: 0 4px 15px rgba(130,87,229,0.4);">-</span>
+                    </div>
+                </div>
+
+                <button onclick="fecharModalVencedor()"
+                    style="background: #00875f; color: white; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(0,135,95,0.4); transition: 0.2s;"
+                    onmouseover="this.style.background='#00a36c'" onmouseout="this.style.background='#00875f'">
+                    Ver Página do Sorteio
+                </button>
+            </div>
+        </div>
+
+        <!-- === FAIXA COMPACTA NO TOPO (Aparece após fechar o modal, baseada no seu print) === -->
+        <div id="faixa-topo-vencedor"
+            style="display: none; background: #0f0f12; border-bottom: 2px solid #8257e5; color: white; padding: 12px 20px; text-align: center; position: sticky; top: 0; z-index: 9999; box-shadow: 0 4px 15px rgba(0,0,0,0.7);">
+            <div
+                style="max-width: 1100px; margin: 0 auto; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; font-size: 0.95rem;">
+                <span style="font-weight: 800; color: #00e676; text-transform: uppercase; letter-spacing: 0.5px;">🏆
+                    VENCEDOR: <span id="faixa-nome-ganhador" style="color: #fff;">-</span> (Nº <span
+                        id="faixa-num-ganhador">-</span>)</span>
+                <button onclick="reabrirModalVencedor()"
+                    style="background: rgba(130, 87, 229, 0.2); border: 1px solid #8257e5; color: #fff; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">Ver
+                    Detalhes</button>
+            </div>
+        </div>
+
+        <style>
+            @keyframes modalEntrada {
+                from {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+        </style>
+        
         <div class="info-sorteio-publico">
             <h2 id="publico-nome">Carregando Sorteio...</h2>
             <div class="info-badges">
