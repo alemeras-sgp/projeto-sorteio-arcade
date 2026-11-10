@@ -543,7 +543,7 @@ async function carregarInfoSorteioPublico() {
                 <div class="container-imagem logo">
             <img src="images/logo.png" alt="Logo do Canal">
         </div>    
-                <h1 style="color: #ff4747; font-size: 2.5rem; margin-bottom: 10px;">🛑 Sorteio Encerrado / Pausado</h1>
+                <h1 style="color: #ff4747; font-size: 2.5rem; margin-bottom: 10px;">🛑 Nenhum sorteio ativo no momento</h1>
                     <p style="color: #a8a8b3; font-size: 1.2rem; max-width: 500px;">Não ta rolando nada não jão, volta depois ae! Fique atento às lives no canal <a href="https://youtube.com/@alemeras" style="color: #8257e5; text-decoration: none; font-weight: bold;">Alemeras</a> para novidades!</p>
                 </div>
             `;
