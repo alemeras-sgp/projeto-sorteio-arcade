@@ -31,10 +31,11 @@ document.addEventListener('click', async (event) => {
 
         if (!inputEmail || !inputSenha) return alert("Preencha e-mail e senha!");
 
-        // Guarda o texto original do botão e trava
         const textoOriginal = btnLogin.textContent;
         btnLogin.textContent = "Autenticando...";
         btnLogin.disabled = true;
+
+        console.log("Iniciando requisição de login para:", inputEmail);
 
         try {
             const { data, error } = await db.auth.signInWithPassword({ 
@@ -42,18 +43,26 @@ document.addEventListener('click', async (event) => {
                 password: inputSenha 
             });
 
+            console.log("Resposta recebida do Supabase:", { data, error });
+
             if (error) throw error;
 
-            // Se deu certo, o onAuthStateChange vai cuidar de esconder a tela de login
+            if (data && data.session) {
+                console.log("Login bem-sucedido! Forçando abertura do painel...");
+                const telaLogin = document.getElementById('tela-login');
+                const painelAdmin = document.getElementById('conteudo-admin');
+                if (telaLogin) telaLogin.style.display = 'none';
+                if (painelAdmin) painelAdmin.style.display = 'block';
+            }
+
         } catch (error) {
-            console.error("Erro no login:", error.message);
+            console.error("Erro capturado no login:", error);
             if (msgErro) {
                 msgErro.style.display = 'block';
-                msgErro.textContent = "Erro: " + error.message;
+                msgErro.textContent = "Erro: " + (error.message || error);
             } else {
-                alert("Erro ao entrar: " + error.message);
+                alert("Erro ao entrar: " + (error.message || error));
             }
-            // Restaura o botão se der erro
             btnLogin.textContent = textoOriginal;
             btnLogin.disabled = false;
         }
