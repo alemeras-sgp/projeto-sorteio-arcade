@@ -35,20 +35,15 @@ document.addEventListener('click', async (event) => {
         btnLogin.textContent = "Autenticando...";
         btnLogin.disabled = true;
 
-        console.log("Iniciando requisição de login para:", inputEmail);
-
         try {
             const { data, error } = await db.auth.signInWithPassword({ 
                 email: inputEmail, 
                 password: inputSenha 
             });
 
-            console.log("Resposta recebida do Supabase:", { data, error });
-
             if (error) throw error;
 
             if (data && data.session) {
-                console.log("Login bem-sucedido! Forçando abertura do painel...");
                 const telaLogin = document.getElementById('tela-login');
                 const painelAdmin = document.getElementById('conteudo-admin');
                 if (telaLogin) telaLogin.style.display = 'none';
@@ -56,7 +51,7 @@ document.addEventListener('click', async (event) => {
             }
 
         } catch (error) {
-            console.error("Erro capturado no login:", error);
+            console.error("Erro no login:", error);
             if (msgErro) {
                 msgErro.style.display = 'block';
                 msgErro.textContent = "Erro: " + (error.message || error);
