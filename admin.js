@@ -317,45 +317,89 @@ async function gerarNovoSorteio() {
     }
 }
 
+// --- SALVAR APENAS O QUE FOI ALTERADO ---
 async function salvarEdicaoSorteio() {
     if (!confirm("Deseja atualizar as informações do sorteio atual?")) return;
-    mostrarLoading("⏳ Atualizando configurações...");
+    
+    mostrarLoading("⏳ Verificando alterações...");
 
     try {
-        const nome = document.getElementById('edit-nome').value.trim() || "Sorteio Oficial";
-        const rawValor = document.getElementById('edit-valor').value || "1";
-        let valorInput = parseFloat(rawValor.replace(/\./g, '').replace(',', '.'));
-        if (isNaN(valorInput)) valorInput = 1.00;
+        // 1. Pega os dados atuais que já estão salvos no banco para comparar
+        const { data: dadosAtuais, error: erroBusca } = await db.from('configuracoes').select('*').eq('id', 1).single();
+        if (erroBusca) throw new Error("Erro ao buscar dados atuais: " + erroBusca.message);
 
-        const estado = document.getElementById('edit-estado').value || "Novo";
-        const tempo = parseInt(document.getElementById('edit-tempo').value) || 10;
-        const qtdNova = parseInt(document.getElementById('edit-qtd').value);
+        // 2. Captura o que o usuário digitou nos inputs
+        const inputNome = document.getElementById('edit-nome').value.trim();
+        const inputValor = document.getElementById('edit-valor').value.trim();
+        const inputEstado = document.getElementById('edit-estado').value;
+        const inputTempo = document.getElementById('edit-tempo').value.trim();
+        const inputQtdNova = document.getElementById('edit-qtd').value.trim();
         const inputBannerEdit = document.getElementById('edit-banner');
 
-        const objAtualizacao = { nome_sorteio: nome, valor_numero: valorInput, estado_produto: estado, tempo_pix_minutos: tempo };
+        // 3. Monta o objeto de atualização apenas com o que foi modificado
+        const objAtualizacao = {};
 
-        if (inputBannerEdit && inputBannerEdit.files.length > 0) {
-            mostrarLoading("⏳ Fazendo upload da imagem...");
-            objAtualizacao.banner_url = await uploadBannerSupabase(inputBannerEdit.files[0]);
+        // Só altera o nome se o usuário digitou algo e for diferente do atual
+        if (inputNome && inputNome !== dadosAtuais.nome_sorteio) {
+            objAtualizacao.nome_sorteio = inputNome;
         }
 
-        mostrarLoading("⏳ Salvando no banco de dados...");
-        const { error } = await db.from('configuracoes').update(objAtualizacao).eq('id', 1);
-        if (error) throw new Error(error.message);
-
-        if (qtdNova) {
-            const { count: qtdAtual } = await db.from('sorteio').select('*', { count: 'exact', head: true });
-            if (qtdNova > qtdAtual) {
-                mostrarLoading("⏳ Gerando novos números...");
-                const novosNumeros = [];
-                for (let i = qtdAtual + 1; i <= qtdNova; i++) novosNumeros.push({ id: i, status: 'disponivel' });
-                const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
-                if (erroInsert) throw new Error(erroInsert.message);
+        // Só altera o valor se o campo foi preenchido e é diferente
+        if (inputValor) {
+            let valorInput = parseFloat(inputValor.replace(/\./g, '').replace(',', '.'));
+            if (!isNaN(valorInput) && valorInput !== dadosAtuais.valor_numero) {
+                objAtualizacao.valor_numero = valorInput;
             }
         }
 
-        alert("✅ Sorteio atualizado com sucesso!");
-        carregarStatusSorteio(); carregarDadosParaEdicao();
+        // Só altera o estado se for diferente
+        if (inputEstado && inputEstado !== dadosAtuais.estado_produto) {
+            objAtualizacao.estado_produto = inputEstado;
+        }
+
+        // Só altera o tempo se foi preenchido e é diferente
+        if (inputTempo) {
+            let tempoInput = parseInt(inputTempo);
+            if (!isNaN(tempoInput) && tempoInput !== dadosAtuais.tempo_pix_minutos) {
+                objAtualizacao.tempo_pix_minutos = tempoInput;
+            }
+        }
+
+        // Se o usuário selecionou uma nova imagem de banner
+        if (inputBannerEdit && inputBannerEdit.files.length > 0) {
+            mostrarLoading("⏳ Fazendo upload do novo banner...");
+            objAtualizacao.banner_url = await uploadBannerSupabase(inputBannerEdit.files[0]);
+        }
+
+        // 4. Se houver alguma alteração de texto/configuração, manda pro banco
+        if (Object.keys(objAtualizacao).length > 0) {
+            mostrarLoading("⏳ Salvando alterações no banco...");
+            const { error: erroUpdate } = await db.from('configuracoes').update(objAtualizacao).eq('id', 1);
+            if (erroUpdate) throw new Error("Erro ao atualizar configurações: " + erroUpdate.message);
+        }
+
+        // 5. Se o usuário preencheu o campo de adicionar mais números
+        if (inputQtdNova) {
+            const qtdDesejada = parseInt(inputQtdNova);
+            if (!isNaN(qtdDesejada) && qtdDesejada > 0) {
+                const { count: qtdAtual } = await db.from('sorteio').select('*', { count: 'exact', head: true });
+
+                if (qtdDesejada > qtdAtual) {
+                    mostrarLoading("⏳ Adicionando novos números ao sorteio...");
+                    const novosNumeros = [];
+                    for (let i = qtdAtual + 1; i <= qtdDesejada; i++) {
+                        novosNumeros.push({ id: i, status: 'disponivel' });
+                    }
+                    const { error: erroInsert } = await db.from('sorteio').insert(novosNumeros);
+                    if (erroInsert) throw new Error("Erro ao criar novos números: " + erroInsert.message);
+                }
+            }
+        }
+
+        alert("✅ Sorteio atualizado com sucesso! (Apenas os campos modificados foram alterados).");
+        carregarStatusSorteio();
+        carregarDadosParaEdicao();
+
     } catch (erro) {
         alert("Erro: " + erro.message);
     } finally {
