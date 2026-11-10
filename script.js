@@ -728,3 +728,29 @@ document.addEventListener('visibilitychange', async () => {
         }
     }
 });
+
+// --- VERIFICAR E EXIBIR VENCEDOR NA TELA PÚBLICA ---
+async function carregarVencedorPublico() {
+    const { data, error } = await db.from('configuracoes').select('nome_vencedor, numero_vencedor').eq('id', 1).single();
+    
+    if (error || !data) return;
+
+    const containerVencedor = document.getElementById('banner-vencedor-container');
+    const txtNome = document.getElementById('exibir-nome-vencedor');
+    const txtNumero = document.getElementById('exibir-numero-vencedor');
+
+    // Se o admin preencheu o nome e o número do vencedor no painel
+    if (data.nome_vencedor && data.numero_vencedor) {
+        txtNome.textContent = data.nome_vencedor;
+        txtNumero.textContent = `Nº ${String(data.numero_vencedor).padStart(3, '0')}`;
+        
+        // Exibe o banner lindamente na tela
+        if (containerVencedor) containerVencedor.style.display = 'block';
+    } else {
+        // Se estiver em aberto, mantém escondido
+        if (containerVencedor) containerVencedor.style.display = 'none';
+    }
+}
+
+// Chame essa função assim que a página pública carregar
+carregarVencedorPublico();

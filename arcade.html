@@ -32,6 +32,30 @@
         </div>
     </header>
 
+    <!-- BANNES / CARD DE VENCEDOR (Fica oculto por padrão e só aparece quando houver vencedor) -->
+    <div id="banner-vencedor-container"
+        style="display: none; background: linear-gradient(135deg, rgba(0, 135, 95, 0.9), rgba(130, 87, 229, 0.9)); backdrop-filter: blur(10px); border: 2px solid #00e676; border-radius: 16px; padding: 25px; text-align: center; margin: 20px auto; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); color: white;">
+        <h2 style="margin: 0 0 10px 0; font-size: 2rem; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">🏆 SORTEIO
+            ENCERRADO - VENCEDOR OFICIAL 🏆</h2>
+        <p style="font-size: 1.1rem; margin: 5px 0; color: #e2e8f0;">O resultado foi auditado e oficializado com total
+            transparência!</p>
+
+        <div
+            style="background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.2);">
+            <p style="margin: 0; font-size: 1rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px;">
+                Ganhador(a):</p>
+            <p id="exibir-nome-vencedor"
+                style="margin: 5px 0 15px 0; font-size: 2.2rem; font-weight: 900; color: #00e676; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+            </p>
+
+            <p style="margin: 0; font-size: 1rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px;">
+                Número Sorteado:</p>
+            <p id="exibir-numero-vencedor"
+                style="display: inline-block; background: #8257e5; color: white; padding: 8px 25px; border-radius: 30px; font-size: 1.8rem; font-weight: bold; margin-top: 5px; box-shadow: 0 4px 15px rgba(130,87,229,0.5);">
+            </p>
+        </div>
+    </div>
+
     <main class="container">
         <div class="info-sorteio-publico">
             <h2 id="publico-nome">Carregando Sorteio...</h2>
