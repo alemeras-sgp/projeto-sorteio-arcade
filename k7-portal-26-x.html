@@ -187,7 +187,8 @@
         </div>
 
         <!-- INÍCIO DA CAIXA DE EDIÇÃO SEM ZERAR -->
-        <div style="background: #202024; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #00875f;">
+        <div
+            style="background: #202024; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #00875f;">
             <h2 style="color: #00875f; margin-top: 0;">✏️ Editar Sorteio Atual (Sem Zerar)</h2>
             <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
                 <div>
@@ -231,9 +232,35 @@
                     SALVAR ALTERAÇÕES
                 </button>
             </div>
-            <p style="font-size: 0.8rem; color: #00875f; margin-top: 10px;">ℹ️ Isso atualiza apenas os dados públicos do sorteio sem apagar os números vendidos.</p>
+            <p style="font-size: 0.8rem; color: #00875f; margin-top: 10px;">ℹ️ Isso atualiza apenas os dados públicos do
+                sorteio sem apagar os números vendidos.</p>
         </div>
         <!-- FIM DA CAIXA DE EDIÇÃO -->
+
+        <!-- Bloco para definir o Vencedor Oficial -->
+        <div
+            style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid rgba(130, 87, 229, 0.3);">
+            <h3 style="color: #00e676; margin-top: 0;">🏆 Definir Vencedor do Sorteio</h3>
+            <p style="font-size: 0.9rem; color: #a1a1aa;">Insira os dados do sorteio realizado externamente para exibir
+                na página principal.</p>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Nome do Ganhador:</label>
+                <input type="text" id="input-nome-vencedor" placeholder="Ex: João da Silva"
+                    style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #121214; color: white;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Número Sorteado:</label>
+                <input type="text" id="input-numero-vencedor" placeholder="Ex: 042"
+                    style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #444; background: #121214; color: white;">
+            </div>
+
+            <button onclick="salvarVencedor()"
+                style="background: #00875f; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;">
+                💾 Salvar e Exibir Vencedor no Site
+            </button>
+        </div>
 
         <h1>SORTEIO ATUAL</h1>
         <button class="btn-export" onclick="exportarCSV()">Exportar para Excel</button>

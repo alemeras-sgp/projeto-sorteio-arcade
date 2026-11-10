@@ -387,6 +387,56 @@ async function exportarCSV() {
     a.click();
 }
 
+
+// --- CARREGAR DADOS DO VENCEDOR NO PAINEL ADMIN ---
+async function carregarDadosVencedorParaEdicao() {
+    const { data, error } = await db.from('configuracoes').select('nome_vencedor, numero_vencedor').eq('id', 1).single();
+    if (error) return console.error("Erro ao carregar vencedor:", error);
+
+    if (data) {
+        const inputNomeVencedor = document.getElementById('input-nome-vencedor');
+        const inputNumeroVencedor = document.getElementById('input-numero-vencedor');
+
+        if (inputNomeVencedor) inputNomeVencedor.value = data.nome_vencedor || '';
+        if (inputNumeroVencedor) inputNumeroVencedor.value = data.numero_vencedor || '';
+    }
+}
+
+// Chame essa função junto com as outras inicializações do admin (logo abaixo de carregarDadosParaEdicao())
+carregarDadosVencedorParaEdicao();
+
+
+// --- SALVAR O VENCEDOR NO BANCO ---
+async function salvarVencedor() {
+    const nomeVencedor = document.getElementById('input-nome-vencedor').value.trim();
+    const numeroVencedor = document.getElementById('input-numero-vencedor').value.trim();
+
+    if (!nomeVencedor || !numeroVencedor) {
+        return alert("Preencha o nome do ganhador e o número sorteado!");
+    }
+
+    if (!confirm(`Confirmar que o vencedor é ${nomeVencedor} com o número ${numeroVencedor}?`)) return;
+
+    mostrarLoading("⏳ Salvando dados do vencedor...");
+
+    try {
+        const { error } = await db.from('configuracoes')
+            .update({
+                nome_vencedor: nomeVencedor,
+                numero_vencedor: numeroVencedor
+            })
+            .eq('id', 1);
+
+        if (error) throw new Error(error.message);
+
+        alert("🏆 Vencedor salvo com sucesso! O site principal já está exibindo o resultado.");
+    } catch (err) {
+        alert("Erro ao salvar vencedor: " + err.message);
+    } finally {
+        esconderLoading();
+    }
+}
+
 // Inicia as chamadas ao abrir a página
 carregarVendas();
 verificarStatusKillSwitch();
