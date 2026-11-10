@@ -44,30 +44,31 @@ document.addEventListener('click', async (event) => {
 });
 
 // --- AJUSTE NO TOPO DO ADMIN.JS ---
-document.addEventListener('DOMContentLoaded', async () => {
+// --- AJUSTE NO TOPO DO ADMIN.JS (SESSÃO PERSISTENTE) ---
+document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const chave = urlParams.get('chave');
 
-    // 1. Primeira trava: Só entra na página se tiver a chave, 
-    // MAS vamos dar uma chance para quem já está logado (opcional)
+    // 1. Trava da URL
     if (chave !== 'al3m3r45') {
-        // Se não tem a chave, manda embora
-        //window.location.href = "/arcade"; // Volta pro sorteio
-        // OU
-        // window.location.href = "/"; // Volta pra sua página de links principal
-        return; // Para o código aqui
+        return;
     }
 
-    // 2. Só depois de validar a chave, checamos a sessão do Supabase
-    const { data: { session } } = await db.auth.getSession();
+    // 2. Ouvinte reativo do Supabase (Resolve o bug do F5)
+    db.auth.onAuthStateChange((event, session) => {
+        const telaLogin = document.getElementById('tela-login');
+        const painelAdmin = document.getElementById('conteudo-admin');
 
-    if (session) {
-        document.getElementById('tela-login').style.display = 'none';
-        document.getElementById('conteudo-admin').style.display = 'block';
-    } else {
-        // Se não tem sessão, mostra a tela de login
-        document.getElementById('tela-login').style.display = 'flex';
-    }
+        if (session) {
+            // Se encontrou a sessão na memória, libera o painel
+            telaLogin.style.display = 'none';
+            painelAdmin.style.display = 'block';
+        } else {
+            // Só mostra o login se realmente não houver sessão válida
+            telaLogin.style.display = 'flex';
+            painelAdmin.style.display = 'none';
+        }
+    });
 });
 
 // Logica para o botão de Logout
