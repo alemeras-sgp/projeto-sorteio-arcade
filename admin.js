@@ -63,28 +63,20 @@ function mostrarLoading(mensagem) {
         overlay.id = 'loading-overlay-global';
         overlay.innerHTML = `
             <style>
-                #loading-overlay-global {
-                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                    background: rgba(15, 15, 18, 0.9);
-                    backdrop-filter: blur(8px);
-                    z-index: 999999;
+                               #loading-overlay-global {
+                    position: fixed; inset: 0; z-index: 999999;
+                    background: rgba(0, 0, 0, 0.35);
+                    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
                     display: flex; flex-direction: column; justify-content: center; align-items: center;
-                    color: #ffffff;
+                    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
                 }
                 .spinner-arcade {
-                    width: 70px; height: 70px;
-                    border: 8px solid rgba(130, 87, 229, 0.2);
-                    border-top-color: #8257e5;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin-bottom: 25px;
-                    box-shadow: 0 0 20px rgba(130, 87, 229, 0.5);
+                    width: 34px; height: 34px; margin-bottom: 16px;
+                    border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: #fff;
+                    border-radius: 50%; animation: spin 0.8s linear infinite;
                 }
                 @keyframes spin { 100% { transform: rotate(360deg); } }
-                #loading-msg-global {
-                    font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
-                    text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-                }
+                #loading-msg-global { font-size: 1rem; font-weight: 600; color: #fff; text-align: center; }
             </style>
             <div class="spinner-arcade"></div>
             <div id="loading-msg-global">${mensagem}</div>
@@ -170,9 +162,8 @@ async function carregarVendas() {
             <td>${item.whatsapp}</td>
             <td>${item.email}</td>
             <td>${mascararCPF(item.cpf)}</td>
-            <td>${item.mensagem_live || ''}<button 
-            onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')" 
-            style="margin-left: 10px; cursor: pointer; background: #8257e5; color: white; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.8rem; vertical-align: middle;">
+            <td>${item.mensagem_live || ''}<button class="btn-replay"
+            onclick="dispararReplayNaLive('${item.nome_comprador}', '${item.mensagem_live || ''}')">
             🔄 Replay</button></td>
         </tr>
     `).join('');
@@ -208,12 +199,12 @@ async function verificarStatusKillSwitch() {
 
     if (data.ativo) {
         btn.textContent = "🟢 Sorteio ATIVO (Clique para Pausar)";
-        btn.style.backgroundColor = "#00875f";
-        btn.style.color = "#ffffff";
+        btn.classList.add('ativo');
+        btn.classList.remove('pausado');
     } else {
         btn.textContent = "🔴 Sorteio PAUSADO (Clique para Ativar)";
-        btn.style.backgroundColor = "#ff4747";
-        btn.style.color = "#ffffff";
+        btn.classList.add('pausado');
+        btn.classList.remove('ativo');
     }
 }
 
